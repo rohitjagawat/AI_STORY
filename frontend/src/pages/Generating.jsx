@@ -46,7 +46,7 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
-          const res = await fetch("http://localhost:5000/api/story/generate", {
+          const res = await fetch("/api/story/generate", {
             method: "POST",
             body: formData,
           });
