@@ -1,9 +1,2 @@
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Env (extra safety)
 .env
+.DS_Store

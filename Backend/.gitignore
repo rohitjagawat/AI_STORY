@@ -1,0 +1,16 @@
+# Node
+node_modules/
+
+# Env
+.env
+
+# Runtime / generated data
+logs/
+uploads/
+prompts/
+stories/
+output/
+images/
+
+# OS
+.DS_Store
