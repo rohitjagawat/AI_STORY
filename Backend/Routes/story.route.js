@@ -16,36 +16,33 @@ router.post(
       console.log("FRONTEND DATA AAYA:", req.body);
       const { name, age, interest } = req.body;
 
-      
-
       if (!name || !age || !interest) {
         return res.status(400).json({ error: "Invalid input data" });
       }
 
       const bookId = `${name}_${age}_${interest}`.toLowerCase();
 
-      const storyPages = await generateStory(name, age, interest, bookId);
-
-      const images = await generateImages(storyPages, name, bookId);
-
-      const remainingImagePrompts =
-        await generateRemainingImagePrompts(storyPages, bookId);
-
-      const pdfPath = await generatePDF(storyPages, images, bookId);
-
+      // ✅ SEND RESPONSE IMMEDIATELY (VERY IMPORTANT)
       res.json({
         success: true,
-        pdfPath,
-        previewImage: images[0],
-        upcomingImagePrompts: remainingImagePrompts
+        message: "Story generation started",
+        bookId
       });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Something went wrong" });
-    }
 
+      // ⏳ HEAVY WORK STARTS AFTER RESPONSE
+      const storyPages = await generateStory(name, age, interest, bookId);
+      const images = await generateImages(storyPages, name, bookId);
+      const remainingImagePrompts =
+        await generateRemainingImagePrompts(storyPages, bookId);
+      await generatePDF(storyPages, images, bookId);
+
+      console.log("✅ Story generation completed for", bookId);
+
+    } catch (err) {
+      console.error("❌ Story generation failed:", err);
+    }
   }
-  
 );
+;
 
 export default router;
