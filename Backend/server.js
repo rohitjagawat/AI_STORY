@@ -5,10 +5,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import storyRoute from "./Routes/story.route.js";
 dotenv.config();
-
-
-
-
 const app = express();
 
 app.use(cors());
@@ -23,8 +19,11 @@ app.use("/output", express.static("output"));
 
 app.use("/api/story", storyRoute);
 
-app.listen(5000, () => {
-  console.log("✅ Backend running on http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Backend running on port ${PORT}`);
 });
+
 
 
