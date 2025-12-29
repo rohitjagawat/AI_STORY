@@ -49,10 +49,14 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
-            method: "POST",
-            body: formData,
-          });
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/story/generate`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
 
           const data = await res.json();
           localStorage.setItem("storyResult", JSON.stringify(data));
@@ -80,7 +84,7 @@ export default function Generating() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brandBg to-white flex items-center justify-center px-4 py-12">
-      
+
       {/* MAIN PREMIUM BLOCK */}
       <div className="bg-white w-full max-w-5xl rounded-[3rem] shadow-[0_35px_90px_rgba(0,0,0,0.18)] px-12 py-14 text-center relative overflow-hidden">
 
