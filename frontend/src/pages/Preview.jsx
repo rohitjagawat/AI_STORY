@@ -49,3 +49,48 @@ export default function Preview() {
 
   // ⏳ LOADING STATE
   if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-brandBg flex items-center justify-center px-4">
+        <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-md w-full">
+          <h2 className="text-2xl font-bold text-brandPurple mb-3">
+            ✨ Creating your magical story…
+          </h2>
+          <p className="text-brandText">
+            Please wait, this may take a moment 🧸
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ READY STATE
+  return (
+    <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
+      <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
+
+        {/* TITLE */}
+        <h1 className="text-2xl font-bold text-brandPurple mb-4">
+          Your Storybook is Ready 📘✨
+        </h1>
+
+        {/* STORY TEXT PREVIEW */}
+        <div className="text-left mb-6 max-h-64 overflow-y-auto border rounded-xl p-4">
+          {story.pages.map((page, index) => (
+            <p key={index} className="mb-4 text-brandText">
+              {page}
+            </p>
+          ))}
+        </div>
+
+        {/* CREATE ANOTHER STORY */}
+        <button
+          onClick={() => navigate("/create")}
+          className="text-brandPurple font-medium underline hover:opacity-80"
+        >
+          ➕ Create Another Story
+        </button>
+
+      </div>
+    </div>
+  );
+}
