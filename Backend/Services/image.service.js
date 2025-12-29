@@ -1,10 +1,27 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
-import cloudinary from "../config/cloudinary.js";
 
 export async function generateImages(pages, childName, bookId) {
-  console.log("🎨 Generating image and uploading to Cloudinary");
+  const folderPath = path.join("images", bookId);
+
+  // ♻️ TRY REUSE FIRST
+  if (fs.existsSync(folderPath)) {
+    const files = fs
+      .readdirSync(folderPath)
+      .filter((f) => f.endsWith(".png"))
+      .sort();
+
+    if (files.length > 0) {
+      console.log("♻️ Reusing existing images");
+      return files.map((f) => path.join(folderPath, f));
+    }
+  }
+
+  // 🆕 NO IMAGE FOUND → GENERATE ONE (TEST MODE)
+  console.log("🆕 No images found, generating ONE image for testing");
+
+  fs.mkdirSync(folderPath, { recursive: true });
 
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -23,34 +40,21 @@ Do NOT include any text, words, letters, captions, speech bubbles, quotes, signs
 Illustration only. No typography.
 `;
 
-  // 1️⃣ Generate image from OpenAI
   const result = await openai.images.generate({
     model: "gpt-image-1.5",
     prompt,
     size: "1024x1024",
   });
 
-  // 2️⃣ Save temporarily (required for Cloudinary upload)
-  const tempDir = path.join(process.cwd(), "tmp");
-  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
-  const tempImagePath = path.join(tempDir, `${bookId}_page_1.png`);
+  const imagePath = path.join(folderPath, "page_1.png");
 
   fs.writeFileSync(
-    tempImagePath,
+    imagePath,
     Buffer.from(result.data[0].b64_json, "base64")
   );
 
-  // 3️⃣ Upload to Cloudinary
-  const upload = await cloudinary.uploader.upload(tempImagePath, {
-    folder: `ai_story/${bookId}`,
-  });
+  console.log("🖼️ Test image generated (NO TEXT SAFE)");
 
-  // 4️⃣ Cleanup temp file
-  fs.unlinkSync(tempImagePath);
-
-  console.log("✅ Image uploaded to Cloudinary");
-
-  // 5️⃣ RETURN CLOUDINARY URL
-  return [upload.secure_url];
+  // 🔁 RETURN SINGLE IMAGE (will be reused for all pages)
+  return [imagePath];
 }
