@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Preview() {
   const navigate = useNavigate();
+  console.log("🔥 PREVIEW NEW VERSION LOADED");
+
 
   const [status, setStatus] = useState("loading");
   const [data, setData] = useState(null);
