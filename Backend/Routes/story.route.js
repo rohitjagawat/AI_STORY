@@ -57,27 +57,29 @@ router.get("/result/:bookId", (req, res) => {
   try {
     const { bookId } = req.params;
 
-    const storyPath = path.join("stories", `${bookId}.json`);
+    const storyPath = `stories/${bookId}.json`;
+    const pdfPath = `output/${bookId}/storybook.pdf`;
+    const previewImagePath = `images/${bookId}/page_1.png`;
 
-    // ❌ Not ready yet
     if (!fs.existsSync(storyPath)) {
-      return res.json({
-        ready: false,
-        message: "Story is still being generated",
-      });
+      return res.json({ ready: false });
     }
 
-    // ✅ Ready
-    const storyData = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
+    const story = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
 
     res.json({
       ready: true,
-      story: storyData,
+      story,
+      previewImage: fs.existsSync(previewImagePath)
+        ? previewImagePath
+        : null,
+      pdfPath: fs.existsSync(pdfPath) ? pdfPath : null,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to fetch story result" });
+    res.status(500).json({ error: "Failed to fetch result" });
   }
 });
+
 
 export default router;
