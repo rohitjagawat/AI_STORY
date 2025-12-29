@@ -44,12 +44,46 @@ export default function Preview() {
 
   /* ---------- LOADING ---------- */
   if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        ⏳ Finalizing your story…
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-brandBg px-4">
+      <div className="bg-white max-w-sm w-full rounded-3xl shadow-2xl p-8 text-center relative overflow-hidden">
+
+        {/* GLOW */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-brandPurple/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brandPurple/20 rounded-full blur-3xl"></div>
+
+        {/* ICON */}
+        <div className="flex justify-center mb-6">
+          <div className="w-20 h-20 rounded-full bg-brandPurple/10 flex items-center justify-center animate-pulse">
+            <span className="text-4xl">📘</span>
+          </div>
+        </div>
+
+        {/* TITLE */}
+        <h2 className="text-2xl font-bold text-brandPurple mb-2">
+          Creating Your Magical Story
+        </h2>
+
+        {/* SUBTEXT */}
+        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+          Our AI is illustrating, designing, and binding your personalized storybook.
+          Just a moment… ✨
+        </p>
+
+        {/* PROGRESS BAR */}
+        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-4">
+          <div className="h-full w-2/3 bg-brandPurple rounded-full animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+        </div>
+
+        {/* STATUS */}
+        <p className="text-xs text-gray-400 tracking-wide">
+          Finalizing your story…
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   /* ---------- READY ---------- */
   const backendBase = import.meta.env.VITE_API_URL.replace("/api", "");
