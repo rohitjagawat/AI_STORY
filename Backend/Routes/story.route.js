@@ -1,4 +1,6 @@
 import express from "express";
+console.log("🔥 story.route.js FILE LOADED");
+
 import multer from "multer";
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
@@ -16,33 +18,36 @@ router.post(
       console.log("FRONTEND DATA AAYA:", req.body);
       const { name, age, interest } = req.body;
 
+      
+
       if (!name || !age || !interest) {
         return res.status(400).json({ error: "Invalid input data" });
       }
 
       const bookId = `${name}_${age}_${interest}`.toLowerCase();
 
-      // ✅ SEND RESPONSE IMMEDIATELY (VERY IMPORTANT)
-      res.json({
-        success: true,
-        message: "Story generation started",
-        bookId
-      });
-
-      // ⏳ HEAVY WORK STARTS AFTER RESPONSE
       const storyPages = await generateStory(name, age, interest, bookId);
+
       const images = await generateImages(storyPages, name, bookId);
+
       const remainingImagePrompts =
         await generateRemainingImagePrompts(storyPages, bookId);
-      await generatePDF(storyPages, images, bookId);
 
-      console.log("✅ Story generation completed for", bookId);
+      const pdfPath = await generatePDF(storyPages, images, bookId);
 
+      res.json({
+        success: true,
+        pdfPath,
+        previewImage: images[0],
+        upcomingImagePrompts: remainingImagePrompts
+      });
     } catch (err) {
-      console.error("❌ Story generation failed:", err);
+      console.error(err);
+      res.status(500).json({ error: "Something went wrong" });
     }
+
   }
+  
 );
-;
 
 export default router;
