@@ -57,29 +57,36 @@ router.get("/result/:bookId", (req, res) => {
   try {
     const { bookId } = req.params;
 
-    const storyPath = `stories/${bookId}.json`;
-    const pdfPath = `output/${bookId}/storybook.pdf`;
-    const previewImagePath = `images/${bookId}/page_1.png`;
+    const storyPath = path.join(process.cwd(), "stories", `${bookId}.json`);
+    const pdfPath = path.join(process.cwd(), "output", bookId, "storybook.pdf");
+    const previewImagePath = path.join(process.cwd(), "images", bookId, "page_1.png");
 
     if (!fs.existsSync(storyPath)) {
       return res.json({ ready: false });
     }
 
-    const story = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
+    const pages = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
+
+    console.log("✅ Story file found, pages:", pages.length);
 
     res.json({
       ready: true,
-      story,
+      story: {
+        pages, // 👈 IMPORTANT FIX
+      },
       previewImage: fs.existsSync(previewImagePath)
-        ? previewImagePath
+        ? `images/${bookId}/page_1.png`
         : null,
-      pdfPath: fs.existsSync(pdfPath) ? pdfPath : null,
+      pdfPath: fs.existsSync(pdfPath)
+        ? `output/${bookId}/storybook.pdf`
+        : null,
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Result API failed:", err);
     res.status(500).json({ error: "Failed to fetch result" });
   }
 });
+
 
 
 export default router;
