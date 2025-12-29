@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 export default function Generating() {
   const navigate = useNavigate();
 
+  console.log(import.meta.env.VITE_API_URL);
+
+
   const [progress, setProgress] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -46,7 +49,7 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
-          const res = await fetch("/api/story/generate", {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
             method: "POST",
             body: formData,
           });
