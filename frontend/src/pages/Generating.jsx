@@ -49,13 +49,16 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
-          const res = await fetch(
-            `${import.meta.env.VITE_API_URL}/story/generate`,
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
+          // const res = await fetch("http://localhost:5000/api/story/generate", {
+          //   method: "POST",
+          //   body: formData,
+          // });   // for local host
+
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
+            method: "POST",
+            body: formData,
+          });  // for production
+
 
 
           const data = await res.json();

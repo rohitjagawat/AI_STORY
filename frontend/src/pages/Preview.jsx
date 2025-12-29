@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function Preview() {
   const navigate = useNavigate();
-
-  const [status, setStatus] = useState("loading"); // loading | ready | error
+  const [status, setStatus] = useState("loading");
   const [story, setStory] = useState(null);
 
   useEffect(() => {
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
-
     if (!payload) {
       setStatus("error");
       return;
@@ -22,7 +20,6 @@ export default function Preview() {
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
         );
-
         const data = await res.json();
 
         if (data.ready) {
@@ -30,66 +27,47 @@ export default function Preview() {
           setStatus("ready");
           clearInterval(interval);
         }
-      } catch (err) {
-        console.error(err);
+      } catch (e) {
+        console.error(e);
       }
-    }, 3000); // har 3 second poll
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // ❌ ERROR STATE
-  if (status === "error") {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        No story found
-      </div>
-    );
-  }
-
-  // ⏳ LOADING STATE
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-brandBg flex items-center justify-center px-4">
-        <div className="bg-white rounded-3xl shadow-xl p-8 text-center max-w-md w-full">
-          <h2 className="text-2xl font-bold text-brandPurple mb-3">
-            ✨ Creating your magical story…
-          </h2>
-          <p className="text-brandText">
-            Please wait, this may take a moment 🧸
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        ⏳ Creating your magical story…
       </div>
     );
   }
 
-  // ✅ READY STATE
+  if (status === "error") {
+    return <div className="text-center">No story found</div>;
+  }
+
   return (
     <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
       <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
-
-        {/* TITLE */}
         <h1 className="text-2xl font-bold text-brandPurple mb-4">
           Your Storybook is Ready 📘✨
         </h1>
 
-        {/* STORY TEXT PREVIEW */}
         <div className="text-left mb-6 max-h-64 overflow-y-auto border rounded-xl p-4">
-          {story.pages.map((page, index) => (
-            <p key={index} className="mb-4 text-brandText">
+          {story.pages.map((page, i) => (
+            <p key={i} className="mb-3">
               {page}
             </p>
           ))}
         </div>
 
-        {/* CREATE ANOTHER STORY */}
         <button
           onClick={() => navigate("/create")}
-          className="text-brandPurple font-medium underline hover:opacity-80"
+          className="text-brandPurple underline"
         >
           ➕ Create Another Story
         </button>
-
       </div>
     </div>
   );
