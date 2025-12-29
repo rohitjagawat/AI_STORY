@@ -1,7 +1,5 @@
 import express from "express";
 import multer from "multer";
-import fs from "fs";
-import path from "path";
 
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
@@ -11,9 +9,14 @@ import { generateRemainingImagePrompts } from "../Services/imagePrompt.service.j
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-/**
- * STEP 1: Start story generation (FAST RESPONSE)
- */
+/* ===============================
+   IN-MEMORY STORE (IMPORTANT)
+================================ */
+const storyResults = {};
+
+/* ===============================
+   START STORY GENERATION
+================================ */
 router.post(
   "/generate",
   upload.single("childPhoto"),
@@ -27,21 +30,28 @@ router.post(
 
       const bookId = `${name}_${age}_${interest}`.toLowerCase();
 
-      // 👉 Immediately respond (no timeout)
+      // 👉 FAST RESPONSE
       res.json({
         success: true,
         bookId,
         message: "Story generation started",
       });
 
-      // 👉 Heavy work AFTER response
+      // 👉 BACKGROUND WORK
       const storyPages = await generateStory(name, age, interest, bookId);
 
-      const images = await generateImages(storyPages, name, bookId);
+      const images = await generateImages(storyPages, name, bookId); // Cloudinary URLs
 
       await generateRemainingImagePrompts(storyPages, bookId);
 
-      await generatePDF(storyPages, images, bookId);
+      const pdfUrl = await generatePDF(storyPages, images, bookId); // Cloudinary URL
+
+      // 👉 SAVE RESULT (IMPORTANT)
+      storyResults[bookId] = {
+        story: storyPages,
+        previewImage: images[0],
+        pdfPath: pdfUrl,
+      };
 
       console.log("✅ Story generation completed:", bookId);
     } catch (err) {
@@ -50,43 +60,26 @@ router.post(
   }
 );
 
-/**
- * STEP 2: Fetch story result (polling API)
- */
+/* ===============================
+   FETCH RESULT (POLLING)
+================================ */
 router.get("/result/:bookId", (req, res) => {
-  try {
-    const { bookId } = req.params;
+  const { bookId } = req.params;
 
-    const storyPath = path.join(process.cwd(), "stories", `${bookId}.json`);
-    const pdfPath = path.join(process.cwd(), "output", bookId, "storybook.pdf");
-    const previewImagePath = path.join(process.cwd(), "images", bookId, "page_1.png");
+  const result = storyResults[bookId];
 
-    if (!fs.existsSync(storyPath)) {
-      return res.json({ ready: false });
-    }
-
-    const pages = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
-
-    console.log("✅ Story file found, pages:", pages.length);
-
-    res.json({
-      ready: true,
-      story: {
-        pages, // 👈 IMPORTANT FIX
-      },
-      previewImage: fs.existsSync(previewImagePath)
-        ? `images/${bookId}/page_1.png`
-        : null,
-      pdfPath: fs.existsSync(pdfPath)
-        ? `output/${bookId}/storybook.pdf`
-        : null,
-    });
-  } catch (err) {
-    console.error("❌ Result API failed:", err);
-    res.status(500).json({ error: "Failed to fetch result" });
+  if (!result) {
+    return res.json({ ready: false });
   }
+
+  res.json({
+    ready: true,
+    story: {
+      pages: result.story,
+    },
+    previewImage: result.previewImage,
+    pdfPath: result.pdfPath,
+  });
 });
-
-
 
 export default router;
