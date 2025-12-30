@@ -85,61 +85,60 @@ export default function Preview() {
 }
 
 
+  
   /* ---------- READY ---------- */
-  const backendBase = import.meta.env.VITE_API_URL.replace("/api", "");
+const backendBase = import.meta.env.VITE_API_URL.replace("/api", "");
 
-  return (
-    <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
-      <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
+return (
+  <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
+    <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
 
-        {/* TITLE */}
-        <h1 className="text-2xl font-bold text-brandPurple mb-4">
-          Your Storybook is Ready 📘✨
-        </h1>
+      {/* TITLE */}
+      <h1 className="text-2xl font-bold text-brandPurple mb-4">
+        Your Storybook Preview 📘✨
+      </h1>
 
-        {/* IMAGE PREVIEW */}
-        {data.previewImage && (
-          <img
-            src={`${backendBase}/${data.previewImage}`}
-            alt="Story preview"
-            className="w-full rounded-xl shadow-lg mb-6 object-contain"
-          />
-        )}
+      {/* IMAGE PREVIEW (FREE) */}
+      {data.previewImage && (
+        <img
+          src={`${backendBase}/${data.previewImage}`}
+          alt="Story preview"
+          className="w-full rounded-xl shadow-lg mb-6 object-contain"
+        />
+      )}
 
-        {/* VIEW PDF */}
-        {data.pdfPath && (
-          <a
-            href={`${backendBase}/${data.pdfPath}`}
-            target="_blank"
-            rel="noreferrer"
-            className="block mb-4 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-md hover:scale-105 transition"
-          >
-            View Your Storybook 👀
-          </a>
-        )}
-
-        {/* DOWNLOAD PDF */}
-        {data.pdfPath && (
-          <a
-            href={`${backendBase}/${data.pdfPath}`}
-            download
-            className="block mb-6 px-6 py-3 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
-          >
-            Download Your Storybook ⬇️
-          </a>
-        )}
-
-       
-
-        {/* CREATE ANOTHER */}
-        <button
-          onClick={() => navigate("/create")}
-          className="text-brandPurple font-medium underline hover:opacity-80"
-        >
-          ➕ Create Another Story
-        </button>
-
+      {/* LOCK MESSAGE */}
+      <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-brandText text-sm">
+        🔒 Full storybook (PDF) is locked.  
+        <br />
+        Complete payment to unlock and download.
       </div>
+
+      {/* PAY BUTTON */}
+      <button
+        onClick={() => {
+          // 🔐 Save bookId for after payment
+          localStorage.setItem("paymentBookId", data.bookId);
+
+          // 👉 Redirect to Shopify product page
+          window.location.href =
+            "https://www.jrbillionaire.com/products/magic-storybook-personalized-pdf";
+        }}
+        className="block w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-md hover:scale-105 transition"
+      >
+        🔐 Pay & Download Full Storybook
+      </button>
+
+      {/* CREATE ANOTHER */}
+      <button
+        onClick={() => navigate("/create")}
+        className="text-brandPurple font-medium underline hover:opacity-80"
+      >
+        ➕ Create Another Story
+      </button>
+
     </div>
-  );
+  </div>
+);
+
 }
