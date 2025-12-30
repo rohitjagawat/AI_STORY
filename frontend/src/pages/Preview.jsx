@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Preview() {
-   console.log("🔥 PREVIEW NEW VERSION LOADED"); 
+  console.log("🔥 PREVIEW NEW VERSION LOADED");
   const navigate = useNavigate();
- 
+
   const [status, setStatus] = useState("loading");
   const [data, setData] = useState(null);
+  const [paid, setPaid] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
@@ -16,18 +20,24 @@ export default function Preview() {
     }
 
     const bookId = `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
+    const email = payload.email || "guest@example.com";
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
-        );
+        const res = await fetch(`${API_URL}/story/result/${bookId}`);
         const result = await res.json();
 
         if (result.ready) {
-          setData(result);
+          setData({ ...result, bookId, email });
           setStatus("ready");
           clearInterval(interval);
+
+          // 🔐 check payment
+          const payRes = await fetch(
+            `${API_URL}/payment/has-paid?email=${email}`
+          );
+          const payData = await payRes.json();
+          setPaid(payData.paid);
         }
       } catch (err) {
         console.error(err);
@@ -44,101 +54,90 @@ export default function Preview() {
 
   /* ---------- LOADING ---------- */
   if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brandBg px-4">
+        <div className="bg-white max-w-sm w-full rounded-3xl shadow-2xl p-8 text-center">
+          <h2 className="text-2xl font-bold text-brandPurple mb-2">
+            Creating Your Magical Story ✨
+          </h2>
+          <p className="text-sm text-gray-500">
+            Please wait while we generate your storybook…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------- READY ---------- */
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brandBg px-4">
-      <div className="bg-white max-w-sm w-full rounded-3xl shadow-2xl p-8 text-center relative overflow-hidden">
+    <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
+      <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
 
-        {/* GLOW */}
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-brandPurple/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brandPurple/20 rounded-full blur-3xl"></div>
+        <h1 className="text-2xl font-bold text-brandPurple mb-4">
+          Your Storybook Preview 📘
+        </h1>
 
-        {/* ICON */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-brandPurple/10 flex items-center justify-center animate-pulse">
-            <span className="text-4xl">📘</span>
-          </div>
-        </div>
+        {/* FREE PREVIEW IMAGE */}
+        {data.previewImage && (
+          <img
+            src={`${backendBase}/${data.previewImage}`}
+            alt="Story preview"
+            className="w-full rounded-xl shadow-lg mb-6"
+          />
+        )}
 
-        {/* TITLE */}
-        <h2 className="text-2xl font-bold text-brandPurple mb-2">
-          Creating Your Magical Story
-        </h2>
+        {/* 🔒 LOCKED STATE */}
+        {!paid && (
+          <>
+            <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-brandText text-sm">
+              🔒 Full storybook (PDF) is locked.  
+              <br />
+              Complete payment to unlock and download.
+            </div>
 
-        {/* SUBTEXT */}
-        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-          Our AI is illustrating, designing, and binding your personalized storybook.
-          Just a moment… ✨
-        </p>
+            <button
+              onClick={() => {
+                localStorage.setItem("paymentBookId", data.bookId);
+                localStorage.setItem("paymentEmail", data.email);
 
-        {/* PROGRESS BAR */}
-        <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-4">
-          <div className="h-full w-2/3 bg-brandPurple rounded-full animate-[pulse_1.5s_ease-in-out_infinite]"></div>
-        </div>
+                window.location.href =
+                  "https://www.jrbillionaire.com/products/magic-storybook-personalized-pdf";
+              }}
+              className="block w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-md hover:scale-105 transition"
+            >
+              🔐 Pay & Download Full Storybook
+            </button>
+          </>
+        )}
 
-        {/* STATUS */}
-        <p className="text-xs text-gray-400 tracking-wide">
-          Finalizing your story…
-        </p>
+        {/* ✅ UNLOCKED STATE */}
+        {paid && (
+          <>
+            <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-sm font-medium">
+              ✅ Payment successful! Your storybook is ready 🎉
+            </div>
+
+            <button
+              onClick={() =>
+                window.location.href =
+                  `${API_URL}/download/${data.bookId}?email=${data.email}`
+              }
+              className="block w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold shadow-md hover:scale-105 transition"
+            >
+              ⬇️ Download PDF
+            </button>
+          </>
+        )}
+
+        {/* CREATE ANOTHER */}
+        <button
+          onClick={() => navigate("/create")}
+          className="text-brandPurple font-medium underline hover:opacity-80"
+        >
+          ➕ Create Another Story
+        </button>
+
       </div>
     </div>
   );
-}
-
-
-  
-  /* ---------- READY ---------- */
-const backendBase = import.meta.env.VITE_API_URL.replace("/api", "");
-
-return (
-  <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
-    <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
-
-      {/* TITLE */}
-      <h1 className="text-2xl font-bold text-brandPurple mb-4">
-        Your Storybook Preview 📘✨
-      </h1>
-
-      {/* IMAGE PREVIEW (FREE) */}
-      {data.previewImage && (
-        <img
-          src={`${backendBase}/${data.previewImage}`}
-          alt="Story preview"
-          className="w-full rounded-xl shadow-lg mb-6 object-contain"
-        />
-      )}
-
-      {/* LOCK MESSAGE */}
-      <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-brandText text-sm">
-        🔒 Full storybook (PDF) is locked.  
-        <br />
-        Complete payment to unlock and download.
-      </div>
-
-      {/* PAY BUTTON */}
-      <button
-        onClick={() => {
-          // 🔐 Save bookId for after payment
-          localStorage.setItem("paymentBookId", data.bookId);
-
-          // 👉 Redirect to Shopify product page
-          window.location.href =
-            "https://www.jrbillionaire.com/products/magic-storybook-personalized-pdf";
-        }}
-        className="block w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-md hover:scale-105 transition"
-      >
-        🔐 Pay & Download Full Storybook
-      </button>
-
-      {/* CREATE ANOTHER */}
-      <button
-        onClick={() => navigate("/create")}
-        className="text-brandPurple font-medium underline hover:opacity-80"
-      >
-        ➕ Create Another Story
-      </button>
-
-    </div>
-  </div>
-);
-
 }

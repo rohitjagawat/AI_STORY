@@ -4,6 +4,8 @@ import cors from "cors";
 
 import storyRoute from "./Routes/story.route.js";
 import shopifyRoutes from "./Routes/shopify.route.js";
+import paymentRoutes from "./Routes/payment.route.js";
+import downloadRoutes from "./Routes/download.route.js";
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use("/output", express.static("output"));
 
 app.use("/api/story", storyRoute);
 app.use("/shopify", shopifyRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/download", downloadRoutes);
 
 const PORT = process.env.PORT || 8080;
 
