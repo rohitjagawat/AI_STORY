@@ -1,9 +1,15 @@
 import fs from "fs";
 import path from "path";
 
-const paymentsFile = path.join("output", "payments.json");
+const outputDir = path.join("output");
+const paymentsFile = path.join(outputDir, "payments.json");
 
 function savePayment(orderId, email) {
+  // ✅ ensure folder exists
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
   let data = {};
 
   if (fs.existsSync(paymentsFile)) {
