@@ -1,15 +1,13 @@
 import express from "express";
-import { hasPaidByEmail } from "../Services/payment.service.js";
+import { hasPaidForBook } from "../Services/payment.service.js";
 
 const router = express.Router();
 
 router.get("/has-paid", (req, res) => {
-  const { email } = req.query;
+  const { bookId } = req.query;
+  if (!bookId) return res.json({ paid: false });
 
-  if (!email) return res.json({ paid: false });
-
-  const paid = hasPaidByEmail(email);
-  res.json({ paid });
+  res.json({ paid: hasPaidForBook(bookId) });
 });
 
 export default router;
