@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 export default function Preview() {
   const navigate = useNavigate();
 
-  const [status, setStatus] = useState("loading");
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
 
@@ -12,14 +11,12 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
+    // ✅ result saved by Generating page
+    const result = JSON.parse(localStorage.getItem("storyResult"));
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
 
-    if (!payload) {
-      setStatus("error");
-      return;
-    }
+    if (!result || !payload) return;
 
-    // ✅ ALWAYS read from localStorage first
     const email =
       localStorage.getItem("paidEmail") ||
       payload.email ||
@@ -29,39 +26,22 @@ export default function Preview() {
       localStorage.getItem("paidBookId") ||
       `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`${API_URL}/story/result/${bookId}`);
-        const result = await res.json();
+    setData({
+      ...result,
+      bookId,
+      email,
+    });
 
-        if (result.ready) {
-          setData({ ...result, bookId, email });
-          setStatus("ready");
-          clearInterval(interval);
-
-          // 🔐 CHECK PAYMENT
-          const payRes = await fetch(
-            `${API_URL}/payment/has-paid?email=${email}`
-          );
-          const payData = await payRes.json();
-          setPaid(payData.paid);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
+    // 🔐 CHECK PAYMENT ONCE (NO LOOP)
+    fetch(`${API_URL}/payment/has-paid?email=${email}`)
+      .then((res) => res.json())
+      .then((d) => setPaid(d.paid));
   }, []);
 
-  if (status === "error") {
-    return <div className="text-center mt-10">No story found</div>;
-  }
-
-  if (status === "loading") {
+  if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading your story…
+        No preview available
       </div>
     );
   }
@@ -91,7 +71,6 @@ export default function Preview() {
 
             <button
               onClick={() => {
-                // ✅ SAVE IDENTITY BEFORE PAYMENT
                 localStorage.setItem("paidEmail", data.email);
                 localStorage.setItem("paidBookId", data.bookId);
 
@@ -130,7 +109,6 @@ export default function Preview() {
         >
           ➕ Create Another Story
         </button>
-
       </div>
     </div>
   );
