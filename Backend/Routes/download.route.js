@@ -1,15 +1,15 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
-import { hasPaidByEmail } from "../Services/payment.service.js";
+import { hasPaidForBook } from "../Services/payment.service.js";
 
 const router = express.Router();
 
 router.get("/:bookId", (req, res) => {
   const { bookId } = req.params;
-  const { email } = req.query;
 
-  if (!hasPaidByEmail(email)) {
+  // 🔐 PAYMENT CHECK (BOOKID BASED)
+  if (!hasPaidForBook(bookId)) {
     return res.status(403).json({ error: "Payment required" });
   }
 
