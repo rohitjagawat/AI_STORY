@@ -54,13 +54,18 @@ export default function Preview() {
           Your Storybook Preview 📘
         </h1>
 
-        {data.previewImage && (
+        {data.previewImage ? (
           <img
             src={`${backendBase}/${data.previewImage}`}
             alt="Preview"
             className="w-full rounded-xl mb-6"
           />
+        ) : (
+          <div className="mb-6 text-sm text-gray-500">
+            Preparing preview image…
+          </div>
         )}
+
 
         {/* 🔒 NOT PAID */}
         {!paid && (
@@ -94,7 +99,7 @@ export default function Preview() {
             <button
               onClick={() =>
                 window.location.href =
-                  `${API_URL}/download/${data.bookId}?email=${data.email}`
+                `${API_URL}/download/${data.bookId}?email=${data.email}`
               }
               className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
             >
