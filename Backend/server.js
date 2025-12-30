@@ -15,7 +15,6 @@ app.use(express.json());
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
-app.use("/api/shopify", shopifyRoutes);
 app.use("/images", express.static("images"));
 app.use("/output", express.static("output"));
 
