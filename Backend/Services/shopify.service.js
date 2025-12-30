@@ -3,7 +3,6 @@ import path from "path";
 
 const paymentsFile = path.join("output", "payments.json");
 
-// simple file-based storage (abhi ke liye)
 function savePayment(orderId, email) {
   let data = {};
 
@@ -20,11 +19,10 @@ function savePayment(orderId, email) {
   fs.writeFileSync(paymentsFile, JSON.stringify(data, null, 2));
 }
 
-export async function handleOrderPaid(order) {
+export function handleOrderPaid(order) {
   const orderId = order.id;
   const email = order.email;
 
   console.log("✅ PAYMENT RECEIVED", orderId, email);
-
   savePayment(orderId, email);
 }
