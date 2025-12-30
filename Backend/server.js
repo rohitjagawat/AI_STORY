@@ -1,10 +1,12 @@
-
 import "dotenv/config";
-import shopifyRoutes from "./Routes/shopify.route.js";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import storyRoute from "./Routes/story.route.js";
+import shopifyRoutes from "./Routes/shopify.route.js";
+
+app.use("/shopify", shopifyRoutes);
+
 dotenv.config();
 const app = express();
 

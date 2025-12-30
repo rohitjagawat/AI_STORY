@@ -1,20 +1,30 @@
-import fetch from "node-fetch";
+import fs from "fs";
+import path from "path";
 
-const SHOP = process.env.SHOPIFY_SHOP;
-const TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
-const VERSION = process.env.SHOPIFY_API_VERSION;
+const paymentsFile = path.join("output", "payments.json");
 
-export async function getShop() {
-  const res = await fetch(
-    `https://${SHOP}/admin/api/${VERSION}/shop.json`,
-    {
-      method: "GET",
-      headers: {
-        "X-Shopify-Access-Token": TOKEN,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+// simple file-based storage (abhi ke liye)
+function savePayment(orderId, email) {
+  let data = {};
 
-  return res.json();
+  if (fs.existsSync(paymentsFile)) {
+    data = JSON.parse(fs.readFileSync(paymentsFile));
+  }
+
+  data[orderId] = {
+    email,
+    status: "PAID",
+    time: new Date().toISOString(),
+  };
+
+  fs.writeFileSync(paymentsFile, JSON.stringify(data, null, 2));
+}
+
+export async function handleOrderPaid(order) {
+  const orderId = order.id;
+  const email = order.email;
+
+  console.log("✅ PAYMENT RECEIVED", orderId, email);
+
+  savePayment(orderId, email);
 }
