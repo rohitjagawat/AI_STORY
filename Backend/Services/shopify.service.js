@@ -26,10 +26,11 @@ function savePayment(orderId, bookId) {
 export function handleOrderPaid(order) {
   const orderId = order.id;
 
-  // 🔑 VERY IMPORTANT
-  // product ke saath bookId pass karna hota hai (line item note)
+  // ✅ CORRECT PLACE (line item properties)
   const bookId =
-    order.note_attributes?.find((n) => n.name === "bookId")?.value;
+    order.line_items?.[0]?.properties?.find(
+      (p) => p.name === "bookId"
+    )?.value;
 
   if (!bookId) {
     console.log("❌ bookId missing in order");

@@ -69,15 +69,16 @@ export default function Preview() {
 
             <button
               onClick={() => {
-                localStorage.setItem("paidBookId", data.bookId);
+                const bookId = data.bookId;
 
                 window.location.href =
-                  `https://www.jrbillionaire.com/products/magic-storybook-personalized-pdf?attributes[bookId]=${data.bookId}`;
+                  `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${bookId}`;
               }}
               className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
             >
               🔐 Pay & Download
             </button>
+
           </>
         )}
 
@@ -91,7 +92,7 @@ export default function Preview() {
             <button
               onClick={() =>
                 window.location.href =
-                  `${API_URL}/download/${data.bookId}`
+                `${API_URL}/download/${data.bookId}`
               }
               className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
             >
