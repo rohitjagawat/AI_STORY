@@ -1,5 +1,8 @@
 import express from "express";
 import multer from "multer";
+import fs from "fs";
+import path from "path";
+
 
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
@@ -65,21 +68,29 @@ router.post(
 ================================ */
 router.get("/result/:bookId", (req, res) => {
   const { bookId } = req.params;
-
   const result = storyResults[bookId];
 
   if (!result) {
     return res.json({ ready: false });
   }
 
+  // 🔥 REAL CHECK: image file exists or not
+  const imagePath = path.join(
+    process.cwd(),
+    result.previewImage
+  );
+
+  if (!fs.existsSync(imagePath)) {
+    return res.json({ ready: false });
+  }
+
   res.json({
     ready: true,
-    story: {
-      pages: result.story,
-    },
+    story: { pages: result.story },
     previewImage: result.previewImage,
     pdfPath: result.pdfPath,
   });
 });
+
 
 export default router;
