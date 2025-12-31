@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Generating() {
   const navigate = useNavigate();
 
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(5);
   const [stepIndex, setStepIndex] = useState(0);
 
   const hasCalledAPI = useRef(false);
@@ -25,18 +25,19 @@ export default function Generating() {
 
     isMounted.current = true;
 
-    /* ---------------- PROGRESS UI ---------------- */
-    const progressTimer = setInterval(() => {
-      if (!isMounted.current) return;
-      setProgress((prev) => (prev >= 95 ? prev : prev + 1));
-    }, 80);
-
+    /* ---------- STEP TEXT ---------- */
     const stepTimer = setInterval(() => {
       if (!isMounted.current) return;
       setStepIndex((prev) => (prev + 1) % steps.length);
     }, 1400);
 
-    /* ---------------- STORY GENERATE API ---------------- */
+    /* ---------- PROGRESS (MAX 85%) ---------- */
+    const progressTimer = setInterval(() => {
+      if (!isMounted.current) return;
+      setProgress((prev) => (prev >= 85 ? prev : prev + 1));
+    }, 120);
+
+    /* ---------- START GENERATION ---------- */
     if (!hasCalledAPI.current) {
       hasCalledAPI.current = true;
 
@@ -48,21 +49,15 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
+          // 🔥 START STORY GENERATION
           await fetch(
             `${import.meta.env.VITE_API_URL}/story/generate`,
-            {
-              method: "POST",
-              body: formData,
-            }
+            { method: "POST", body: formData }
           );
 
-          if (!isMounted.current) return;
-
-          setProgress(100);
-
-          /* ---------------- WAIT FOR PREVIEW IMAGE ---------------- */
           const bookId = `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
 
+          /* ---------- WAIT FOR PREVIEW IMAGE ---------- */
           const waitForPreview = setInterval(async () => {
             try {
               const res = await fetch(
@@ -70,18 +65,23 @@ export default function Generating() {
               );
               const result = await res.json();
 
-              // ✅ ONLY redirect when preview image exists
+              // ✅ ONLY WHEN IMAGE EXISTS
               if (result.ready && result.previewImage) {
                 clearInterval(waitForPreview);
+                clearInterval(progressTimer);
+                clearInterval(stepTimer);
 
                 localStorage.setItem(
                   "storyResult",
                   JSON.stringify(result)
                 );
 
-                if (isMounted.current) {
-                  navigate("/preview");
-                }
+                // 🔥 NOW COMPLETE PROGRESS
+                setProgress(100);
+
+                setTimeout(() => {
+                  if (isMounted.current) navigate("/preview");
+                }, 600);
               }
             } catch (err) {
               console.error(err);
@@ -96,7 +96,6 @@ export default function Generating() {
 
     return () => {
       isMounted.current = false;
-      clearInterval(progressTimer);
       clearInterval(stepTimer);
     };
   }, [navigate]);
@@ -107,20 +106,15 @@ export default function Generating() {
 
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-brandPurple/10 rounded-full blur-3xl"></div>
 
-        <div className="absolute top-6 left-6 text-4xl animate-pulse">✨</div>
-        <div className="absolute top-6 right-6 text-4xl animate-pulse">🌟</div>
-        <div className="absolute bottom-6 right-10 text-4xl animate-pulse">✨</div>
-        <div className="absolute bottom-6 left-10 text-4xl animate-pulse">✨</div>
-
         <div className="relative z-10 text-8xl mb-8 animate-bounce">
           📖
         </div>
 
-        <h1 className="relative z-10 text-4xl md:text-5xl font-bold text-brandPurple mb-4">
+        <h1 className="relative z-10 text-4xl font-bold text-brandPurple mb-4">
           Creating Your Storybook
         </h1>
 
-        <p className="relative z-10 text-lg md:text-xl text-brandText mb-12">
+        <p className="relative z-10 text-lg text-brandText mb-12">
           {steps[stepIndex]}
         </p>
 
@@ -136,7 +130,7 @@ export default function Generating() {
         </p>
 
         <p className="relative z-10 mt-6 text-base text-brandText">
-          🧸 Sit back & relax — your child’s magical story is being crafted.
+          🧸 Please wait — preview image is being prepared
         </p>
       </div>
     </div>
