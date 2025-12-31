@@ -11,14 +11,19 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const bookIdFromUrl = params.get("bookId");
+
     const result = JSON.parse(localStorage.getItem("storyResult"));
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
 
     if (!result || !payload) return;
 
     const bookId =
+      bookIdFromUrl ||
       localStorage.getItem("paidBookId") ||
       `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
+
 
     setData({
       ...result,
