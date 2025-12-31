@@ -3,7 +3,6 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 
-
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
 import { generatePDF } from "../Services/pdf.service.js";
@@ -13,7 +12,7 @@ const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 /* ===============================
-   IN-MEMORY STORE (IMPORTANT)
+   IN-MEMORY STORE
 ================================ */
 const storyResults = {};
 
@@ -26,39 +25,53 @@ router.post(
   async (req, res) => {
     try {
       const { name, age, interest } = req.body;
-
       if (!name || !age || !interest) {
         return res.status(400).json({ error: "Invalid input data" });
       }
 
       const bookId = `${name}_${age}_${interest}`.toLowerCase();
 
-      // 👉 FAST RESPONSE
+      // ⚡ FAST RESPONSE
       res.json({
         success: true,
         bookId,
         message: "Story generation started",
       });
 
-      // 👉 BACKGROUND WORK
+      /* ---------- BACKGROUND WORK ---------- */
+
       const storyPages = await generateStory(name, age, interest, bookId);
 
-      const images = await generateImages(storyPages, name, bookId); // Cloudinary URLs
+      const images = await generateImages(storyPages, name, bookId);
+      const previewImage = images[0];
+
+      // 🔥 HARD WAIT UNTIL IMAGE EXISTS ON DISK
+      const imagePath = path.join(process.cwd(), previewImage);
+
+      let retries = 0;
+      while (!fs.existsSync(imagePath)) {
+        if (retries > 20) break; // max ~10s
+        await new Promise((r) => setTimeout(r, 500));
+        retries++;
+      }
+
+      if (!fs.existsSync(imagePath)) {
+        throw new Error("Preview image not written to disk");
+      }
 
       await generateRemainingImagePrompts(storyPages, bookId);
+      const pdfUrl = await generatePDF(storyPages, images, bookId);
 
-      const pdfUrl = await generatePDF(storyPages, images, bookId); // Cloudinary URL
-
-      // 👉 SAVE RESULT (IMPORTANT)
+      // ✅ SAVE RESULT ONLY AFTER IMAGE EXISTS
       storyResults[bookId] = {
         story: storyPages,
-        previewImage: images[0],
+        previewImage,
         pdfPath: pdfUrl,
       };
 
       console.log("✅ Story generation completed:", bookId);
     } catch (err) {
-      console.error("❌ Story generation failed:", err);
+      console.error("❌ Story generation failed:", err.message);
     }
   }
 );
@@ -74,16 +87,6 @@ router.get("/result/:bookId", (req, res) => {
     return res.json({ ready: false });
   }
 
-  // 🔥 REAL CHECK: image file exists or not
-  const imagePath = path.join(
-    process.cwd(),
-    result.previewImage
-  );
-
-  if (!fs.existsSync(imagePath)) {
-    return res.json({ ready: false });
-  }
-
   res.json({
     ready: true,
     story: { pages: result.story },
@@ -91,6 +94,5 @@ router.get("/result/:bookId", (req, res) => {
     pdfPath: result.pdfPath,
   });
 });
-
 
 export default router;
