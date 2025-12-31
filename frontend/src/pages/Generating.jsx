@@ -9,6 +9,7 @@ export default function Generating() {
 
   const hasCalledAPI = useRef(false);
   const isMounted = useRef(true);
+  const previewPoller = useRef(null);
 
   const steps = [
     "✨ Opening the magic book...",
@@ -49,7 +50,6 @@ export default function Generating() {
           formData.append("gender", payload.gender);
           formData.append("interest", payload.interest);
 
-          // 🔥 START STORY GENERATION
           await fetch(
             `${import.meta.env.VITE_API_URL}/story/generate`,
             { method: "POST", body: formData }
@@ -58,16 +58,15 @@ export default function Generating() {
           const bookId = `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
 
           /* ---------- WAIT FOR PREVIEW IMAGE ---------- */
-          const waitForPreview = setInterval(async () => {
+          previewPoller.current = setInterval(async () => {
             try {
               const res = await fetch(
                 `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
               );
               const result = await res.json();
 
-              // ✅ ONLY WHEN IMAGE EXISTS
               if (result.ready && result.previewImage) {
-                clearInterval(waitForPreview);
+                clearInterval(previewPoller.current);
                 clearInterval(progressTimer);
                 clearInterval(stepTimer);
 
@@ -76,11 +75,12 @@ export default function Generating() {
                   JSON.stringify(result)
                 );
 
-                // 🔥 NOW COMPLETE PROGRESS
                 setProgress(100);
 
                 setTimeout(() => {
-                  if (isMounted.current) navigate("/preview");
+                  if (isMounted.current) {
+                    navigate("/preview");
+                  }
                 }, 600);
               }
             } catch (err) {
@@ -97,6 +97,11 @@ export default function Generating() {
     return () => {
       isMounted.current = false;
       clearInterval(stepTimer);
+      clearInterval(progressTimer);
+
+      if (previewPoller.current) {
+        clearInterval(previewPoller.current);
+      }
     };
   }, [navigate]);
 
