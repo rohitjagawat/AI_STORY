@@ -21,8 +21,13 @@ export default function Generating() {
   ];
 
   useEffect(() => {
+    
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
     if (!payload) return;
+
+    // 🔥 CLEAR OLD PAYMENT DATA
+localStorage.removeItem("paidBookId");
+
 
     isMounted.current = true;
 

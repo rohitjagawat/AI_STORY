@@ -11,19 +11,15 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const bookIdFromUrl = params.get("bookId");
-
-    const result = JSON.parse(localStorage.getItem("storyResult"));
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
+    const result = JSON.parse(localStorage.getItem("storyResult"));
 
-    if (!result || !payload) return;
+    if (!payload || !result) return;
 
+    // ✅ SINGLE SOURCE OF TRUTH FOR bookId
     const bookId =
-      bookIdFromUrl ||
-      localStorage.getItem("paidBookId") ||
+      new URLSearchParams(window.location.search).get("bookId") ||
       `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
-
 
     setData({
       ...result,
@@ -32,7 +28,8 @@ export default function Preview() {
 
     fetch(`${API_URL}/payment/has-paid?bookId=${bookId}`)
       .then((res) => res.json())
-      .then((d) => setPaid(d.paid));
+      .then((d) => setPaid(d.paid))
+      .catch(() => setPaid(false));
   }, []);
 
   /* ---------- RENDER ---------- */
@@ -65,6 +62,13 @@ export default function Preview() {
           </div>
         )}
 
+        {/* ⏳ CHECKING PAYMENT */}
+        {paid === null && (
+          <div className="text-sm text-gray-500 mb-6">
+            Checking payment status…
+          </div>
+        )}
+
         {/* 🔒 NOT PAID */}
         {paid === false && (
           <>
@@ -74,16 +78,13 @@ export default function Preview() {
 
             <button
               onClick={() => {
-                const bookId = data.bookId;
-
                 window.location.href =
-                  `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${bookId}`;
+                  `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`;
               }}
               className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
             >
               🔐 Pay & Download
             </button>
-
           </>
         )}
 
@@ -96,8 +97,8 @@ export default function Preview() {
 
             <button
               onClick={() =>
-                window.location.href =
-                `${API_URL}/download/${data.bookId}`
+                (window.location.href =
+                  `${API_URL}/download/${data.bookId}`)
               }
               className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
             >
