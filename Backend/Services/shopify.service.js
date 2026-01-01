@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { sendStoryEmail } from "./email.service.js";
+import { getPdfUrlByBookId } from "./pdf.helper.js";
 
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
@@ -42,5 +43,6 @@ export async function handleOrderPaid(order) {
   savePayment(order.id, bookId);
 
   // 📧 SEND PDF EMAIL
-  await sendStoryEmail(customerEmail, bookId);
+  const pdfUrl=getPdfUrlByBookId(bookId);
+  await sendStoryEmail(customerEmail,bookId,pdfUrl); 
 }

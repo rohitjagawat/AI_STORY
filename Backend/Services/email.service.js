@@ -1,21 +1,13 @@
 import nodemailer from "nodemailer";
-import fs from "fs";
-import path from "path";
 
-export async function sendStoryEmail(toEmail, bookId) {
-  const pdfPath = path.join("output", `${bookId}.pdf`);
-
-  if (!fs.existsSync(pdfPath)) {
-    throw new Error("PDF not found");
-  }
-
+export async function sendStoryEmail(toEmail, bookId, pdfUrl) {
   const transporter = nodemailer.createTransport({
     host: "smtp-relay.brevo.com",
     port: 587,
     secure: false,
     auth: {
-      user: process.env.BREVO_SMTP_USER, // your gmail
-      pass: process.env.BREVO_SMTP_PASS, // xkeysib-xxxx
+      user: process.env.BREVO_SMTP_USER,
+      pass: process.env.BREVO_SMTP_PASS,
     },
   });
 
@@ -25,15 +17,16 @@ export async function sendStoryEmail(toEmail, bookId) {
     subject: "📘 Your Personalized Storybook is Ready!",
     html: `
       <h2>Your storybook is ready ✨</h2>
-      <p>Your personalized storybook PDF is attached.</p>
-      <p>Enjoy reading! 💖</p>
+      <p>Your personalized storybook PDF is ready.</p>
+
+      <p>
+        👉 <a href="${pdfUrl}" target="_blank">
+        Click here to view / download your storybook
+        </a>
+      </p>
+
+      <p>Happy reading 💖</p>
     `,
-    attachments: [
-      {
-        filename: "Your-Storybook.pdf",
-        path: pdfPath,
-      },
-    ],
   });
 
   console.log("📧 Story email sent to:", toEmail);
