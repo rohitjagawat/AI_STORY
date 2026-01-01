@@ -67,13 +67,20 @@ export default function Preview() {
 
             <button
               onClick={() => {
-                window.location.href =
-                  `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`;
+                const url =
+                  `https://www.jrbillionaire.com/cart/add` +
+                  `?id=50467255124254` +
+                  `&quantity=1` +
+                  `&properties[bookId]=${data.bookId}`;
+
+                // 🔥 OPEN PAYMENT IN NEW TAB
+                window.open(url, "_blank", "noopener,noreferrer");
               }}
               className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
             >
               🔐 Pay ₹999 to Unlock your Storybook
             </button>
+
           </>
         )}
 
