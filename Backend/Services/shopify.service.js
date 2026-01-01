@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { sendStoryEmail } from "./email.service.js";
 
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
@@ -23,10 +24,7 @@ function savePayment(orderId, bookId) {
   fs.writeFileSync(paymentsFile, JSON.stringify(data, null, 2));
 }
 
-export function handleOrderPaid(order) {
-  const orderId = order.id;
-
-  // ✅ CORRECT PLACE (line item properties)
+export async function handleOrderPaid(order) {
   const bookId =
     order.line_items?.[0]?.properties?.find(
       (p) => p.name === "bookId"
@@ -37,6 +35,12 @@ export function handleOrderPaid(order) {
     return;
   }
 
-  console.log("✅ PAYMENT RECEIVED FOR BOOK:", bookId);
-  savePayment(orderId, bookId);
+  const customerEmail = order.email;
+
+  console.log("✅ PAYMENT RECEIVED:", bookId, customerEmail);
+
+  savePayment(order.id, bookId);
+
+  // 📧 SEND PDF EMAIL
+  await sendStoryEmail(customerEmail, bookId);
 }

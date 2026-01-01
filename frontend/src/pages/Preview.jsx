@@ -16,7 +16,6 @@ export default function Preview() {
 
     if (!payload || !result) return;
 
-    // ✅ SINGLE SOURCE OF TRUTH FOR bookId
     const bookId =
       new URLSearchParams(window.location.search).get("bookId") ||
       `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
@@ -31,8 +30,6 @@ export default function Preview() {
       .then((d) => setPaid(d.paid))
       .catch(() => setPaid(false));
   }, []);
-
-  /* ---------- RENDER ---------- */
 
   if (!data) {
     return (
@@ -73,7 +70,9 @@ export default function Preview() {
         {paid === false && (
           <>
             <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-sm">
-              🔒 Full storybook is locked. Pay once to unlock.
+              🔒 Full storybook is locked.
+              <br />
+              📧 After payment, your PDF will be emailed to you.
             </div>
 
             <button
@@ -83,7 +82,7 @@ export default function Preview() {
               }}
               className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
             >
-              🔐 Pay & Download
+              🔐 Pay & Get Story via Email
             </button>
           </>
         )}
@@ -92,18 +91,14 @@ export default function Preview() {
         {paid === true && (
           <>
             <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-sm font-medium">
-              ✅ Payment successful! Download your story 🎉
+              ✅ Payment successful!
+              <br />
+              📧 Your storybook has been sent to your email.
+              <br />
+              <span className="text-xs opacity-70">
+                (same email used during checkout)
+              </span>
             </div>
-
-            <button
-              onClick={() =>
-                (window.location.href =
-                  `${API_URL}/download/${data.bookId}`)
-              }
-              className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
-            >
-              ⬇️ Download PDF
-            </button>
           </>
         )}
 
