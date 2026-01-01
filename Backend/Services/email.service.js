@@ -1,8 +1,6 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendStoryEmail(toEmail, bookId) {
   const pdfPath = path.join("output", `${bookId}.pdf`);
@@ -11,9 +9,19 @@ export async function sendStoryEmail(toEmail, bookId) {
     throw new Error("PDF not found");
   }
 
-  const msg = {
+  const transporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.BREVO_SMTP_USER, // your gmail
+      pass: process.env.BREVO_SMTP_PASS, // xkeysib-xxxx
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"Jr Billionaire Stories" <${process.env.BREVO_SMTP_USER}>`,
     to: toEmail,
-    from: "stories@jrbillionaire.com", // 👈 sender email
     subject: "📘 Your Personalized Storybook is Ready!",
     html: `
       <h2>Your storybook is ready ✨</h2>
@@ -22,15 +30,11 @@ export async function sendStoryEmail(toEmail, bookId) {
     `,
     attachments: [
       {
-        content: fs.readFileSync(pdfPath).toString("base64"),
         filename: "Your-Storybook.pdf",
-        type: "application/pdf",
-        disposition: "attachment",
+        path: pdfPath,
       },
     ],
-  };
-
-  await sgMail.send(msg);
+  });
 
   console.log("📧 Story email sent to:", toEmail);
 }
