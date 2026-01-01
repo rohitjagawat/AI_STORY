@@ -20,10 +20,7 @@ export default function Preview() {
       new URLSearchParams(window.location.search).get("bookId") ||
       `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
 
-    setData({
-      ...result,
-      bookId,
-    });
+    setData({ ...result, bookId });
 
     fetch(`${API_URL}/payment/has-paid?bookId=${bookId}`)
       .then((res) => res.json())
@@ -47,19 +44,14 @@ export default function Preview() {
           Your Storybook Preview 📘
         </h1>
 
-        {data.previewImage ? (
+        {data.previewImage && (
           <img
             src={`${backendBase}/${data.previewImage}`}
             alt="Preview"
             className="w-full rounded-xl mb-6"
           />
-        ) : (
-          <div className="mb-6 text-sm text-gray-500">
-            Preparing preview image…
-          </div>
         )}
 
-        {/* ⏳ CHECKING PAYMENT */}
         {paid === null && (
           <div className="text-sm text-gray-500 mb-6">
             Checking payment status…
@@ -71,8 +63,6 @@ export default function Preview() {
           <>
             <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-sm">
               🔒 Full storybook is locked.
-              <br />
-              📧 After payment, your PDF will be emailed to you.
             </div>
 
             <button
@@ -82,7 +72,7 @@ export default function Preview() {
               }}
               className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
             >
-              🔐 Pay & Get Story via Email
+              🔐 Pay ₹999 to Unlock your Storybook
             </button>
           </>
         )}
@@ -92,13 +82,19 @@ export default function Preview() {
           <>
             <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-sm font-medium">
               ✅ Payment successful!
-              <br />
-              📧 Your storybook has been sent to your email.
-              <br />
-              <span className="text-xs opacity-70">
-                (same email used during checkout)
-              </span>
             </div>
+
+            <button
+              onClick={() =>
+                window.open(
+                  `${API_URL}/view/${data.bookId}`,
+                  "_blank"
+                )
+              }
+              className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
+            >
+              👀 View Your Story Book
+            </button>
           </>
         )}
 
