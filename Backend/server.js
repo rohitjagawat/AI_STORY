@@ -6,6 +6,7 @@ import storyRoute from "./Routes/story.route.js";
 import shopifyRoutes from "./Routes/shopify.route.js";
 import paymentRoutes from "./Routes/payment.route.js";
 import downloadRoutes from "./Routes/download.route.js";
+import viewRoutes from "./Routes/view.route.js";
 
 
 const app = express();
