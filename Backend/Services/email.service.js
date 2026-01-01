@@ -1,6 +1,8 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 import fs from "fs";
 import path from "path";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendStoryEmail(toEmail, bookId) {
   const pdfPath = path.join("output", `${bookId}.pdf`);
@@ -9,30 +11,26 @@ export async function sendStoryEmail(toEmail, bookId) {
     throw new Error("PDF not found");
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"Jr Billionaire Stories" <${process.env.EMAIL_USER}>`,
+  const msg = {
     to: toEmail,
+    from: "stories@jrbillionaire.com", // 👈 sender email
     subject: "📘 Your Personalized Storybook is Ready!",
     html: `
       <h2>Your storybook is ready ✨</h2>
-      <p>We’ve attached your personalized PDF storybook.</p>
-      <p>Thank you for creating a magical story with us 💖</p>
+      <p>Your personalized storybook PDF is attached.</p>
+      <p>Enjoy reading! 💖</p>
     `,
     attachments: [
       {
+        content: fs.readFileSync(pdfPath).toString("base64"),
         filename: "Your-Storybook.pdf",
-        path: pdfPath,
+        type: "application/pdf",
+        disposition: "attachment",
       },
     ],
-  });
+  };
+
+  await sgMail.send(msg);
 
   console.log("📧 Story email sent to:", toEmail);
 }
