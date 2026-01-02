@@ -10,6 +10,10 @@ const CreateStory = () => {
   const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [childPhoto, setChildPhoto] = useState(null);
+  const [challenges, setChallenges] = useState([]);
+  const [siblingName, setSiblingName] = useState("");
+  const [additionalInfo, setAdditionalInfo] = useState("");
+
 
 
   const handleSubmit = () => {
@@ -131,6 +135,80 @@ const CreateStory = () => {
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
             />
           </div>
+
+          {/* CHALLENGES */}
+          <div className="mb-8">
+            <label className="block text-brandText font-medium mb-2">
+              Challenges you want the story to help with
+            </label>
+
+            <select
+              multiple
+              value={challenges}
+              onChange={(e) =>
+                setChallenges([...e.target.selectedOptions].map(o => o.value))
+              }
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
+            >
+              <option>Obedience</option>
+              <option>Fighting</option>
+              <option>Hitting</option>
+              <option>Tantrums</option>
+              <option>Fear</option>
+              <option>Confidence</option>
+              <option>Expressing Emotions</option>
+              <option>Anger Suppression</option>
+              <option>Mom Guilt</option>
+            </select>
+
+            <p className="text-xs text-brandMuted mt-2">
+              Hold Ctrl / Cmd to select multiple
+            </p>
+          </div>
+
+          {/* SIBLING NAME */}
+          <div className="mb-8">
+            <label className="block text-brandText font-medium mb-2">
+              Sibling Name (optional)
+            </label>
+
+            <input
+              value={siblingName}
+              onChange={(e) => setSiblingName(e.target.value)}
+              type="text"
+              placeholder="e.g. Aarav"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
+            />
+          </div>
+          {/* ADDITIONAL INFO */}
+          <div className="mb-8">
+            <label className="block text-brandText font-medium mb-2">
+              Additional Information (optional)
+            </label>
+
+            <textarea
+              rows={4}
+              value={additionalInfo}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/);
+                if (words.length <= 100) {
+                  setAdditionalInfo(e.target.value);
+                }
+              }}
+              placeholder="Any context you'd like us to know (max 100 words)"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
+            />
+
+            <p className="text-xs text-brandMuted mt-2">
+              {additionalInfo.trim()
+                ? additionalInfo.trim().split(/\s+/).length
+                : 0}
+              /100 words
+            </p>
+          </div>
+
+
+
           <div className="mb-8">
             <label className="block text-brandText font-medium mb-2">
               Upload Your Child’s Photo 📸
