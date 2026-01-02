@@ -16,8 +16,13 @@ const CreateStory = () => {
   const [additionalInfo, setAdditionalInfo] = useState("");
 
   const handleSubmit = async () => {
+
+    // 🧹 CLEAR ALL OLD STORY DATA (VERY IMPORTANT)
+    localStorage.removeItem("storyPayload");
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
+
+
 
     if (!name || !age || !interest || !gender) {
       setError("Please fill all required details");
@@ -38,6 +43,20 @@ const CreateStory = () => {
     if (childPhoto) {
       formData.append("childPhoto", childPhoto);
     }
+
+    // 🔐 SAVE CURRENT STORY PAYLOAD (SOURCE OF TRUTH)
+    localStorage.setItem(
+      "storyPayload",
+      JSON.stringify({
+        name,
+        age,
+        gender,
+        interest,
+        challenges,
+        siblingName,
+        additionalInfo,
+      })
+    );
 
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
@@ -118,8 +137,8 @@ const CreateStory = () => {
                     type="button"
                     onClick={() => setGender("boy")}
                     className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "boy"
-                        ? "bg-brandPurple text-white border-brandPurple"
-                        : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                      ? "bg-brandPurple text-white border-brandPurple"
+                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
                       }`}
                   >
                     👦 Boy
@@ -129,8 +148,8 @@ const CreateStory = () => {
                     type="button"
                     onClick={() => setGender("girl")}
                     className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "girl"
-                        ? "bg-brandPurple text-white border-brandPurple"
-                        : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                      ? "bg-brandPurple text-white border-brandPurple"
+                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
                       }`}
                   >
                     👧 Girl
@@ -201,10 +220,10 @@ const CreateStory = () => {
                           }
                         }}
                         className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200 ${selected
-                            ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
-                            : disabled
-                              ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                              : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
+                          ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
+                          : disabled
+                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
                           }`}
                       >
                         <span className="text-lg">{emoji}</span>

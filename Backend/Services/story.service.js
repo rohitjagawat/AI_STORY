@@ -34,40 +34,15 @@ export async function generateStory(input, bookId) {
     : "";
 
 
-  let ageTone = "";
-
-  if (age <= 5) {
-    ageTone = `
-LANGUAGE STYLE:
-- Very simple sentences
-- Repetition is okay
-- Focus on actions and feelings
-- Gentle, cozy, reassuring tone
-`;
-  } else if (age <= 8) {
-    ageTone = `
-LANGUAGE STYLE:
-- Simple but expressive sentences
-- Include feelings and small decisions
-- Curious and adventurous tone
-`;
-  } else {
-    ageTone = `
-LANGUAGE STYLE:
-- More descriptive language
-- Show inner thoughts
-- Confident and empowering tone
-`;
-  }
+  
 
   const prompt = `
-You are a professional children's storybook author,
-writing premium, emotionally rich stories that parents love
-and children want to hear again and again.
+You are a professional children's storybook author
+known for writing emotionally rich, memorable stories
+that parents love and children want to hear again.
 
-This is NOT a teaching story.
-This is NOT a moral lesson.
-This is a warm, immersive STORY.
+This is a STORY, not an explanation.
+This is NOT generic AI writing.
 
 MAIN CHARACTER:
 - Name: ${name}
@@ -75,35 +50,33 @@ MAIN CHARACTER:
 - Gender: ${gender}
 - Interest: ${interest}
 
-STORY CONTEXT:
-${challenges.length ? `The child is gently navigating: ${challenges.join(", ")}.` : ""}
-${siblingName ? `The child has a sibling named ${siblingName}, who appears naturally in the story.` : ""}
-${additionalInfo ? `Parent context: ${additionalInfo}` : ""}
+STORY CONTEXT FROM PARENTS:
+${challenges.length ? `The child is facing challenges like: ${challenges.join(", ")}.` : ""}
+${siblingName ? `The child has a sibling named ${siblingName}, who plays a meaningful role.` : ""}
+${additionalInfo ? `Additional context: ${additionalInfo}.` : ""}
 
-VERY IMPORTANT STORY RULES:
-- Write ONE continuous story with a clear beginning, middle, and end
+CORE STORY RULES:
+- Write ONE complete story with a clear beginning, middle, and end
 - Break the story naturally into 10 pages
-- Each page should feel like the next moment in the same journey
-- Avoid repetition and filler scenes
-- The child must make at least one meaningful choice
-- Growth must feel earned, not sudden
-- Do NOT explain feelings directly (no "he felt sad")
-- Let actions, pauses, and moments show the emotion
-- Keep language beautiful, simple, and story-like
-- No morals, no lessons, no advice language
+- Each page must move the story forward (no filler)
+- The story must revolve around the child’s real-life challenge
+- The child must struggle, hesitate, and then make a choice
+- Growth must feel natural and earned
+- Avoid excessive description without action
+- Balance action, emotion, and dialogue
+- Keep language age-appropriate and engaging
 
-PACING & DEPTH:
-- Pages 1–3: Gentle setup, curiosity, hints of challenge
-- Pages 4–7: Central struggle, hesitation, small setbacks
-- Pages 8–9: Turning point driven by the child
-- Page 10: Warm, satisfying emotional resolution
+ENDING & MORAL (VERY IMPORTANT):
+- Page 10 MUST be a happy, emotionally satisfying ending
+- Include a gentle moral or takeaway, written naturally
+- Moral should feel like part of the story, not a lecture
+- End with hope, confidence, and warmth
 
 WRITING QUALITY:
-- Use varied sentence rhythm
-- Avoid generic phrases
-- Avoid summarizing
-- Write as if this will be read aloud at bedtime
-- Make it feel personal, intimate, and human-written
+- Make it sound human-written
+- Avoid repetitive sentence patterns
+- Avoid abstract emotions without events
+- Write as if this will be read aloud to a child at bedtime
 
 OUTPUT FORMAT (STRICT):
 Page 1:
@@ -117,6 +90,7 @@ Page 2:
 Page 10:
 (text)
 `;
+
 
 
   let rawText;
