@@ -60,9 +60,7 @@ export default function Generating() {
         formData.append("siblingName", payload.siblingName || "");
         formData.append("additionalInfo", payload.additionalInfo || "");
 
-        if (payload.childPhoto) {
-          formData.append("childPhoto", payload.childPhoto);
-        }
+        
 
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/story/generate`,

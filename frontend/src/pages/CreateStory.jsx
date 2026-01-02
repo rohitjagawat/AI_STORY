@@ -58,17 +58,24 @@ const CreateStory = () => {
       })
     );
 
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
-        method: "POST",
-        body: formData,
-      });
+  // 🔐 SAVE PAYLOAD ONLY
+localStorage.setItem(
+  "storyPayload",
+  JSON.stringify({
+    name,
+    age,
+    gender,
+    interest,
+    challenges,
+    siblingName,
+    additionalInfo,
+    hasPhoto: !!childPhoto,
+  })
+);
 
-      navigate("/generating");
-    } catch (err) {
-      setError("Failed to start story generation");
-    }
-  };
+// 🚀 JUST REDIRECT
+navigate("/generating");
+
 
   return (
     <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
