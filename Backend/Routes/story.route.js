@@ -24,12 +24,33 @@ router.post(
   upload.single("childPhoto"),
   async (req, res) => {
     try {
-      const { name, age, interest } = req.body;
+      const {
+        name,
+        age,
+        interest,
+        gender,
+        challenges = [],
+        siblingName = "",
+        additionalInfo = "",
+      } = req.body;
+
+      console.log("🧠 STORY INPUT RECEIVED:", {
+        name,
+        age,
+        interest,
+        gender,
+        challenges,
+        siblingName,
+        additionalInfo,
+      });
+
+
       if (!name || !age || !interest) {
         return res.status(400).json({ error: "Invalid input data" });
       }
 
-      const bookId = `${name}_${age}_${interest}`.toLowerCase();
+      const bookId = `${name}_${age}`.toLowerCase().replace(/\s+/g, "_");
+
 
       // ⚡ FAST RESPONSE
       res.json({
@@ -40,7 +61,19 @@ router.post(
 
       /* ---------- BACKGROUND WORK ---------- */
 
-      const storyPages = await generateStory(name, age, interest, bookId);
+      const storyPages = await generateStory(
+        {
+          name,
+          age,
+          gender,
+          interest,
+          challenges,
+          siblingName,
+          additionalInfo,
+        },
+        bookId
+      );
+
 
       const images = await generateImages(storyPages, name, bookId);
       const previewImage = images[0];
