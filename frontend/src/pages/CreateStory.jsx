@@ -159,45 +159,54 @@ const CreateStory = () => {
                 </label>
 
                 <p className="text-sm text-brandMuted mb-4">
-                  Select one or more areas your child is currently navigating
+                  Choose up to 3 areas your child is currently navigating
                 </p>
 
                 <div className="flex flex-wrap gap-3">
                   {[
-                    "Obedience",
-                    "Fighting",
-                    "Hitting",
-                    "Tantrums",
-                    "Fear",
-                    "Confidence",
-                    "Expressing Emotions",
-                    "Anger Suppression",
-                    "Mom Guilt",
-                  ].map((item) => {
-                    const selected = challenges.includes(item);
+                    { label: "Obedience", emoji: "🧩" },
+                    { label: "Fighting", emoji: "🤼" },
+                    { label: "Hitting", emoji: "✋" },
+                    { label: "Tantrums", emoji: "🌋" },
+                    { label: "Fear", emoji: "🌙" },
+                    { label: "Confidence", emoji: "🌟" },
+                    { label: "Expressing Emotions", emoji: "💬" },
+                    { label: "Anger Suppression", emoji: "🔥" },
+                    { label: "Mom Guilt", emoji: "❤️‍🩹" },
+                  ].map(({ label, emoji }) => {
+                    const selected = challenges.includes(label);
+                    const disabled = !selected && challenges.length >= 3;
 
                     return (
                       <button
-                        key={item}
+                        key={label}
                         type="button"
+                        disabled={disabled}
                         onClick={() => {
                           if (selected) {
-                            setChallenges(challenges.filter((c) => c !== item));
-                          } else {
-                            setChallenges([...challenges, item]);
+                            setChallenges(challenges.filter((c) => c !== label));
+                          } else if (challenges.length < 3) {
+                            setChallenges([...challenges, label]);
                           }
                         }}
-                        className={`px-5 py-2 rounded-full border text-sm font-medium transition
+                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200
             ${selected
-                            ? "bg-brandPurple text-white border-brandPurple shadow-md"
-                            : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white"
+                            ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
+                            : disabled
+                              ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                              : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
                           }`}
                       >
-                        {item}
+                        <span className="text-lg">{emoji}</span>
+                        {label}
                       </button>
                     );
                   })}
                 </div>
+
+                <p className="text-xs text-brandMuted mt-3">
+                  {challenges.length}/3 selected
+                </p>
               </div>
 
 
