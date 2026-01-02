@@ -15,38 +15,41 @@ const CreateStory = () => {
   const [siblingName, setSiblingName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
 
- const handleSubmit = async () => {
-  if (!name || !age || !interest || !gender) {
-    setError("Please fill all required details");
-    return;
-  }
+  const handleSubmit = async () => {
+    localStorage.removeItem("storyResult");
+    localStorage.removeItem("paidBookId");
 
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("age", age);
-  formData.append("gender", gender);
-  formData.append("interest", interest);
+    if (!name || !age || !interest || !gender) {
+      setError("Please fill all required details");
+      return;
+    }
 
-  // NEW FIELDS
-  formData.append("challenges", JSON.stringify(challenges));
-  formData.append("siblingName", siblingName);
-  formData.append("additionalInfo", additionalInfo);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("age", age);
+    formData.append("gender", gender);
+    formData.append("interest", interest);
 
-  if (childPhoto) {
-    formData.append("childPhoto", childPhoto);
-  }
+    // NEW FIELDS
+    formData.append("challenges", JSON.stringify(challenges));
+    formData.append("siblingName", siblingName);
+    formData.append("additionalInfo", additionalInfo);
 
-  try {
-    await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
-      method: "POST",
-      body: formData,
-    });
+    if (childPhoto) {
+      formData.append("childPhoto", childPhoto);
+    }
 
-    navigate("/generating");
-  } catch (err) {
-    setError("Failed to start story generation");
-  }
-};
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
+        method: "POST",
+        body: formData,
+      });
+
+      navigate("/generating");
+    } catch (err) {
+      setError("Failed to start story generation");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
@@ -114,11 +117,10 @@ const CreateStory = () => {
                   <button
                     type="button"
                     onClick={() => setGender("boy")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${
-                      gender === "boy"
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "boy"
                         ? "bg-brandPurple text-white border-brandPurple"
                         : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                    }`}
+                      }`}
                   >
                     👦 Boy
                   </button>
@@ -126,11 +128,10 @@ const CreateStory = () => {
                   <button
                     type="button"
                     onClick={() => setGender("girl")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${
-                      gender === "girl"
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "girl"
                         ? "bg-brandPurple text-white border-brandPurple"
                         : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                    }`}
+                      }`}
                   >
                     👧 Girl
                   </button>
@@ -199,13 +200,12 @@ const CreateStory = () => {
                             setChallenges([...challenges, label]);
                           }
                         }}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200 ${
-                          selected
+                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200 ${selected
                             ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
                             : disabled
-                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
-                        }`}
+                              ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                              : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
+                          }`}
                       >
                         <span className="text-lg">{emoji}</span>
                         {label}
