@@ -10,240 +10,270 @@ const CreateStory = () => {
   const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [childPhoto, setChildPhoto] = useState(null);
+
+  // NEW STATES
   const [challenges, setChallenges] = useState([]);
   const [siblingName, setSiblingName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
 
-
-
   const handleSubmit = () => {
     if (!name || !age || !interest || !gender) {
-      setError("Fill all details");
+      setError("Please fill all required details");
       return;
     }
 
-    // 🔑 data temporarily save
-    localStorage.setItem(
-      "storyPayload",
-      JSON.stringify({ name, age, gender, interest })
-    );
+    const payload = {
+      name,
+      age,
+      gender,
+      interest,
+      challenges,
+      siblingName,
+      additionalInfo,
+    };
 
-    // 🚀 IMMEDIATE redirect
+    localStorage.setItem("storyPayload", JSON.stringify(payload));
     navigate("/generating");
   };
-
-
-
 
   return (
     <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
       <div className="w-full max-w-3xl">
 
         {/* HEADER */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-brandPurple mb-3">
             Create Your Child’s Story ✨
           </h1>
           <p className="text-brandText text-lg">
-            Just a few details and we’ll turn it into a magical visual storybook
+            Share a few details and we’ll create a gentle, magical storybook
+            made just for your child
           </p>
         </div>
 
         {/* FORM CARD */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10">
 
-          {/* ERROR */}
           {error && (
             <div className="mb-6 text-center text-red-500 font-medium">
               ⚠️ {error}
             </div>
           )}
 
-          {/* NAME */}
-          <div className="mb-6">
-            <label className="block text-brandText font-medium mb-2">
-              Child’s Name
-            </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              type="text"
-              placeholder="e.g. Aarav"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            />
-          </div>
+          <div className="space-y-10">
 
-          {/* AGE */}
-          <div className="mb-6">
-            <label className="block text-brandText font-medium mb-2">
-              Age
-            </label>
-            <input
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              type="number"
-              placeholder="e.g. 6"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            />
-          </div>
+            {/* CHILD DETAILS */}
+            <div>
+              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+                👶 Child Details
+              </h2>
 
-          {/* GENDER */}
-          <div className="mb-6">
-            <label className="block text-brandText font-medium mb-3">
-              Gender
-            </label>
+              {/* NAME */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Child’s Name
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  type="text"
+                  placeholder="e.g. Aarav"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                />
+              </div>
 
-            <div className="flex gap-6">
-              <button
-                type="button"
-                onClick={() => setGender("boy")}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full border transition
-                  ${gender === "boy"
-                    ? "bg-brandPurple text-white border-brandPurple"
-                    : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                  }`}
-              >
-                <span className="text-xl">👦</span>
-                Boy
-              </button>
+              {/* AGE */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Age
+                </label>
+                <input
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  type="number"
+                  placeholder="e.g. 6"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                />
+              </div>
 
-              <button
-                type="button"
-                onClick={() => setGender("girl")}
-                className={`flex items-center gap-2 px-5 py-3 rounded-full border transition
-                  ${gender === "girl"
-                    ? "bg-brandPurple text-white border-brandPurple"
-                    : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                  }`}
-              >
-                <span className="text-xl">👧</span>
-                Girl
-              </button>
+              {/* GENDER */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-3">
+                  Gender
+                </label>
+                <div className="flex gap-6">
+                  <button
+                    type="button"
+                    onClick={() => setGender("boy")}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition
+                      ${
+                        gender === "boy"
+                          ? "bg-brandPurple text-white border-brandPurple"
+                          : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                      }`}
+                  >
+                    👦 Boy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setGender("girl")}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition
+                      ${
+                        gender === "girl"
+                          ? "bg-brandPurple text-white border-brandPurple"
+                          : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                      }`}
+                  >
+                    👧 Girl
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* STORY PREFERENCES */}
+            <div>
+              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+                📖 Story Preferences
+              </h2>
+
+              {/* INTEREST */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Child’s Interest
+                </label>
+                <input
+                  value={interest}
+                  onChange={(e) => setInterest(e.target.value)}
+                  type="text"
+                  placeholder="e.g. Dinosaurs, Space, Princess"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                />
+                <p className="text-sm text-brandMuted mt-2">
+                  We’ll use this to shape the story’s world and adventures
+                </p>
+              </div>
+
+              {/* CHALLENGES */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-1">
+                  What would you like this story to gently help with?
+                </label>
+                <p className="text-sm text-brandMuted mb-3">
+                  Select one or more areas your child is navigating
+                </p>
+
+                <select
+                  multiple
+                  value={challenges}
+                  onChange={(e) =>
+                    setChallenges(
+                      [...e.target.selectedOptions].map((o) => o.value)
+                    )
+                  }
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                >
+                  <option>Obedience</option>
+                  <option>Fighting</option>
+                  <option>Hitting</option>
+                  <option>Tantrums</option>
+                  <option>Fear</option>
+                  <option>Confidence</option>
+                  <option>Expressing Emotions</option>
+                  <option>Anger Suppression</option>
+                  <option>Mom Guilt</option>
+                </select>
+
+                <p className="text-xs text-brandMuted mt-2">
+                  Hold Ctrl / Cmd to select multiple
+                </p>
+              </div>
+            </div>
+
+            {/* PERSONAL TOUCH */}
+            <div>
+              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+                ❤️ Personal Touch
+              </h2>
+
+              {/* SIBLING */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Sibling Name (optional)
+                </label>
+                <input
+                  value={siblingName}
+                  onChange={(e) => setSiblingName(e.target.value)}
+                  type="text"
+                  placeholder="e.g. Aarav"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                />
+                <p className="text-sm text-brandMuted mt-2">
+                  May appear as a gentle supporting character
+                </p>
+              </div>
+
+              {/* ADDITIONAL INFO */}
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Additional Information (optional)
+                </label>
+                <textarea
+                  rows={4}
+                  value={additionalInfo}
+                  onChange={(e) => {
+                    const words = e.target.value.trim().split(/\s+/);
+                    if (words.length <= 100) {
+                      setAdditionalInfo(e.target.value);
+                    }
+                  }}
+                  placeholder="For example: struggles with change, shy at school, gets upset when routines break..."
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                />
+                <p className="text-xs text-brandMuted mt-2">
+                  {additionalInfo.trim()
+                    ? additionalInfo.trim().split(/\s+/).length
+                    : 0}
+                  /100 words
+                </p>
+              </div>
+            </div>
+
+            {/* PHOTO */}
+            <div>
+              <label className="block text-brandText font-medium mb-2">
+                Upload Your Child’s Photo 📸
+              </label>
+              <p className="text-sm text-brandMuted mb-3">
+                Helps us imagine the main character better
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setChildPhoto(e.target.files[0])}
+                className="w-full px-4 py-3 border border-dashed border-brandPurple rounded-xl bg-brandBg cursor-pointer"
+              />
             </div>
           </div>
 
-          {/* INTEREST */}
-          <div className="mb-8">
-            <label className="block text-brandText font-medium mb-2">
-              Child’s Interest
-            </label>
-            <input
-              value={interest}
-              onChange={(e) => setInterest(e.target.value)}
-              type="text"
-              placeholder="e.g. Dinosaurs, Space, Princess"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            />
-          </div>
-
-          {/* CHALLENGES */}
-          <div className="mb-8">
-            <label className="block text-brandText font-medium mb-2">
-              Challenges you want the story to help with
-            </label>
-
-            <select
-              multiple
-              value={challenges}
-              onChange={(e) =>
-                setChallenges([...e.target.selectedOptions].map(o => o.value))
-              }
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            >
-              <option>Obedience</option>
-              <option>Fighting</option>
-              <option>Hitting</option>
-              <option>Tantrums</option>
-              <option>Fear</option>
-              <option>Confidence</option>
-              <option>Expressing Emotions</option>
-              <option>Anger Suppression</option>
-              <option>Mom Guilt</option>
-            </select>
-
-            <p className="text-xs text-brandMuted mt-2">
-              Hold Ctrl / Cmd to select multiple
-            </p>
-          </div>
-
-          {/* SIBLING NAME */}
-          <div className="mb-8">
-            <label className="block text-brandText font-medium mb-2">
-              Sibling Name (optional)
-            </label>
-
-            <input
-              value={siblingName}
-              onChange={(e) => setSiblingName(e.target.value)}
-              type="text"
-              placeholder="e.g. Aarav"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            />
-          </div>
-          {/* ADDITIONAL INFO */}
-          <div className="mb-8">
-            <label className="block text-brandText font-medium mb-2">
-              Additional Information (optional)
-            </label>
-
-            <textarea
-              rows={4}
-              value={additionalInfo}
-              onChange={(e) => {
-                const words = e.target.value.trim().split(/\s+/);
-                if (words.length <= 100) {
-                  setAdditionalInfo(e.target.value);
-                }
-              }}
-              placeholder="Any context you'd like us to know (max 100 words)"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brandPurple"
-            />
-
-            <p className="text-xs text-brandMuted mt-2">
-              {additionalInfo.trim()
-                ? additionalInfo.trim().split(/\s+/).length
-                : 0}
-              /100 words
-            </p>
-          </div>
-
-
-
-          <div className="mb-8">
-            <label className="block text-brandText font-medium mb-2">
-              Upload Your Child’s Photo 📸
-            </label>
-
-            <p className="text-sm text-brandMuted mb-3">
-              This helps us create a story character that looks more like your child
-            </p>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setChildPhoto(e.target.files[0])}
-              className="w-full px-4 py-3 border border-dashed border-brandPurple rounded-xl bg-brandBg cursor-pointer"
-            />
-          </div>
-
-
-
           {/* CTA */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center mt-12">
             <button
               onClick={handleSubmit}
-              className="px-10 py-4 rounded-full bg-brandPurple text-white text-lg font-semibold shadow-lg hover:scale-105 transition mt-5"
+              className="px-12 py-4 rounded-full bg-brandPurple text-white text-lg font-semibold shadow-lg hover:scale-105 transition"
             >
-              Generate Storybook 🚀
+              Create My Child’s Story ✨
             </button>
-          </div>
 
+            <p className="text-center text-sm text-brandMuted mt-4">
+              You’ll be able to preview the story before unlocking the full book
+            </p>
+          </div>
         </div>
 
         <p className="text-center text-brandMuted text-sm mt-6">
           ⏳ Story generation usually takes less than a minute
         </p>
-
       </div>
     </div>
   );
