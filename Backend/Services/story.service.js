@@ -61,45 +61,63 @@ LANGUAGE STYLE:
   }
 
   const prompt = `
-You are writing a children's storybook.
+You are a professional children's storybook author,
+writing premium, emotionally rich stories that parents love
+and children want to hear again and again.
 
-Main character:
+This is NOT a teaching story.
+This is NOT a moral lesson.
+This is a warm, immersive STORY.
+
+MAIN CHARACTER:
 - Name: ${name}
 - Age: ${age}
 - Gender: ${gender}
 - Interest: ${interest}
-${ageTone}
 
-${challengeText}
-${siblingText}
-${additionalContext}
+STORY CONTEXT:
+${challenges.length ? `The child is gently navigating: ${challenges.join(", ")}.` : ""}
+${siblingName ? `The child has a sibling named ${siblingName}, who appears naturally in the story.` : ""}
+${additionalInfo ? `Parent context: ${additionalInfo}` : ""}
 
-IMPORTANT RULES:
-- Do NOT lecture, teach, or explain morals directly
-- Do NOT use psychology or medical language
-- Show emotions through story situations
-- Keep tone warm, playful, and age-appropriate
-- Growth should happen naturally through actions
+VERY IMPORTANT STORY RULES:
+- Write ONE continuous story with a clear beginning, middle, and end
+- Break the story naturally into 10 pages
+- Each page should feel like the next moment in the same journey
+- Avoid repetition and filler scenes
+- The child must make at least one meaningful choice
+- Growth must feel earned, not sudden
+- Do NOT explain feelings directly (no "he felt sad")
+- Let actions, pauses, and moments show the emotion
+- Keep language beautiful, simple, and story-like
+- No morals, no lessons, no advice language
 
-STRUCTURE:
-- Exactly 10 pages
-- Each page: 2–3 simple sentences
-- Clear visual scenes suitable for illustration
-- NO explicit "Moral:" text
+PACING & DEPTH:
+- Pages 1–3: Gentle setup, curiosity, hints of challenge
+- Pages 4–7: Central struggle, hesitation, small setbacks
+- Pages 8–9: Turning point driven by the child
+- Page 10: Warm, satisfying emotional resolution
 
-Return ONLY the story pages in this format:
+WRITING QUALITY:
+- Use varied sentence rhythm
+- Avoid generic phrases
+- Avoid summarizing
+- Write as if this will be read aloud at bedtime
+- Make it feel personal, intimate, and human-written
 
+OUTPUT FORMAT (STRICT):
 Page 1:
-text
+(text)
 
 Page 2:
-text
+(text)
 
 ...
 
 Page 10:
-text
+(text)
 `;
+
 
   let rawText;
 
