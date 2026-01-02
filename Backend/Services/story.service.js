@@ -51,9 +51,11 @@ MAIN CHARACTER:
 - Interest: ${interest}
 
 STORY CONTEXT FROM PARENTS:
-${challenges.length ? `The child is facing challenges like: ${challenges.join(", ")}.` : ""}
-${siblingName ? `The child has a sibling named ${siblingName}, who plays a meaningful role.` : ""}
-${additionalInfo ? `Additional context: ${additionalInfo}.` : ""}
+- The main emotional challenge of this story should be: ${challenges.length ? challenges[0] : "a small everyday struggle"}
+- The story should naturally revolve around this challenge
+- The child’s interest (${interest}) should play an active role in how the problem appears or is solved
+${siblingName ? `- A sibling named ${siblingName} should influence the story in a meaningful way (support, contrast, or motivation).` : ""}
+${additionalInfo ? `- Parent context to gently reflect: ${additionalInfo}` : ""}
 
 CORE STORY RULES:
 - Write ONE complete story with a clear beginning, middle, and end
@@ -67,10 +69,13 @@ CORE STORY RULES:
 - Keep language age-appropriate and engaging
 
 ENDING & MORAL (VERY IMPORTANT):
-- Page 10 MUST be a happy, emotionally satisfying ending
-- Include a gentle moral or takeaway, written naturally
-- Moral should feel like part of the story, not a lecture
-- End with hope, confidence, and warmth
+- Page 10 must feel warm, calm, and emotionally complete
+- The problem introduced earlier must be resolved
+- The child should succeed because of a choice they made
+- The moral should be implied through what happens
+- If a moral line is included, it should sound like a soft realization, not advice
+- End with a positive emotion (peace, confidence, belonging, joy)
+
 
 WRITING QUALITY:
 - Make it sound human-written
