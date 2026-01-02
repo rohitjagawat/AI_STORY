@@ -11,22 +11,22 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
-    const payload = JSON.parse(localStorage.getItem("storyPayload"));
+    // 🔒 ONLY use storyResult coming from Generating page
     const result = JSON.parse(localStorage.getItem("storyResult"));
 
-    if (!payload || !result) return;
+    if (!result || !result.bookId) {
+      navigate("/create");
+      return;
+    }
 
-    const bookId =
-      new URLSearchParams(window.location.search).get("bookId") ||
-      `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
+    setData(result);
 
-    setData({ ...result, bookId });
-
-    fetch(`${API_URL}/payment/has-paid?bookId=${bookId}`)
+    // 🔍 Check payment status ONLY ONCE
+    fetch(`${API_URL}/payment/has-paid?bookId=${result.bookId}`)
       .then((res) => res.json())
       .then((d) => setPaid(d.paid))
       .catch(() => setPaid(false));
-  }, []);
+  }, [API_URL, navigate]);
 
   if (!data) {
     return (
@@ -80,7 +80,6 @@ export default function Preview() {
             >
               🔐 Pay ₹999 to Unlock your Storybook
             </button>
-
           </>
         )}
 
@@ -106,7 +105,13 @@ export default function Preview() {
         )}
 
         <button
-          onClick={() => navigate("/create")}
+          onClick={() => {
+            // 🧹 CLEAN BEFORE NEW STORY
+            localStorage.removeItem("storyPayload");
+            localStorage.removeItem("storyResult");
+            localStorage.removeItem("paidBookId");
+            navigate("/create");
+          }}
           className="text-brandPurple underline"
         >
           ➕ Create Another Story
