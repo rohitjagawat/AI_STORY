@@ -21,8 +21,8 @@ export async function generateStory(input, bookId) {
   const challengeText =
     challenges.length > 0
       ? `The story gently explores these themes through situations and actions: ${challenges.join(
-          ", "
-        )}.`
+        ", "
+      )}.`
       : "";
 
   const siblingText = siblingName
@@ -33,6 +33,33 @@ export async function generateStory(input, bookId) {
     ? `Additional background from the parent: ${additionalInfo}`
     : "";
 
+
+  let ageTone = "";
+
+  if (age <= 5) {
+    ageTone = `
+LANGUAGE STYLE:
+- Very simple sentences
+- Repetition is okay
+- Focus on actions and feelings
+- Gentle, cozy, reassuring tone
+`;
+  } else if (age <= 8) {
+    ageTone = `
+LANGUAGE STYLE:
+- Simple but expressive sentences
+- Include feelings and small decisions
+- Curious and adventurous tone
+`;
+  } else {
+    ageTone = `
+LANGUAGE STYLE:
+- More descriptive language
+- Show inner thoughts
+- Confident and empowering tone
+`;
+  }
+
   const prompt = `
 You are writing a children's storybook.
 
@@ -41,6 +68,7 @@ Main character:
 - Age: ${age}
 - Gender: ${gender}
 - Interest: ${interest}
+${ageTone}
 
 ${challengeText}
 ${siblingText}
