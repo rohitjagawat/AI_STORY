@@ -24,15 +24,23 @@ router.post(
   upload.single("childPhoto"),
   async (req, res) => {
     try {
-      const {
+      // 👇 IMPORTANT: FormData values come as strings
+      let {
         name,
         age,
         interest,
         gender,
-        challenges = [],
+        challenges = "[]",
         siblingName = "",
         additionalInfo = "",
       } = req.body;
+
+      // ✅ Parse challenges safely
+      try {
+        challenges = JSON.parse(challenges);
+      } catch (e) {
+        challenges = [];
+      }
 
       console.log("🧠 STORY INPUT RECEIVED:", {
         name,
@@ -44,15 +52,14 @@ router.post(
         additionalInfo,
       });
 
-
       if (!name || !age || !interest) {
         return res.status(400).json({ error: "Invalid input data" });
       }
 
+      // ✅ Stable bookId
       const bookId = `${name}_${age}`.toLowerCase().replace(/\s+/g, "_");
 
-
-      // ⚡ FAST RESPONSE
+      // ⚡ FAST RESPONSE (frontend ko turant bhejo)
       res.json({
         success: true,
         bookId,
@@ -74,16 +81,15 @@ router.post(
         bookId
       );
 
-
       const images = await generateImages(storyPages, name, bookId);
       const previewImage = images[0];
 
-      // 🔥 HARD WAIT UNTIL IMAGE EXISTS ON DISK
+      // 🔥 WAIT until preview image exists
       const imagePath = path.join(process.cwd(), previewImage);
 
       let retries = 0;
       while (!fs.existsSync(imagePath)) {
-        if (retries > 20) break; // max ~10s
+        if (retries > 20) break; // ~10 seconds
         await new Promise((r) => setTimeout(r, 500));
         retries++;
       }
@@ -95,7 +101,7 @@ router.post(
       await generateRemainingImagePrompts(storyPages, bookId);
       const pdfUrl = await generatePDF(storyPages, images, bookId);
 
-      // ✅ SAVE RESULT ONLY AFTER IMAGE EXISTS
+      // ✅ Save result
       storyResults[bookId] = {
         story: storyPages,
         previewImage,

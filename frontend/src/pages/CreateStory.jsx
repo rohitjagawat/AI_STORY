@@ -15,27 +15,38 @@ const CreateStory = () => {
   const [siblingName, setSiblingName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
 
-  const handleSubmit = () => {
-    if (!name || !age || !interest || !gender) {
-      setError("Please fill all required details");
-      return;
-    }
+ const handleSubmit = async () => {
+  if (!name || !age || !interest || !gender) {
+    setError("Please fill all required details");
+    return;
+  }
 
-    const payload = {
-      name,
-      age,
-      gender,
-      interest,
-      challenges,
-      siblingName,
-      additionalInfo,
-    };
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("age", age);
+  formData.append("gender", gender);
+  formData.append("interest", interest);
 
+  // NEW FIELDS
+  formData.append("challenges", JSON.stringify(challenges));
+  formData.append("siblingName", siblingName);
+  formData.append("additionalInfo", additionalInfo);
 
-    localStorage.setItem("storyPayload", JSON.stringify(payload));
+  if (childPhoto) {
+    formData.append("childPhoto", childPhoto);
+  }
+
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/story/generate`, {
+      method: "POST",
+      body: formData,
+    });
+
     navigate("/generating");
-
-  };
+  } catch (err) {
+    setError("Failed to start story generation");
+  }
+};
 
   return (
     <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
