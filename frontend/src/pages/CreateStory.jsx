@@ -15,36 +15,18 @@ const CreateStory = () => {
   const [siblingName, setSiblingName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
 
-  const handleSubmit = async () => {
-
-    // 🧹 CLEAR ALL OLD STORY DATA (VERY IMPORTANT)
+  const handleSubmit = () => {
+    // 🧹 CLEAR OLD STORY DATA
     localStorage.removeItem("storyPayload");
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
-
-
 
     if (!name || !age || !interest || !gender) {
       setError("Please fill all required details");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("age", age);
-    formData.append("gender", gender);
-    formData.append("interest", interest);
-
-    // NEW FIELDS
-    formData.append("challenges", JSON.stringify(challenges));
-    formData.append("siblingName", siblingName);
-    formData.append("additionalInfo", additionalInfo);
-
-    if (childPhoto) {
-      formData.append("childPhoto", childPhoto);
-    }
-
-    // 🔐 SAVE CURRENT STORY PAYLOAD (SOURCE OF TRUTH)
+    // 🔐 SAVE STORY PAYLOAD (ONLY ONCE)
     localStorage.setItem(
       "storyPayload",
       JSON.stringify({
@@ -55,27 +37,13 @@ const CreateStory = () => {
         challenges,
         siblingName,
         additionalInfo,
+        hasPhoto: !!childPhoto,
       })
     );
 
-  // 🔐 SAVE PAYLOAD ONLY
-localStorage.setItem(
-  "storyPayload",
-  JSON.stringify({
-    name,
-    age,
-    gender,
-    interest,
-    challenges,
-    siblingName,
-    additionalInfo,
-    hasPhoto: !!childPhoto,
-  })
-);
-
-// 🚀 JUST REDIRECT
-navigate("/generating");
-
+    // 🚀 REDIRECT (API CALL HAPPENS IN Generating.jsx)
+    navigate("/generating");
+  };
 
   return (
     <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
@@ -87,8 +55,7 @@ navigate("/generating");
             Create Your Child’s Story ✨
           </h1>
           <p className="text-brandText text-lg">
-            Share a few details and we’ll create a gentle, magical storybook
-            made just for your child
+            Share a few details and we’ll create a magical storybook
           </p>
         </div>
 
@@ -109,59 +76,43 @@ navigate("/generating");
                 👶 Child Details
               </h2>
 
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Child’s Name
-                </label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  type="text"
-                  placeholder="e.g. Aarav"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
-                />
-              </div>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Child’s Name"
+                className="w-full mb-4 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brandPurple"
+              />
 
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Age
-                </label>
-                <input
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  type="number"
-                  placeholder="e.g. 6"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
-                />
-              </div>
+              <input
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                type="number"
+                placeholder="Age"
+                className="w-full mb-4 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brandPurple"
+              />
 
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-3">
-                  Gender
-                </label>
-                <div className="flex gap-6">
-                  <button
-                    type="button"
-                    onClick={() => setGender("boy")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "boy"
-                      ? "bg-brandPurple text-white border-brandPurple"
-                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                      }`}
-                  >
-                    👦 Boy
-                  </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setGender("boy")}
+                  className={`px-6 py-3 rounded-full border ${
+                    gender === "boy"
+                      ? "bg-brandPurple text-white"
+                      : "border-brandPurple text-brandPurple"
+                  }`}
+                >
+                  👦 Boy
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setGender("girl")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "girl"
-                      ? "bg-brandPurple text-white border-brandPurple"
-                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
-                      }`}
-                  >
-                    👧 Girl
-                  </button>
-                </div>
+                <button
+                  onClick={() => setGender("girl")}
+                  className={`px-6 py-3 rounded-full border ${
+                    gender === "girl"
+                      ? "bg-brandPurple text-white"
+                      : "border-brandPurple text-brandPurple"
+                  }`}
+                >
+                  👧 Girl
+                </button>
               </div>
             </div>
 
@@ -171,78 +122,44 @@ navigate("/generating");
                 📖 Story Preferences
               </h2>
 
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Child’s Interest
-                </label>
-                <input
-                  value={interest}
-                  onChange={(e) => setInterest(e.target.value)}
-                  type="text"
-                  placeholder="e.g. Dinosaurs, Space, Princess"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
-                />
-                <p className="text-sm text-brandMuted mt-2">
-                  We’ll use this to shape the story’s world and adventures
-                </p>
-              </div>
+              <input
+                value={interest}
+                onChange={(e) => setInterest(e.target.value)}
+                placeholder="Child’s Interest"
+                className="w-full mb-4 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brandPurple"
+              />
 
-              {/* CHALLENGES */}
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  What would you like this story to gently help with?
-                </label>
-
-                <p className="text-sm text-brandMuted mb-4">
-                  Choose up to 3 areas your child is currently navigating
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    { label: "Obedience", emoji: "🧩" },
-                    { label: "Fighting", emoji: "🤼" },
-                    { label: "Hitting", emoji: "✋" },
-                    { label: "Tantrums", emoji: "🌋" },
-                    { label: "Fear", emoji: "🌙" },
-                    { label: "Confidence", emoji: "🌟" },
-                    { label: "Expressing Emotions", emoji: "💬" },
-                    { label: "Anger Suppression", emoji: "🔥" },
-                    { label: "Mom Guilt", emoji: "❤️‍🩹" },
-                  ].map(({ label, emoji }) => {
-                    const selected = challenges.includes(label);
-                    const disabled = !selected && challenges.length >= 3;
-
-                    return (
-                      <button
-                        key={label}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => {
-                          if (selected) {
-                            setChallenges(
-                              challenges.filter((c) => c !== label)
-                            );
-                          } else if (challenges.length < 3) {
-                            setChallenges([...challenges, label]);
-                          }
-                        }}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200 ${selected
-                          ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
-                          : disabled
-                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
-                          }`}
-                      >
-                        <span className="text-lg">{emoji}</span>
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <p className="text-xs text-brandMuted mt-3">
-                  {challenges.length}/3 selected
-                </p>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  "Obedience",
+                  "Fighting",
+                  "Hitting",
+                  "Tantrums",
+                  "Fear",
+                  "Confidence",
+                  "Expressing Emotions",
+                  "Anger Suppression",
+                ].map((c) => (
+                  <button
+                    key={c}
+                    onClick={() =>
+                      setChallenges((prev) =>
+                        prev.includes(c)
+                          ? prev.filter((x) => x !== c)
+                          : prev.length < 3
+                          ? [...prev, c]
+                          : prev
+                      )
+                    }
+                    className={`px-4 py-2 rounded-full border ${
+                      challenges.includes(c)
+                        ? "bg-brandPurple text-white"
+                        : "border-brandPurple text-brandPurple"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -252,75 +169,30 @@ navigate("/generating");
                 ❤️ Personal Touch
               </h2>
 
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Sibling Name (optional)
-                </label>
-                <input
-                  value={siblingName}
-                  onChange={(e) => setSiblingName(e.target.value)}
-                  type="text"
-                  placeholder="e.g. Aarav"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
-                />
-                <p className="text-sm text-brandMuted mt-2">
-                  May appear as a gentle supporting character
-                </p>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Additional Information (optional)
-                </label>
-                <textarea
-                  rows={4}
-                  value={additionalInfo}
-                  onChange={(e) => {
-                    const words = e.target.value.trim().split(/\s+/);
-                    if (words.length <= 100) {
-                      setAdditionalInfo(e.target.value);
-                    }
-                  }}
-                  placeholder="For example: struggles with change, shy at school, gets upset when routines break..."
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
-                />
-                <p className="text-xs text-brandMuted mt-2">
-                  {additionalInfo.trim()
-                    ? additionalInfo.trim().split(/\s+/).length
-                    : 0}
-                  /100 words
-                </p>
-              </div>
-            </div>
-
-            {/* PHOTO */}
-            <div>
-              <label className="block text-brandText font-medium mb-2">
-                Upload Your Child’s Photo 📸
-              </label>
-              <p className="text-sm text-brandMuted mb-3">
-                Helps us imagine the main character better
-              </p>
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setChildPhoto(e.target.files[0])}
-                className="w-full px-4 py-3 border border-dashed border-brandPurple rounded-xl bg-brandBg cursor-pointer"
+                value={siblingName}
+                onChange={(e) => setSiblingName(e.target.value)}
+                placeholder="Sibling Name (optional)"
+                className="w-full mb-4 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brandPurple"
+              />
+
+              <textarea
+                rows={4}
+                value={additionalInfo}
+                onChange={(e) => setAdditionalInfo(e.target.value)}
+                placeholder="Additional info (optional)"
+                className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brandPurple"
               />
             </div>
 
             {/* CTA */}
-            <div className="flex flex-col items-center mt-12">
+            <div className="flex justify-center">
               <button
                 onClick={handleSubmit}
                 className="px-12 py-4 rounded-full bg-brandPurple text-white text-lg font-semibold shadow-lg hover:scale-105 transition"
               >
                 Create My Child’s Story ✨
               </button>
-
-              <p className="text-center text-sm text-brandMuted mt-4">
-                You’ll be able to preview the story before unlocking the full book
-              </p>
             </div>
           </div>
         </div>
