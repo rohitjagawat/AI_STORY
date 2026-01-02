@@ -31,8 +31,11 @@ const CreateStory = () => {
       additionalInfo,
     };
 
+    console.log("FINAL STORY PAYLOAD →", payload);
+
     localStorage.setItem("storyPayload", JSON.stringify(payload));
     navigate("/generating");
+
   };
 
   return (
