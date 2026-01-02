@@ -7,9 +7,9 @@ export default function Generating() {
   const [progress, setProgress] = useState(5);
   const [stepIndex, setStepIndex] = useState(0);
 
-  const hasCalledAPI = useRef(false);
+  const hasStarted = useRef(false);
+  const pollerRef = useRef(null);
   const isMounted = useRef(true);
-  const previewPoller = useRef(null);
 
   const steps = [
     "✨ Opening the magic book...",
@@ -21,13 +21,18 @@ export default function Generating() {
   ];
 
   useEffect(() => {
-    
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
-    if (!payload) return;
+    if (!payload) {
+      navigate("/");
+      return;
+    }
 
-    // 🔥 CLEAR OLD PAYMENT DATA
-localStorage.removeItem("paidBookId");
-
+    // clear old state
+    localStorage.removeItem("storyResult");
+    localStorage.removeItem("paidBookId");
 
     isMounted.current = true;
 
@@ -44,69 +49,73 @@ localStorage.removeItem("paidBookId");
     }, 120);
 
     /* ---------- START GENERATION ---------- */
-    if (!hasCalledAPI.current) {
-      hasCalledAPI.current = true;
+    (async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", payload.name);
+        formData.append("age", payload.age);
+        formData.append("gender", payload.gender);
+        formData.append("interest", payload.interest);
+        formData.append("challenges", JSON.stringify(payload.challenges || []));
+        formData.append("siblingName", payload.siblingName || "");
+        formData.append("additionalInfo", payload.additionalInfo || "");
 
-      (async () => {
-        try {
-          const formData = new FormData();
-          formData.append("name", payload.name);
-          formData.append("age", payload.age);
-          formData.append("gender", payload.gender);
-          formData.append("interest", payload.interest);
-
-          await fetch(
-            `${import.meta.env.VITE_API_URL}/story/generate`,
-            { method: "POST", body: formData }
-          );
-
-          const bookId = `${payload.name}_${payload.age}_${payload.interest}`.toLowerCase();
-
-          /* ---------- WAIT FOR PREVIEW IMAGE ---------- */
-          previewPoller.current = setInterval(async () => {
-            try {
-              const res = await fetch(
-                `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
-              );
-              const result = await res.json();
-
-              if (result.ready && result.previewImage) {
-                clearInterval(previewPoller.current);
-                clearInterval(progressTimer);
-                clearInterval(stepTimer);
-
-                localStorage.setItem(
-                  "storyResult",
-                  JSON.stringify(result)
-                );
-
-                setProgress(100);
-
-                setTimeout(() => {
-                  if (isMounted.current) {
-                    navigate("/preview");
-                  }
-                }, 600);
-              }
-            } catch (err) {
-              console.error(err);
-            }
-          }, 2000);
-        } catch (err) {
-          console.error(err);
-          alert("Something went wrong 😢");
+        if (payload.childPhoto) {
+          formData.append("childPhoto", payload.childPhoto);
         }
-      })();
-    }
+
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/story/generate`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+        const bookId = data.bookId;
+
+        /* ---------- POLL FOR RESULT ---------- */
+        pollerRef.current = setInterval(async () => {
+          try {
+            const r = await fetch(
+              `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
+            );
+            const result = await r.json();
+
+            if (result.ready && result.previewImage) {
+              clearInterval(pollerRef.current);
+              clearInterval(stepTimer);
+              clearInterval(progressTimer);
+
+              localStorage.setItem(
+                "storyResult",
+                JSON.stringify({ ...result, bookId })
+              );
+
+              setProgress(100);
+
+              setTimeout(() => {
+                if (isMounted.current) {
+                  navigate("/preview");
+                }
+              }, 600);
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong 😢");
+      }
+    })();
 
     return () => {
       isMounted.current = false;
       clearInterval(stepTimer);
       clearInterval(progressTimer);
-
-      if (previewPoller.current) {
-        clearInterval(previewPoller.current);
-      }
+      if (pollerRef.current) clearInterval(pollerRef.current);
     };
   }, [navigate]);
 
@@ -140,7 +149,7 @@ localStorage.removeItem("paidBookId");
         </p>
 
         <p className="relative z-10 mt-6 text-base text-brandText">
-          🧸 Please wait — preview image is being prepared
+          🧸 Please wait — your story is being prepared
         </p>
       </div>
     </div>
