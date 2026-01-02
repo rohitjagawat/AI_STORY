@@ -3,26 +3,63 @@ import fs from "fs";
 
 const STORY_DIR = "stories";
 
-export async function generateStory(name, age, interest, bookId) {
+export async function generateStory(input, bookId) {
+  const {
+    name,
+    age,
+    gender,
+    interest,
+    challenges = [],
+    siblingName,
+    additionalInfo,
+  } = input;
+
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
+  const challengeText =
+    challenges.length > 0
+      ? `The story gently explores these themes through situations and actions: ${challenges.join(
+          ", "
+        )}.`
+      : "";
+
+  const siblingText = siblingName
+    ? `The child has a sibling named ${siblingName}, who appears as a supportive and caring character.`
+    : "";
+
+  const additionalContext = additionalInfo
+    ? `Additional background from the parent: ${additionalInfo}`
+    : "";
+
   const prompt = `
-Write a children's story of exactly 10 pages.
+You are writing a children's storybook.
 
 Main character:
-Name: ${name}
-Age: ${age}
-Interest: ${interest}
+- Name: ${name}
+- Age: ${age}
+- Gender: ${gender}
+- Interest: ${interest}
 
-Rules:
-- Child is the hero
-- Simple language
-- Each page 5–6 lines
-- Page 10 must include a Moral
+${challengeText}
+${siblingText}
+${additionalContext}
 
-Format STRICTLY like this:
+IMPORTANT RULES:
+- Do NOT lecture, teach, or explain morals directly
+- Do NOT use psychology or medical language
+- Show emotions through story situations
+- Keep tone warm, playful, and age-appropriate
+- Growth should happen naturally through actions
+
+STRUCTURE:
+- Exactly 10 pages
+- Each page: 2–3 simple sentences
+- Clear visual scenes suitable for illustration
+- NO explicit "Moral:" text
+
+Return ONLY the story pages in this format:
 
 Page 1:
 text
@@ -30,26 +67,7 @@ text
 Page 2:
 text
 
-Page 3:
-text
-
-Page 4:
-text
-
-Page 5:
-text
-
-Page 6:
-text
-
-Page 7:
-text
-
-Page 8:
-text
-
-Page 9:
-text
+...
 
 Page 10:
 text
@@ -65,44 +83,46 @@ text
 
     rawText = response.output_text;
   } catch (err) {
-    console.error("OpenAI failed, using fallback story");
+    console.error("❌ OpenAI failed, using fallback story");
 
     rawText = `
 Page 1:
-${name} was a happy child who loved ${interest}.
+${name} was a cheerful child who loved ${interest}.
 
 Page 2:
-One day, ${name} found something magical.
+One day, something small changed and made ${name} feel unsure.
 
 Page 3:
-The adventure was full of fun and learning.
+Big feelings showed up in colorful and surprising ways.
 
 Page 4:
-Friends helped along the journey.
+A gentle moment helped things slow down.
 
 Page 5:
-${name} felt brave and confident.
+${siblingName || "A friendly character"} stayed nearby.
 
 Page 6:
-Challenges made ${name} stronger.
+${name} tried again with courage.
 
 Page 7:
-Kindness solved many problems.
+Things didn’t feel perfect, but they felt better.
 
 Page 8:
-Everyone celebrated together.
+The world seemed brighter once more.
 
 Page 9:
-The journey came to an end.
+${name} felt proud of trying.
 
 Page 10:
-Moral: Always believe in yourself.
+The day ended with calm and hope.
 `;
   }
 
-  // ✅ SAFE PARSING — NO DUPLICATES POSSIBLE
+  // ✅ SAFE PARSING
   const pages = [];
-  const matches = rawText.match(/Page\s*\d+:\s*([\s\S]*?)(?=Page\s*\d+:|$)/gi);
+  const matches = rawText.match(
+    /Page\s*\d+:\s*([\s\S]*?)(?=Page\s*\d+:|$)/gi
+  );
 
   if (matches) {
     for (const page of matches) {
@@ -111,7 +131,7 @@ Moral: Always believe in yourself.
     }
   }
 
-  console.log("STORY PAGES COUNT:", pages.length);
+  console.log("📘 STORY PAGES COUNT:", pages.length);
 
   if (!fs.existsSync(STORY_DIR)) {
     fs.mkdirSync(STORY_DIR);
