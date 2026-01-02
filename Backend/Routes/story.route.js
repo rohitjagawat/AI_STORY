@@ -81,7 +81,12 @@ router.post(
         bookId
       );
 
-      const images = await generateImages(storyPages, name, bookId);
+      const images = await generateImages(
+        storyPages,
+        { name, age, gender },
+        bookId
+      );
+
       const previewImage = images[0];
 
       // 🔥 WAIT until preview image exists
@@ -98,7 +103,7 @@ router.post(
         throw new Error("Preview image not written to disk");
       }
 
-      await generateRemainingImagePrompts(storyPages, bookId);
+      
       const pdfUrl = await generatePDF(storyPages, images, bookId);
 
       // ✅ Save result

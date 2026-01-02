@@ -2,24 +2,56 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
-export async function generateImages(pages, childName, bookId) {
+/* ===============================
+   CHARACTER LOCK
+================================ */
+const getCharacterProfile = ({ name, age, gender }) => {
+  return `
+Main character rules (CRITICAL):
+- Human child ONLY (never animal, never fantasy creature)
+- ${age}-year-old ${gender === "boy" ? "boy" : "girl"}
+- Same face, same hairstyle, same body in ALL images
+- Friendly expressive eyes
+- Age-appropriate proportions
+- Simple modern children clothing
+- High-quality children's storybook illustration style
+- CONSISTENCY is more important than creativity
+`;
+};
+
+/* ===============================
+   EMOTION BY PAGE
+================================ */
+const getEmotionForPage = (pageIndex) => {
+  if (pageIndex <= 1) return "curious and calm";
+  if (pageIndex <= 3) return "slightly worried but hopeful";
+  if (pageIndex <= 5) return "confused or struggling";
+  if (pageIndex <= 7) return "determined and trying hard";
+  if (pageIndex === 8) return "confident and focused";
+  if (pageIndex === 9) return "happy and relieved";
+  return "peaceful, proud, and joyful";
+};
+
+/* ===============================
+   IMAGE GENERATION
+================================ */
+export async function generateImages(pages, childProfile, bookId) {
   const folderPath = path.join("images", bookId);
 
-  // ♻️ TRY REUSE FIRST
+  // ♻️ REUSE IF EXISTS
   if (fs.existsSync(folderPath)) {
     const files = fs
       .readdirSync(folderPath)
       .filter((f) => f.endsWith(".png"))
       .sort();
 
-    if (files.length > 0) {
+    if (files.length === pages.length) {
       console.log("♻️ Reusing existing images");
       return files.map((f) => path.join(folderPath, f));
     }
   }
 
-  // 🆕 NO IMAGE FOUND → GENERATE ONE (TEST MODE)
-  console.log("🆕 No images found, generating ONE image for testing");
+  console.log("🆕 Generating story images");
 
   fs.mkdirSync(folderPath, { recursive: true });
 
@@ -27,34 +59,52 @@ export async function generateImages(pages, childName, bookId) {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  const prompt = `
-Children's storybook illustration ONLY.
-Main character: ${childName}
-Cartoon style, kid-friendly, bright colors.
+  const imagePaths = [];
+// for (let i = 0; i < pages.length; i++) {   for generating all the image
 
-Scene description (visual only):
-${pages[0]}
+ for (let i = 0; i < Math.min(3, pages.length); i++) {  // for testing phase
 
-IMPORTANT:
-Do NOT include any text, words, letters, captions, speech bubbles, quotes, signs, or writing anywhere in the image.
-Illustration only. No typography.
+    const prompt = `
+${getCharacterProfile(childProfile)}
+
+Scene (visual interpretation of the story page):
+${pages[i]}
+
+Emotion:
+${getEmotionForPage(i)}
+
+Illustration rules:
+- Bright, warm colors
+- Soft lighting
+- Kid-friendly, wholesome
+- ONE main character focus
+- No text, no words, no letters
+- No speech bubbles
+- No signs or symbols with text
+- No animals unless explicitly required by scene
+- No distortion, no extra limbs
+
+Camera:
+- Medium shot
+- Clear facial expression
 `;
 
-  const result = await openai.images.generate({
-    model: "gpt-image-1.5",
-    prompt,
-    size: "1024x1024",
-  });
+    const result = await openai.images.generate({
+      model: "gpt-image-1.5",
+      prompt,
+      size: "1024x1024",
+    });
 
-  const imagePath = path.join(folderPath, "page_1.png");
+    const imagePath = path.join(folderPath, `page_${i + 1}.png`);
 
-  fs.writeFileSync(
-    imagePath,
-    Buffer.from(result.data[0].b64_json, "base64")
-  );
+    fs.writeFileSync(
+      imagePath,
+      Buffer.from(result.data[0].b64_json, "base64")
+    );
 
-  console.log("🖼️ Test image generated (NO TEXT SAFE)");
+    imagePaths.push(imagePath);
+    console.log(`🖼️ Image generated: page ${i + 1}`);
+  }
 
-  // 🔁 RETURN SINGLE IMAGE (will be reused for all pages)
-  return [imagePath];
+  return imagePaths;
 }
