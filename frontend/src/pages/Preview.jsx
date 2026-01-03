@@ -32,9 +32,7 @@ export default function Preview() {
         const d = await res.json();
         setPaid(d.paid);
 
-        if (d.paid && poller) {
-          clearInterval(poller);
-        }
+        if (d.paid && poller) clearInterval(poller);
       } catch {
         setPaid(false);
       }
@@ -43,9 +41,7 @@ export default function Preview() {
     checkPayment();
     poller = setInterval(checkPayment, 3000);
 
-    return () => {
-      if (poller) clearInterval(poller);
-    };
+    return () => poller && clearInterval(poller);
   }, [API_URL, navigate]);
 
   if (!data) {
@@ -60,16 +56,16 @@ export default function Preview() {
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
-      <div className="max-w-5xl mx-auto space-y-10">
+      <div className="max-w-5xl mx-auto space-y-12">
 
         {/* HEADER */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-brandPurple mb-2">
-            {data.bookId.replace("_", " ")}’s Illustrated Storybook
+            Your Illustrated Storybook 📘
           </h1>
           {!paid && (
             <p className="text-sm text-brandMuted">
-              You're viewing the preview. Unlock the full story to see all pages!
+              Preview mode — unlock to read the full magical story
             </p>
           )}
         </div>
@@ -81,6 +77,8 @@ export default function Preview() {
 
           return (
             <div key={index} className="relative">
+
+              {/* PAGE LABEL */}
               <div className="mb-2 text-center text-sm font-medium text-brandMuted">
                 Page {index + 1} of {pages.length}
                 {isLocked && (
@@ -90,18 +88,28 @@ export default function Preview() {
                 )}
               </div>
 
+              {/* PAGE CARD */}
               <div
                 className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${
-                  isLocked ? "blur-sm pointer-events-none" : ""
+                  isLocked ? "pointer-events-none" : ""
                 }`}
               >
                 {/* IMAGE */}
                 {data.previewImage && (
-                  <img
-                    src={`${backendBase}/${data.previewImage}`}
-                    alt="Story illustration"
-                    className="w-full aspect-[16/9] object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={`${backendBase}/${data.previewImage}`}
+                      alt="Story illustration"
+                      className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${
+                        isLocked ? "blur-[14px] scale-105" : ""
+                      }`}
+                    />
+
+                    {/* DARK OVERLAY ON LOCKED IMAGE */}
+                    {isLocked && (
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                    )}
+                  </div>
                 )}
 
                 {/* TEXT */}
@@ -113,14 +121,13 @@ export default function Preview() {
               {/* LOCK OVERLAY */}
               {isLocked && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-white rounded-2xl shadow-xl p-6 text-center max-w-sm">
+                  <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-sm">
                     <div className="text-4xl mb-3">🔒</div>
                     <h3 className="font-semibold text-lg mb-2">
-                      Content Locked
+                      This page is locked
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Unlock the complete storybook with all illustrations to
-                      continue reading.
+                      Unlock the full storybook to continue this magical journey
                     </p>
 
                     {!paid && (
@@ -136,7 +143,7 @@ export default function Preview() {
                         }}
                         className="px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
                       >
-                        ✨ Unlock Full Story
+                        ✨ Pay ₹999 to Unlock Full Story
                       </button>
                     )}
                   </div>
@@ -148,7 +155,7 @@ export default function Preview() {
 
         {/* AFTER PAYMENT CTA */}
         {paid && (
-          <div className="text-center pt-6">
+          <div className="text-center pt-8">
             <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full mb-4">
               ✅ Payment successful! All pages unlocked.
             </div>
@@ -165,12 +172,10 @@ export default function Preview() {
         )}
 
         {/* CREATE ANOTHER */}
-        <div className="text-center pt-8">
+        <div className="text-center pt-10">
           <button
             onClick={() => {
-              localStorage.removeItem("storyPayload");
-              localStorage.removeItem("storyResult");
-              localStorage.removeItem("paidBookId");
+              localStorage.clear();
               navigate("/create");
             }}
             className="text-brandPurple underline"
