@@ -173,17 +173,22 @@ export default function Preview() {
         )}
 
         {/* CREATE ANOTHER */}
-        <div className="text-center pt-10">
+        <div className="flex justify-center pt-12">
           <button
             onClick={() => {
               localStorage.clear();
               navigate("/create");
             }}
-            className="text-brandPurple underline"
+            className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold
+               hover:bg-brandPurple hover:text-white transition-all duration-300 shadow-md hover:shadow-xl"
           >
-            ➕ Create Another Story
+            <span className="text-xl transition-transform duration-300 group-hover:rotate-12">
+              ✨
+            </span>
+            Create Another Magical Story
           </button>
         </div>
+
       </div>
     </div>
   );
