@@ -40,33 +40,18 @@ const getEmotionForPage = (pageIndex) => {
 export async function generateImages(pages, childProfile, bookId) {
   const folderPath = path.join("images", bookId);
 
- // ♻️ REUSE IF EXISTS
-if (fs.existsSync(folderPath)) {
-  const files = fs
-    .readdirSync(folderPath)
-    .filter((f) => f.endsWith(".png"))
-    .sort();
+  // ♻️ REUSE IF EXISTS
+  if (fs.existsSync(folderPath)) {
+    const files = fs
+      .readdirSync(folderPath)
+      .filter((f) => f.endsWith(".png"))
+      .sort();
 
-  // 🧪 TEST MODE: reuse & expand to full pages
-  if (IMAGE_TEST_MODE && files.length >= TEST_IMAGE_COUNT) {
-    console.log("♻️ Test mode: reusing & expanding images");
-
-    const reusedImages = [];
-    for (let i = 0; i < pages.length; i++) {
-      reusedImages.push(path.join(folderPath, files[i % files.length]));
+    if (files.length === pages.length) {
+      console.log("♻️ Reusing existing images");
+      return files.map((f) => path.join(folderPath, f));
     }
-    console.log("RETURNING IMAGES COUNT:", reusedImages.length);
-
-    return reusedImages;
   }
-
-  // ✅ PROD MODE: full images exist
-  if (!IMAGE_TEST_MODE && files.length === pages.length) {
-    console.log("♻️ Reusing existing images");
-    return files.map((f) => path.join(folderPath, f));
-  }
-}
-
 
   console.log("🆕 Generating story images");
 
@@ -79,13 +64,7 @@ if (fs.existsSync(folderPath)) {
   const imagePaths = [];
 // for (let i = 0; i < pages.length; i++) {   for generating all the image
 
-//  for (let i = 0; i < Math.min(2, pages.length); i++) {  // for testing phase
-const totalToGenerate = IMAGE_TEST_MODE
-  ? Math.min(TEST_IMAGE_COUNT, pages.length)
-  : pages.length;
-
-for (let i = 0; i < totalToGenerate; i++) {
-
+ for (let i = 0; i < Math.min(2, pages.length); i++) {  // for testing phase
 
     const prompt = `
 ${getCharacterProfile(childProfile)}
@@ -128,20 +107,6 @@ Camera:
     imagePaths.push(imagePath);
     console.log(`🖼️ Image generated: page ${i + 1}`);
   }
-
-  // 🧪 TEST MODE: reuse same images for full book
-if (IMAGE_TEST_MODE && imagePaths.length > 0) {
-  console.log("🧪 Test mode: reusing images for all pages");
-
-  const reusedImages = [];
-
-  for (let i = 0; i < pages.length; i++) {
-    reusedImages.push(imagePaths[i % imagePaths.length]);
-  }
-
-  return reusedImages; // 👈 frontend ko 10 images milengi
-}
-
 
   return imagePaths;
 }
