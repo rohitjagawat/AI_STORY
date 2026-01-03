@@ -11,7 +11,6 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   useEffect(() => {
-    // 🔒 ONLY use storyResult coming from Generating page
     const result = JSON.parse(localStorage.getItem("storyResult"));
 
     if (!result || !result.bookId) {
@@ -21,7 +20,6 @@ export default function Preview() {
 
     setData(result);
 
-    // 🔍 Check payment status ONLY ONCE
     fetch(`${API_URL}/payment/has-paid?bookId=${result.bookId}`)
       .then((res) => res.json())
       .then((d) => setPaid(d.paid))
@@ -36,86 +34,125 @@ export default function Preview() {
     );
   }
 
+  const images = data.images || [];
+
   return (
-    <div className="min-h-screen bg-brandBg flex items-center justify-center px-4 py-10">
-      <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-6 text-center">
+    <div className="min-h-screen bg-brandBg px-4 py-10">
+      <div className="max-w-2xl mx-auto space-y-8">
 
-        <h1 className="text-2xl font-bold text-brandPurple mb-4">
-          Your Storybook Preview 📘
-        </h1>
+        {/* HEADER */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-brandPurple">
+            Your Child Is the Hero 🌟
+          </h1>
+          <p className="text-brandText mt-2">
+            A magical storybook made just for {data.childName || "your child"}
+          </p>
+        </div>
 
-        {data.previewImage && (
-          <img
-            src={`${backendBase}/${data.previewImage}`}
-            alt="Preview"
-            className="w-full rounded-xl mb-6"
-          />
-        )}
+        {/* IMAGE PREVIEW STACK */}
+        <div className="space-y-8">
+          {images.map((img, index) => {
+            const imageUrl = `${backendBase}/${img}`;
 
-        {paid === null && (
-          <div className="text-sm text-gray-500 mb-6">
-            Checking payment status…
+            // FIRST 2 IMAGES — CLEAR
+            if (index < 2 || paid) {
+              return (
+                <div key={index} className="bg-white p-4 rounded-2xl shadow">
+                  <img
+                    src={imageUrl}
+                    alt={`Page ${index + 1}`}
+                    className="w-full rounded-xl"
+                  />
+                </div>
+              );
+            }
+
+            // LOCKED IMAGES
+            return (
+              <div
+                key={index}
+                className="relative bg-white p-4 rounded-2xl shadow overflow-hidden"
+              >
+                <img
+                  src={imageUrl}
+                  alt={`Locked Page ${index + 1}`}
+                  className="w-full rounded-xl blur-md scale-105"
+                />
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white text-center px-6">
+                  <div className="text-2xl mb-2">🔒</div>
+                  <p className="font-semibold mb-4">
+                    Unlock the rest of the story
+                  </p>
+
+                  {!paid && (
+                    <button
+                      onClick={() => {
+                        const url =
+                          `https://www.jrbillionaire.com/cart/add` +
+                          `?id=50467255124254` +
+                          `&quantity=1` +
+                          `&properties[bookId]=${data.bookId}`;
+
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      }}
+                      className="px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
+                    >
+                      🔐 Pay ₹999 to Unlock
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* BENEFITS CARD (ONLY IF NOT PAID) */}
+        {paid === false && (
+          <div className="bg-white rounded-2xl shadow p-6 space-y-3 text-sm">
+            <p className="font-semibold text-brandPurple">
+              What you’ll get after unlocking:
+            </p>
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              <li>10 beautifully illustrated pages</li>
+              <li>Personalized with your child’s name</li>
+              <li>High-quality printable PDF</li>
+              <li>Instant access after payment</li>
+            </ul>
           </div>
         )}
 
-        {/* 🔒 NOT PAID */}
-        {paid === false && (
-          <>
-            <div className="mb-6 p-4 rounded-xl bg-brandPurple/10 text-sm">
-              🔒 Full storybook is locked.
-            </div>
-
-            <button
-              onClick={() => {
-                const url =
-                  `https://www.jrbillionaire.com/cart/add` +
-                  `?id=50467255124254` +
-                  `&quantity=1` +
-                  `&properties[bookId]=${data.bookId}`;
-
-                // 🔥 OPEN PAYMENT IN NEW TAB
-                window.open(url, "_blank", "noopener,noreferrer");
-              }}
-              className="w-full mb-6 px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
-            >
-              🔐 Pay ₹999 to Unlock your Storybook
-            </button>
-          </>
-        )}
-
-        {/* ✅ PAID */}
+        {/* PAID SUCCESS */}
         {paid === true && (
-          <>
-            <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-sm font-medium">
-              ✅ Payment successful!
-            </div>
-
+          <div className="bg-green-100 text-green-800 rounded-2xl p-6 text-center font-medium">
+            🎉 Payment successful! Your full storybook is unlocked.
             <button
               onClick={() =>
-                window.open(
-                  `${API_URL}/view/${data.bookId}`,
-                  "_blank"
-                )
+                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
               }
-              className="w-full mb-4 px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
+              className="block mt-4 w-full px-6 py-3 rounded-full bg-green-600 text-white font-semibold"
             >
-              👀 View Your Story Book
+              👀 View Full Storybook
             </button>
-          </>
+          </div>
         )}
 
-        <button
-          onClick={() => {
-            // 🧹 CLEAN BEFORE NEW STORY
-            localStorage.removeItem("storyPayload");
-            localStorage.removeItem("storyResult");
-            localStorage.removeItem("paidBookId");
-            navigate("/create");
-          }}
-          className="text-brandPurple underline"
-        >
-          ➕ Create Another Story
-        </button>
+        {/* CREATE ANOTHER */}
+        <div className="text-center">
+          <button
+            onClick={() => {
+              localStorage.removeItem("storyPayload");
+              localStorage.removeItem("storyResult");
+              localStorage.removeItem("paidBookId");
+              navigate("/create");
+            }}
+            className="text-brandPurple underline"
+          >
+            ➕ Create Another Story
+          </button>
+        </div>
+
       </div>
     </div>
   );

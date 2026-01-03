@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+const IMAGE_TEST_MODE = true;   // 🔴 abhi TEST MODE
+const TEST_IMAGE_COUNT = 2;    // sirf 2 image generate hongi
 
 /* ===============================
    CHARACTER LOCK
@@ -45,7 +47,11 @@ export async function generateImages(pages, childProfile, bookId) {
       .filter((f) => f.endsWith(".png"))
       .sort();
 
-    if (files.length === pages.length) {
+   if (
+  files.length === pages.length ||
+  (IMAGE_TEST_MODE && files.length >= TEST_IMAGE_COUNT)
+) {
+
       console.log("♻️ Reusing existing images");
       return files.map((f) => path.join(folderPath, f));
     }
@@ -62,7 +68,13 @@ export async function generateImages(pages, childProfile, bookId) {
   const imagePaths = [];
 // for (let i = 0; i < pages.length; i++) {   for generating all the image
 
- for (let i = 0; i < Math.min(3, pages.length); i++) {  // for testing phase
+//  for (let i = 0; i < Math.min(2, pages.length); i++) {  // for testing phase
+const totalToGenerate = IMAGE_TEST_MODE
+  ? Math.min(TEST_IMAGE_COUNT, pages.length)
+  : pages.length;
+
+for (let i = 0; i < totalToGenerate; i++) {
+
 
     const prompt = `
 ${getCharacterProfile(childProfile)}
@@ -105,6 +117,20 @@ Camera:
     imagePaths.push(imagePath);
     console.log(`🖼️ Image generated: page ${i + 1}`);
   }
+
+  // 🧪 TEST MODE: reuse same images for full book
+if (IMAGE_TEST_MODE && imagePaths.length > 0) {
+  console.log("🧪 Test mode: reusing images for all pages");
+
+  const reusedImages = [];
+
+  for (let i = 0; i < pages.length; i++) {
+    reusedImages.push(imagePaths[i % imagePaths.length]);
+  }
+
+  return reusedImages; // 👈 frontend ko 10 images milengi
+}
+
 
   return imagePaths;
 }
