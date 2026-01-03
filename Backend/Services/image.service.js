@@ -40,22 +40,33 @@ const getEmotionForPage = (pageIndex) => {
 export async function generateImages(pages, childProfile, bookId) {
   const folderPath = path.join("images", bookId);
 
-  // ♻️ REUSE IF EXISTS
-  if (fs.existsSync(folderPath)) {
-    const files = fs
-      .readdirSync(folderPath)
-      .filter((f) => f.endsWith(".png"))
-      .sort();
+ // ♻️ REUSE IF EXISTS
+if (fs.existsSync(folderPath)) {
+  const files = fs
+    .readdirSync(folderPath)
+    .filter((f) => f.endsWith(".png"))
+    .sort();
 
-   if (
-  files.length === pages.length ||
-  (IMAGE_TEST_MODE && files.length >= TEST_IMAGE_COUNT)
-) {
+  // 🧪 TEST MODE: reuse & expand to full pages
+  if (IMAGE_TEST_MODE && files.length >= TEST_IMAGE_COUNT) {
+    console.log("♻️ Test mode: reusing & expanding images");
 
-      console.log("♻️ Reusing existing images");
-      return files.map((f) => path.join(folderPath, f));
+    const reusedImages = [];
+    for (let i = 0; i < pages.length; i++) {
+      reusedImages.push(path.join(folderPath, files[i % files.length]));
     }
+    console.log("RETURNING IMAGES COUNT:", reusedImages.length);
+
+    return reusedImages;
   }
+
+  // ✅ PROD MODE: full images exist
+  if (!IMAGE_TEST_MODE && files.length === pages.length) {
+    console.log("♻️ Reusing existing images");
+    return files.map((f) => path.join(folderPath, f));
+  }
+}
+
 
   console.log("🆕 Generating story images");
 

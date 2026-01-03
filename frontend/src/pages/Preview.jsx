@@ -19,6 +19,9 @@ export default function Preview() {
     }
 
     setData(result);
+    console.log("PREVIEW DATA 👉", result);
+console.log("IMAGES 👉", result.images);
+
 
     fetch(`${API_URL}/payment/has-paid?bookId=${result.bookId}`)
       .then((res) => res.json())
