@@ -81,24 +81,35 @@ export default function Generating() {
             );
             const result = await r.json();
 
-            if (result.ready && result.previewImage) {
-              clearInterval(pollerRef.current);
-              clearInterval(stepTimer);
-              clearInterval(progressTimer);
+           if (result.ready && result.previewImage) {
+  clearInterval(pollerRef.current);
+  clearInterval(stepTimer);
+  clearInterval(progressTimer);
 
-              localStorage.setItem(
-                "storyResult",
-                JSON.stringify({ ...result, bookId })
-              );
+  // 🔥 FIX STARTS HERE
+  const storyResult = {
+    bookId,
+    images: result.images,          // ✅ MOST IMPORTANT LINE
+    previewImage: result.previewImage,
+    childName: payload.name,
+    story: result.story
+  };
 
-              setProgress(100);
+  localStorage.setItem(
+    "storyResult",
+    JSON.stringify(storyResult)
+  );
+  // 🔥 FIX ENDS HERE
 
-              setTimeout(() => {
-                if (isMounted.current) {
-                  navigate("/preview");
-                }
-              }, 600);
-            }
+  setProgress(100);
+
+  setTimeout(() => {
+    if (isMounted.current) {
+      navigate("/preview");
+    }
+  }, 600);
+}
+
           } catch (err) {
             console.error(err);
           }
