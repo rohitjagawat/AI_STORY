@@ -1,8 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
-const IMAGE_TEST_MODE = true;   // 🔴 abhi TEST MODE
-const TEST_IMAGE_COUNT = 2;    // sirf 2 image generate hongi
+
 
 /* ===============================
    CHARACTER LOCK
@@ -79,12 +78,16 @@ Illustration rules:
 - Bright, warm colors
 - Soft lighting
 - Kid-friendly, wholesome
-- ONE main character focus
+- Main character must be clearly visible
+- Background should match the story scene
+- Include environment details (room, school, park, playground, home, etc.)
+- Scene should feel alive and contextual
 - No text, no words, no letters
 - No speech bubbles
 - No signs or symbols with text
 - No animals unless explicitly required by scene
 - No distortion, no extra limbs
+
 
 Camera:
 - Medium shot
