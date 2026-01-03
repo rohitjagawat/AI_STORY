@@ -90,9 +90,8 @@ export default function Preview() {
 
               {/* PAGE CARD */}
               <div
-                className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${
-                  isLocked ? "pointer-events-none" : ""
-                }`}
+                className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${isLocked ? "pointer-events-none" : ""
+                  }`}
               >
                 {/* IMAGE */}
                 {data.previewImage && (
@@ -100,9 +99,8 @@ export default function Preview() {
                     <img
                       src={`${backendBase}/${data.previewImage}`}
                       alt="Story illustration"
-                      className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${
-                        isLocked ? "blur-[14px] scale-105" : ""
-                      }`}
+                      className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${isLocked ? "blur-[14px] scale-105" : ""
+                        }`}
                     />
 
                     {/* DARK OVERLAY ON LOCKED IMAGE */}
@@ -113,9 +111,12 @@ export default function Preview() {
                 )}
 
                 {/* TEXT */}
-                <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
-                  {text}
-                </div>
+                {!isLocked && (
+                  <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
+                    {text}
+                  </div>
+                )}
+
               </div>
 
               {/* LOCK OVERLAY */}
