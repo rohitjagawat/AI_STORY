@@ -61,9 +61,9 @@ export async function generateImages(pages, childProfile, bookId) {
   });
 
   const imagePaths = [];
-// for (let i = 0; i < pages.length; i++) {   for generating all the image
+for (let i = 0; i < pages.length; i++) {  // for generating all the image
 
- for (let i = 0; i < Math.min(1, pages.length); i++) {  // for testing phase
+//  for (let i = 0; i < Math.min(1, pages.length); i++) {  // for testing phase
 
     const prompt = `
 ${getCharacterProfile(childProfile)}
