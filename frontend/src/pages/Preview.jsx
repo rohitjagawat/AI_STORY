@@ -94,21 +94,23 @@ export default function Preview() {
                   }`}
               >
                 {/* IMAGE */}
-                {data.previewImage && (
-                  <div className="relative">
-                    <img
-                      src={`${backendBase}/${data.previewImage}`}
-                      alt="Story illustration"
-                      className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${isLocked ? "blur-[14px] scale-105" : ""
-                        }`}
-                    />
+                <div className="relative">
+                  <img
+                    src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
+                    alt={`Story page ${index + 1}`}
+                    onError={(e) => {
+                      // fallback to preview image (test mode / safety)
+                      e.currentTarget.src = `${backendBase}/${data.previewImage}`;
+                    }}
+                    className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${isLocked ? "blur-[14px] scale-105" : ""
+                      }`}
+                  />
 
-                    {/* DARK OVERLAY ON LOCKED IMAGE */}
-                    {isLocked && (
-                      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-                    )}
-                  </div>
-                )}
+                  {/* DARK OVERLAY ON LOCKED IMAGE */}
+                  {isLocked && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                  )}
+                </div>
 
                 {/* TEXT */}
                 {!isLocked && (

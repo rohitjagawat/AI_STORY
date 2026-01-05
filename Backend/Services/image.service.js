@@ -36,7 +36,13 @@ const getEmotionForPage = (pageIndex) => {
 /* ===============================
    IMAGE GENERATION
 ================================ */
-export async function generateImages(pages, childProfile, bookId) {
+export async function generateImages(
+  visualScenes,
+  pages,
+  childProfile,
+  bookId
+)
+ {
   const folderPath = path.join("images", bookId);
 
   // ♻️ REUSE IF EXISTS
@@ -68,8 +74,9 @@ for (let i = 0; i < pages.length; i++) {  // for generating all the image
     const prompt = `
 ${getCharacterProfile(childProfile)}
 
-Scene (visual interpretation of the story page):
-${pages[i]}
+Illustrate this exact scene from a children's picture book:
+
+${visualScenes[i]}
 
 Emotion:
 ${getEmotionForPage(i)}
@@ -79,20 +86,18 @@ Illustration rules:
 - Soft lighting
 - Kid-friendly, wholesome
 - Main character must be clearly visible
-- Background should match the story scene
-- Include environment details (room, school, park, playground, home, etc.)
-- Scene should feel alive and contextual
-- No text, no words, no letters
-- No speech bubbles
-- No signs or symbols with text
-- No animals unless explicitly required by scene
+- Background must match the scene
+- Environment details required
+- No text, no letters, no speech bubbles
+- No signs with text
+- No animals unless mentioned
 - No distortion, no extra limbs
 
-
 Camera:
-- Medium shot
-- Clear facial expression
+- Medium-wide shot
+- Scene-focused composition
 `;
+
 
     const result = await openai.images.generate({
       model: "gpt-image-1.5",

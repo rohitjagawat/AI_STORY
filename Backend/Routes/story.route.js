@@ -2,14 +2,15 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-
+import { extractVisualScenes } from "../Services/sceneExtractor.service.js";
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
 import { generatePDF } from "../Services/pdf.service.js";
-import { generateRemainingImagePrompts } from "../Services/imagePrompt.service.js";
+// import { generateRemainingImagePrompts } from "../Services/imagePrompt.service.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
+
 
 /* ===============================
    IN-MEMORY STORE
@@ -80,12 +81,15 @@ router.post(
         },
         bookId
       );
+      const visualScenes = await extractVisualScenes(storyPages);
 
       const images = await generateImages(
+        visualScenes,
         storyPages,
         { name, age, gender },
         bookId
       );
+
 
       const previewImage = images[0];
 
@@ -103,7 +107,7 @@ router.post(
         throw new Error("Preview image not written to disk");
       }
 
-      
+
       const pdfUrl = await generatePDF(storyPages, images, bookId);
 
       // ✅ Save result
