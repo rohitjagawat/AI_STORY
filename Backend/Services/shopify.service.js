@@ -76,8 +76,16 @@ export async function handleOrderPaid(order) {
     { startIndex: existingCount }
   );
 
-  // 📄 Generate PDF (uses existing + new images)
-  await generatePDF(fullStoryPages, [], bookId);
+  // 📄 COLLECT ALL IMAGE PATHS FOR PDF
+  const imageFiles = fs
+    .readdirSync(imagesDir)
+    .filter((f) => f.endsWith(".png"))
+    .sort()
+    .map((f) => path.join(imagesDir, f));
+
+  // 📄 GENERATE PDF USING ALL IMAGES
+  await generatePDF(fullStoryPages, imageFiles, bookId);
+
 
   console.log("✅ PAYMENT FLOW COMPLETE (STORY UNCHANGED):", bookId);
 }
