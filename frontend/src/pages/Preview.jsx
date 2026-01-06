@@ -84,7 +84,7 @@ export default function Preview() {
 
               {/* PAGE LABEL */}
               <div className="mb-2 text-center text-sm font-medium text-brandMuted">
-                Page {index + 1} of {pages.length}
+                Page {index + 1} of {totalPages.length}
                 {isLocked && (
                   <span className="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-900 rounded text-xs">
                     LOCKED

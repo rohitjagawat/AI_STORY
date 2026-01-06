@@ -47,6 +47,24 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
     });
 
     /* ---------- BACKGROUND WORK ---------- */
+    // 🔐 SAVE STORY INPUT FOR PAYMENT WEBHOOK (MANDATORY)
+    fs.writeFileSync(
+      `stories/${bookId}.input.json`,
+      JSON.stringify(
+        {
+          name,
+          age,
+          gender,
+          interest,
+          challenges,
+          siblingName,
+          additionalInfo,
+        },
+        null,
+        2
+      )
+    );
+
 
     // 🔒 ONLY 2 PAGES GENERATED
     const storyPages = await generateStory(
@@ -86,60 +104,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
   }
 });
 
-/* ===============================
-   COMPLETE STORY AFTER PAYMENT
-================================ */
-router.post("/complete", async (req, res) => {
-  try {
-    const { bookId, input } = req.body;
 
-    if (!bookId || !input) {
-      return res.status(400).json({ error: "Missing bookId or input" });
-    }
-
-    // 1️⃣ Generate FULL STORY (10 pages)
-    const fullStoryPages = await generateStory(
-      input,
-      bookId,
-      { pageLimit: 10 }
-    );
-
-    // 2️⃣ Generate visuals for full story
-    const visualScenes = await extractVisualScenes(fullStoryPages);
-
-    const images = await generateImages(
-      visualScenes,
-      fullStoryPages,
-      { name: input.name, age: input.age, gender: input.gender },
-      bookId
-    );
-
-    // 3️⃣ Generate PDF
-    const pdfPath = await generatePDF(
-      fullStoryPages,
-      images,
-      bookId
-    );
-
-    // 4️⃣ Update in-memory store
-    storyResults[bookId] = {
-      story: fullStoryPages,
-      previewImage: images[0],
-      pdfPath,
-      isPaid: true,
-    };
-
-    res.json({
-      success: true,
-      message: "Story completed",
-    });
-
-    console.log("✅ FULL STORY GENERATED AFTER PAYMENT:", bookId);
-  } catch (err) {
-    console.error("❌ Complete story failed:", err.message);
-    res.status(500).json({ error: "Story completion failed" });
-  }
-});
 
 
 /* ===============================
@@ -153,14 +118,14 @@ router.get("/result/:bookId", (req, res) => {
   }
 
   res.json({
-  ready: true,
-  story: {
-    pages: result.story,
-    totalPages: 10 // 👈 VERY IMPORTANT
-  },
-  previewImage: result.previewImage,
-  isPaid: result.isPaid,
-});
+    ready: true,
+    story: {
+      pages: result.story,
+      totalPages: 10 // 👈 VERY IMPORTANT
+    },
+    previewImage: result.previewImage,
+    isPaid: result.isPaid,
+  });
 
 });
 
