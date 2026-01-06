@@ -32,7 +32,22 @@ export default function Preview() {
         const d = await res.json();
         setPaid(d.paid);
 
-        if (d.paid && poller) clearInterval(poller);
+        if (d.paid) {
+          // 🔄 REFRESH FULL STORY AFTER PAYMENT
+          const res2 = await fetch(
+            `${API_URL}/story/result/${result.bookId}`
+          );
+          const updated = await res2.json();
+
+          setData((prev) => ({
+            ...prev,
+            story: updated.story,
+            previewImage: updated.previewImage,
+          }));
+
+          if (poller) clearInterval(poller);
+        }
+
       } catch {
         setPaid(false);
       }
@@ -84,7 +99,7 @@ export default function Preview() {
 
               {/* PAGE LABEL */}
               <div className="mb-2 text-center text-sm font-medium text-brandMuted">
-                Page {index + 1} of {totalPages.length}
+                Page {index + 1} of {totalPages}
                 {isLocked && (
                   <span className="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-900 rounded text-xs">
                     LOCKED
@@ -119,7 +134,8 @@ export default function Preview() {
                 {/* TEXT */}
                 {!isLocked && (
                   <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
-                    {text}
+                   {text || ""}
+
                   </div>
                 )}
 

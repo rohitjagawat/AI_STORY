@@ -73,7 +73,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
     );
 
 
-    // 🔒 ONLY 2 PAGES GENERATED
+    // 🔒 story generate
     const storyPages = await generateStory(
       {
         name,
@@ -85,7 +85,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
         additionalInfo,
       },
       bookId,
-      { pageLimit: 2 }
+      { pageLimit: 10}
     );
 
     const visualScenes = await extractVisualScenes(storyPages);

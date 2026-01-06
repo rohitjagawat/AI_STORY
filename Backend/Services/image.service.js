@@ -2,7 +2,6 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
-
 /* ===============================
    CHARACTER LOCK
 ================================ */
@@ -40,25 +39,11 @@ export async function generateImages(
   visualScenes,
   pages,
   childProfile,
-  bookId
-)
- {
+  bookId,
+  options = {}
+) {
+  const startIndex = options.startIndex || 0;
   const folderPath = path.join("images", bookId);
-
-  // ♻️ REUSE IF EXISTS
-  if (fs.existsSync(folderPath)) {
-    const files = fs
-      .readdirSync(folderPath)
-      .filter((f) => f.endsWith(".png"))
-      .sort();
-
-    if (files.length === pages.length) {
-      console.log("♻️ Reusing existing images");
-      return files.map((f) => path.join(folderPath, f));
-    }
-  }
-
-  console.log("🆕 Generating story images");
 
   fs.mkdirSync(folderPath, { recursive: true });
 
@@ -67,9 +52,17 @@ export async function generateImages(
   });
 
   const imagePaths = [];
-// for (let i = 0; i < pages.length; i++) {  // for generating all the image
 
- for (let i = 0; i < Math.min(1, pages.length); i++) {  // for testing phase
+  // 🧪 TEST MODE: generate only 1 image at a time
+  for (let i = 0; i < Math.min(1, pages.length); i++) {
+    const pageNumber = startIndex + i + 1;
+    const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
+
+    // ❌ DO NOT overwrite existing images
+    if (fs.existsSync(imagePath)) {
+      imagePaths.push(imagePath);
+      continue;
+    }
 
     const prompt = `
 ${getCharacterProfile(childProfile)}
@@ -79,7 +72,7 @@ Illustrate this exact scene from a children's picture book:
 ${visualScenes[i]}
 
 Emotion:
-${getEmotionForPage(i)}
+${getEmotionForPage(pageNumber - 1)}
 
 Illustration rules:
 - Bright, warm colors
@@ -98,14 +91,11 @@ Camera:
 - Scene-focused composition
 `;
 
-
     const result = await openai.images.generate({
       model: "gpt-image-1.5",
       prompt,
       size: "1024x1024",
     });
-
-    const imagePath = path.join(folderPath, `page_${i + 1}.png`);
 
     fs.writeFileSync(
       imagePath,
@@ -113,7 +103,7 @@ Camera:
     );
 
     imagePaths.push(imagePath);
-    console.log(`🖼️ Image generated: page ${i + 1}`);
+    console.log(`🖼️ Image generated: page ${pageNumber}`);
   }
 
   return imagePaths;

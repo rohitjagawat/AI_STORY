@@ -1,10 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { generateStory } from "./story.service.js";
 import { extractVisualScenes } from "./sceneExtractor.service.js";
 import { generateImages } from "./image.service.js";
 import { generatePDF } from "./pdf.service.js";
-
 
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
@@ -39,53 +37,47 @@ export async function handleOrderPaid(order) {
     return;
   }
 
-  const customerEmail = order.email;
-  console.log("✅ PAYMENT RECEIVED:", bookId, customerEmail);
+  console.log("✅ PAYMENT RECEIVED:", bookId, order.email);
 
-  // 1️⃣ SAVE PAYMENT (existing logic)
+  // 1️⃣ Save payment
   savePayment(order.id, bookId);
 
   /* ===============================
-     🔥 COMPLETE STORY AFTER PAYMENT
+     🔥 POST-PAYMENT WORK
+     (NO STORY REGENERATION)
   ================================ */
 
   const storyPath = path.join("stories", `${bookId}.json`);
   if (!fs.existsSync(storyPath)) {
-    console.log("❌ Partial story not found:", bookId);
+    console.log("❌ Story not found:", bookId);
     return;
   }
 
-  const inputPath = path.join("stories", `${bookId}.input.json`);
-  if (!fs.existsSync(inputPath)) {
-    console.log("❌ Story input not found:", bookId);
-    return;
-  }
-
-  const input = JSON.parse(fs.readFileSync(inputPath));
-
-  // 2️⃣ GENERATE FULL STORY (10 pages)
-  const fullStoryPages = await generateStory(
-    input,
-    bookId,
-    { pageLimit: 10 }
+  const fullStoryPages = JSON.parse(
+    fs.readFileSync(storyPath, "utf-8")
   );
 
-  // 3️⃣ GENERATE IMAGES
   const visualScenes = await extractVisualScenes(fullStoryPages);
 
-  const images = await generateImages(
-    visualScenes,
-    fullStoryPages,
-    {
-      name: input.name,
-      age: input.age,
-      gender: input.gender,
-    },
-    bookId
+  // 📸 Generate ONLY missing images
+  const imagesDir = path.join("images", bookId);
+  const existingCount = fs.existsSync(imagesDir)
+    ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
+    : 0;
+
+  const remainingPages = fullStoryPages.slice(existingCount);
+  const remainingScenes = visualScenes.slice(existingCount);
+
+  await generateImages(
+    remainingScenes,
+    remainingPages,
+    {},
+    bookId,
+    { startIndex: existingCount }
   );
 
-  // 4️⃣ GENERATE PDF
-  await generatePDF(fullStoryPages, images, bookId);
+  // 📄 Generate PDF (uses existing + new images)
+  await generatePDF(fullStoryPages, [], bookId);
 
-  console.log("✅ FULL STORY + PDF GENERATED:", bookId);
+  console.log("✅ PAYMENT FLOW COMPLETE (STORY UNCHANGED):", bookId);
 }
