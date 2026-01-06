@@ -53,6 +53,8 @@ export default function Preview() {
   }
 
   const pages = data.story?.pages || [];
+  const totalPages = data.story?.totalPages || pages.length;
+
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
@@ -71,7 +73,9 @@ export default function Preview() {
         </div>
 
         {/* STORY PAGES */}
-        {pages.map((text, index) => {
+        {Array.from({ length: totalPages }).map((_, index) => {
+          const text = pages[index];
+
           const isFree = index < FREE_PAGES;
           const isLocked = !isFree && !paid;
 
