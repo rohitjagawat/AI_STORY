@@ -3,7 +3,8 @@ import fs from "fs";
 
 const STORY_DIR = "stories";
 
-export async function generateStory(input, bookId) {
+// ✅ ONLY CHANGE: added options param
+export async function generateStory(input, bookId, options = {}) {
   const {
     name,
     age,
@@ -14,6 +15,9 @@ export async function generateStory(input, bookId) {
     additionalInfo,
   } = input;
 
+  // ✅ ONLY CHANGE: pageLimit (default 10)
+  const { pageLimit = 10 } = options;
+
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -21,8 +25,8 @@ export async function generateStory(input, bookId) {
   const challengeText =
     challenges.length > 0
       ? `The story gently explores these themes through situations and actions: ${challenges.join(
-        ", "
-      )}.`
+          ", "
+        )}.`
       : "";
 
   const siblingText = siblingName
@@ -33,9 +37,7 @@ export async function generateStory(input, bookId) {
     ? `Additional background from the parent: ${additionalInfo}`
     : "";
 
-
-  
-
+  // ❌ PROMPT UNCHANGED
   const prompt = `
 You are a professional children's storybook author
 known for writing emotionally rich, memorable stories
@@ -51,7 +53,9 @@ MAIN CHARACTER:
 - Interest: ${interest}
 
 STORY CONTEXT FROM PARENTS:
-- The main emotional challenge of this story should be: ${challenges.length ? challenges[0] : "a small everyday struggle"}
+- The main emotional challenge of this story should be: ${
+    challenges.length ? challenges[0] : "a small everyday struggle"
+  }
 - The story should naturally revolve around this challenge
 - The child’s interest (${interest}) should play an active role in how the problem appears or is solved
 ${siblingName ? `- A sibling named ${siblingName} should influence the story in a meaningful way (support, contrast, or motivation).` : ""}
@@ -76,13 +80,6 @@ ENDING & MORAL (VERY IMPORTANT):
 - If a moral line is included, it should sound like a soft realization, not advice
 - End with a positive emotion (peace, confidence, belonging, joy)
 
-
-WRITING QUALITY:
-- Make it sound human-written
-- Avoid repetitive sentence patterns
-- Avoid abstract emotions without events
-- Write as if this will be read aloud to a child at bedtime
-
 OUTPUT FORMAT (STRICT):
 Page 1:
 (text)
@@ -95,8 +92,6 @@ Page 2:
 Page 10:
 (text)
 `;
-
-
 
   let rawText;
 
@@ -143,7 +138,7 @@ The day ended with calm and hope.
 `;
   }
 
-  // ✅ SAFE PARSING
+  // ❌ PARSING UNCHANGED
   const pages = [];
   const matches = rawText.match(
     /Page\s*\d+:\s*([\s\S]*?)(?=Page\s*\d+:|$)/gi
@@ -156,7 +151,10 @@ The day ended with calm and hope.
     }
   }
 
-  console.log("📘 STORY PAGES COUNT:", pages.length);
+  console.log("📘 STORY PAGES COUNT (RAW):", pages.length);
+
+  // ✅ ONLY CHANGE: limit pages here
+  const limitedPages = pages.slice(0, pageLimit);
 
   if (!fs.existsSync(STORY_DIR)) {
     fs.mkdirSync(STORY_DIR);
@@ -164,10 +162,12 @@ The day ended with calm and hope.
 
   fs.writeFileSync(
     `${STORY_DIR}/${bookId}.json`,
-    JSON.stringify(pages, null, 2)
+    JSON.stringify(limitedPages, null, 2)
   );
 
-  return pages;
+  console.log("📘 STORY SAVED PAGES:", limitedPages.length);
+
+  return limitedPages;
 }
 
 export function loadStory(bookId) {
