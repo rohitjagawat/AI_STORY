@@ -48,6 +48,13 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
 
     /* ---------- BACKGROUND WORK ---------- */
     // 🔐 SAVE STORY INPUT FOR PAYMENT WEBHOOK (MANDATORY)
+
+    // ✅ ENSURE stories DIRECTORY EXISTS
+    if (!fs.existsSync("stories")) {
+      fs.mkdirSync("stories", { recursive: true });
+    }
+
+
     fs.writeFileSync(
       `stories/${bookId}.input.json`,
       JSON.stringify(
