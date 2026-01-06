@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { extractVisualScenes } from "../Services/sceneExtractor.service.js";
 import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
@@ -57,8 +58,8 @@ router.post(
         return res.status(400).json({ error: "Invalid input data" });
       }
 
-      // ✅ Stable bookId
-      const bookId = `${name}_${age}`.toLowerCase().replace(/\s+/g, "_");
+      const bookId = `book_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+
 
       // ⚡ FAST RESPONSE (frontend ko turant bhejo)
       res.json({
