@@ -7,8 +7,8 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [direction, setDirection] = useState("next");
+  const [animating, setAnimating] = useState(false);
+  const [animDir, setAnimDir] = useState("next");
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
@@ -75,14 +75,14 @@ export default function Preview() {
   const isFree = currentPage < FREE_PAGES;
   const isLocked = !isFree && !paid;
 
-  const flipTo = (nextPage, dir) => {
-    setDirection(dir);
-    setIsFlipping(true);
+  const goToPage = (nextPage, dir) => {
+    setAnimDir(dir);
+    setAnimating(true);
 
     setTimeout(() => {
       setCurrentPage(nextPage);
-      setIsFlipping(false);
-    }, 650);
+      setAnimating(false);
+    }, 300);
   };
 
   return (
@@ -102,39 +102,28 @@ export default function Preview() {
         {/* PROGRESS BAR */}
         <div className="h-1 bg-yellow-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-brandPurple transition-all duration-500"
+            className="h-full bg-brandPurple transition-all duration-300"
             style={{
               width: `${((currentPage + 1) / totalPages) * 100}%`,
             }}
           />
         </div>
 
-        {/* BOOK */}
-        <div className="relative perspective-[1800px] h-[520px]">
+        {/* STORY PAGE */}
+        <div className="relative overflow-hidden">
 
-          {/* NEXT PAGE UNDERLAY */}
-          {isFlipping && currentPage + 1 < totalPages && (
-            <div className="absolute inset-0 bg-[#fffaf0] rounded-[28px] border border-yellow-200 shadow-inner overflow-hidden">
-              <img
-                src={`${backendBase}/images/${data.bookId}/page_${currentPage + 2}.png`}
-                className="w-full aspect-[16/9] object-cover opacity-90"
-              />
-            </div>
-          )}
-
-          {/* CURRENT PAGE */}
           <div
-            className={`absolute inset-0 bg-[#fffaf0] rounded-[28px] border border-yellow-200
+            className={`bg-[#fffaf0] rounded-[28px] border border-yellow-200
             shadow-[0_20px_60px_rgba(0,0,0,0.15)]
-            overflow-hidden transform-gpu
-            transition-transform duration-[650ms] ease-in-out
+            transition-all duration-300 ease-in-out
             ${
-              isFlipping && direction === "next"
-                ? "-rotate-y-180 origin-right"
-                : "rotate-y-0 origin-right"
+              animating
+                ? animDir === "next"
+                  ? "-translate-x-6 opacity-0"
+                  : "translate-x-6 opacity-0"
+                : "translate-x-0 opacity-100"
             }
             ${isLocked ? "pointer-events-none" : ""}`}
-            style={{ backfaceVisibility: "hidden" }}
           >
             {/* IMAGE */}
             <div className="relative">
@@ -152,6 +141,7 @@ export default function Preview() {
               )}
             </div>
 
+            {/* TEXT */}
             {!isLocked && (
               <div className="p-8 text-center text-lg leading-relaxed text-gray-800 font-medium">
                 {text || ""}
@@ -183,7 +173,7 @@ export default function Preview() {
                   }}
                   className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg"
                 >
-                  ✨pay ₹999 and Unlock the Complete Storybook
+                  ✨ Pay ₹999 & Unlock Full Story
                 </button>
                 <p className="text-xs text-gray-500 mt-3">
                   One-time payment • Lifetime access • Printable PDF
@@ -196,8 +186,8 @@ export default function Preview() {
         {/* NAVIGATION */}
         <div className="flex justify-between items-center pt-4">
           <button
-            disabled={currentPage === 0 || isFlipping}
-            onClick={() => flipTo(currentPage - 1, "prev")}
+            disabled={currentPage === 0 || animating}
+            onClick={() => goToPage(currentPage - 1, "prev")}
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === 0
                 ? "bg-gray-200 text-gray-400"
@@ -208,8 +198,8 @@ export default function Preview() {
           </button>
 
           <button
-            disabled={currentPage === totalPages - 1 || isFlipping}
-            onClick={() => flipTo(currentPage + 1, "next")}
+            disabled={currentPage === totalPages - 1 || animating}
+            onClick={() => goToPage(currentPage + 1, "next")}
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === totalPages - 1
                 ? "bg-gray-200 text-gray-400"
