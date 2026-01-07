@@ -212,34 +212,28 @@ export default function Preview() {
 
         {/* AFTER PAYMENT */}
         {paid && (
-          <div className="text-center pt-6">
-            <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full mb-4">
-              ✅ Payment successful! All pages unlocked.
-            </div>
+  <div className="mt-10 flex flex-col items-center gap-5">
 
-            <button
-              onClick={() =>
-                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
-              }
-              className="px-8 py-3 rounded-full bg-green-600 text-white font-semibold shadow-lg"
-            >
-              📘 View / Download Storybook PDF
-            </button>
-          </div>
-        )}
+    <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
+      ✅ Payment successful! Your full storybook is unlocked.
+    </div>
 
-        {/* CREATE ANOTHER */}
-        <div className="flex justify-center pt-10">
-          <button
-            onClick={() => {
-              localStorage.clear();
-              navigate("/create");
-            }}
-            className="px-8 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
-          >
-            ✨ Create Another Magical Story
-          </button>
-        </div>
+    <button
+      onClick={() =>
+        window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+      }
+      className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg
+                 shadow-lg hover:shadow-xl transition-all"
+    >
+      📘 View & Download Storybook PDF
+    </button>
+
+    <p className="text-xs text-gray-500">
+      You can access this story anytime using this link
+    </p>
+  </div>
+)}
+
 
       </div>
     </div>
