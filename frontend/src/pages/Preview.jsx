@@ -9,6 +9,7 @@ export default function Preview() {
   const [currentPage, setCurrentPage] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [animDir, setAnimDir] = useState("next");
+  const [loadingImages, setLoadingImages] = useState({});
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
@@ -129,13 +130,27 @@ export default function Preview() {
             <div className="relative">
               <img
                 src={`${backendBase}/images/${data.bookId}/page_${currentPage + 1}.png`}
-                onError={(e) =>
-                  (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
+                onLoad={() =>
+                  setLoadingImages((p) => ({ ...p, [currentPage]: false }))
+                }
+                onError={() =>
+                  setLoadingImages((p) => ({ ...p, [currentPage]: true }))
                 }
                 className={`w-full aspect-[16/9] object-cover ${
                   isLocked ? "blur-[14px]" : ""
                 }`}
               />
+
+              {/* IMAGE LOADING OVERLAY */}
+              {paid && loadingImages[currentPage] && !isLocked && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-brandPurple border-t-transparent mb-4"></div>
+                  <p className="text-sm text-brandMuted">
+                    Preparing your child’s illustration…
+                  </p>
+                </div>
+              )}
+
               {isLocked && (
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
               )}
@@ -212,28 +227,45 @@ export default function Preview() {
 
         {/* AFTER PAYMENT */}
         {paid && (
-  <div className="mt-10 flex flex-col items-center gap-5">
+          <div className="mt-12 flex flex-col items-center gap-6">
+            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
+              ✅ Payment successful! Your full storybook is unlocked.
+            </div>
 
-    <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
-      ✅ Payment successful! Your full storybook is unlocked.
-    </div>
+            <button
+              onClick={() =>
+                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+              }
+              className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg
+                         shadow-lg hover:shadow-xl transition-all"
+            >
+              📘 View & Download Storybook PDF
+            </button>
 
-    <button
-      onClick={() =>
-        window.open(`${API_URL}/view/${data.bookId}`, "_blank")
-      }
-      className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg
-                 shadow-lg hover:shadow-xl transition-all"
-    >
-      📘 View & Download Storybook PDF
-    </button>
+            <p className="text-xs text-gray-500">
+              You can access this story anytime using this link
+            </p>
+          </div>
+        )}
 
-    <p className="text-xs text-gray-500">
-      You can access this story anytime using this link
-    </p>
-  </div>
-)}
-
+        {/* CREATE ANOTHER STORY */}
+        <div className="pt-16 flex justify-center">
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/create");
+            }}
+            className="group flex items-center gap-3 px-10 py-4 rounded-full
+                       border-2 border-brandPurple text-brandPurple font-semibold
+                       hover:bg-brandPurple hover:text-white transition-all
+                       shadow-md hover:shadow-xl"
+          >
+            <span className="text-xl transition-transform group-hover:rotate-12">
+              ✨
+            </span>
+            Create Another Magical Story
+          </button>
+        </div>
 
       </div>
     </div>
