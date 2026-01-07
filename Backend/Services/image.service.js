@@ -53,15 +53,11 @@ export async function generateImages(
 
   const imagePaths = [];
 
-  // 🧪 TEST MODE: generate only 1 image at a time
-  // for (let i = 0; i < Math.min(1, pages.length); i++) {  // for testing
-
-
-  for (let i = 0; i < pages.length; i++) {  //for production 
+  for (let i = 0; i < pages.length; i++) {
     const pageNumber = startIndex + i + 1;
     const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
 
-    // ❌ DO NOT overwrite existing images
+    // 🔒 DO NOT regenerate existing images
     if (fs.existsSync(imagePath)) {
       imagePaths.push(imagePath);
       continue;

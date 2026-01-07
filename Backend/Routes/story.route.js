@@ -47,14 +47,13 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
     });
 
     /* ---------- BACKGROUND WORK ---------- */
-    // 🔐 SAVE STORY INPUT FOR PAYMENT WEBHOOK (MANDATORY)
 
     // ✅ ENSURE stories DIRECTORY EXISTS
     if (!fs.existsSync("stories")) {
       fs.mkdirSync("stories", { recursive: true });
     }
 
-
+    // 🔐 SAVE STORY INPUT (for payment webhook)
     fs.writeFileSync(
       `stories/${bookId}.input.json`,
       JSON.stringify(
@@ -72,8 +71,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
       )
     );
 
-
-    // 🔒 story generate
+    // 📘 GENERATE FULL STORY ONCE (10 pages)
     const storyPages = await generateStory(
       {
         name,
@@ -85,34 +83,35 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
         additionalInfo,
       },
       bookId,
-      { pageLimit: 10}
+      { pageLimit: 10 }
     );
 
+    // 🎨 EXTRACT VISUAL SCENES
     const visualScenes = await extractVisualScenes(storyPages);
 
-    const images = await generateImages(
-      visualScenes,
-      storyPages,
+    // 🖼️ GENERATE ONLY FIRST 2 IMAGES (PREVIEW)
+    await generateImages(
+      visualScenes.slice(0, 2),
+      storyPages.slice(0, 2),
       { name, age, gender },
-      bookId
+      bookId,
+      { startIndex: 0 }
     );
 
-    const previewImage = images[0];
+    const previewImage = `images/${bookId}/page_1.png`;
 
+    // 💾 SAVE RESULT (IN-MEMORY)
     storyResults[bookId] = {
       story: storyPages,
       previewImage,
-      isPaid: false, // 👈 IMPORTANT
+      isPaid: false,
     };
 
-    console.log("✅ PARTIAL STORY GENERATED:", bookId);
+    console.log("✅ PREVIEW STORY + 2 IMAGES GENERATED:", bookId);
   } catch (err) {
     console.error("❌ Story generation failed:", err.message);
   }
 });
-
-
-
 
 /* ===============================
    FETCH RESULT
@@ -128,12 +127,11 @@ router.get("/result/:bookId", (req, res) => {
     ready: true,
     story: {
       pages: result.story,
-      totalPages: 10 // 👈 VERY IMPORTANT
+      totalPages: 10,
     },
     previewImage: result.previewImage,
     isPaid: result.isPaid,
   });
-
 });
 
 export default router;

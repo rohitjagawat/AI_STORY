@@ -53,30 +53,47 @@ export async function handleOrderPaid(order) {
     return;
   }
 
+  const inputPath = path.join("stories", `${bookId}.input.json`);
+  if (!fs.existsSync(inputPath)) {
+    console.log("❌ Story input not found:", bookId);
+    return;
+  }
+
   const fullStoryPages = JSON.parse(
     fs.readFileSync(storyPath, "utf-8")
   );
 
+  const input = JSON.parse(
+    fs.readFileSync(inputPath, "utf-8")
+  );
+
   const visualScenes = await extractVisualScenes(fullStoryPages);
 
-  // 📸 Generate ONLY missing images
+  // 📸 COUNT EXISTING IMAGES
   const imagesDir = path.join("images", bookId);
   const existingCount = fs.existsSync(imagesDir)
     ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
     : 0;
 
-  const remainingPages = fullStoryPages.slice(existingCount);
-  const remainingScenes = visualScenes.slice(existingCount);
+  // 🛑 IF ALL IMAGES ALREADY GENERATED
+  if (existingCount >= fullStoryPages.length) {
+    console.log("ℹ️ All images already exist, skipping generation");
+  } else {
+    // 🖼️ GENERATE ONLY REMAINING IMAGES
+    await generateImages(
+      visualScenes.slice(existingCount),
+      fullStoryPages.slice(existingCount),
+      {
+        name: input.name,
+        age: input.age,
+        gender: input.gender,
+      },
+      bookId,
+      { startIndex: existingCount }
+    );
+  }
 
-  await generateImages(
-    remainingScenes,
-    remainingPages,
-    {},
-    bookId,
-    { startIndex: existingCount }
-  );
-
-  // 📄 COLLECT ALL IMAGE PATHS FOR PDF
+  // 📄 COLLECT ALL IMAGE PATHS (ORDERED)
   const imageFiles = fs
     .readdirSync(imagesDir)
     .filter((f) => f.endsWith(".png"))
@@ -86,6 +103,5 @@ export async function handleOrderPaid(order) {
   // 📄 GENERATE PDF USING ALL IMAGES
   await generatePDF(fullStoryPages, imageFiles, bookId);
 
-
-  console.log("✅ PAYMENT FLOW COMPLETE (STORY UNCHANGED):", bookId);
+  console.log("✅ PAYMENT FLOW COMPLETE (STORY + IMAGES CONSISTENT):", bookId);
 }
