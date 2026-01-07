@@ -61,7 +61,7 @@ export default function Preview() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading preview…
+        Opening your magical story…
       </div>
     );
   }
@@ -79,14 +79,22 @@ export default function Preview() {
 
         {/* HEADER */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-brandPurple mb-2">
-            Your Illustrated Storybook 📘
+          <h1 className="text-3xl font-bold text-brandPurple">
+            Your Child’s Personalized Storybook 📘
           </h1>
-          {!paid && (
-            <p className="text-sm text-brandMuted">
-              Preview mode — unlock to read the full magical story
-            </p>
-          )}
+          <p className="mt-1 text-sm text-brandMuted italic">
+            A magical bedtime story crafted just for your child ✨
+          </p>
+        </div>
+
+        {/* PROGRESS BAR */}
+        <div className="h-1 bg-yellow-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-brandPurple transition-all duration-500"
+            style={{
+              width: `${((currentPage + 1) / totalPages) * 100}%`,
+            }}
+          />
         </div>
 
         {/* PAGE */}
@@ -102,9 +110,11 @@ export default function Preview() {
             )}
           </div>
 
-          {/* PAGE CARD */}
+          {/* STORY PAGE CARD */}
           <div
-            className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${
+            className={`bg-[#fffaf0] rounded-[28px] border border-yellow-200
+            shadow-[0_20px_60px_rgba(0,0,0,0.15)]
+            overflow-hidden transition-all duration-500 ${
               isLocked ? "pointer-events-none" : ""
             }`}
           >
@@ -116,19 +126,19 @@ export default function Preview() {
                 onError={(e) => {
                   e.currentTarget.src = `${backendBase}/${data.previewImage}`;
                 }}
-                className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${
+                className={`w-full aspect-[16/9] object-cover transition-all duration-500 ${
                   isLocked ? "blur-[14px] scale-105" : ""
                 }`}
               />
 
               {isLocked && (
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
               )}
             </div>
 
             {/* TEXT */}
             {!isLocked && (
-              <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
+              <div className="p-8 text-center text-lg leading-relaxed text-gray-800 font-medium">
                 {text || ""}
               </div>
             )}
@@ -137,30 +147,36 @@ export default function Preview() {
           {/* LOCK OVERLAY */}
           {isLocked && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-sm">
-                <div className="text-4xl mb-3">🔒</div>
-                <h3 className="font-semibold text-lg mb-2">
-                  This page is locked
+              <div className="bg-white/95 rounded-3xl shadow-2xl p-8 text-center max-w-sm">
+                <div className="text-4xl mb-4">✨</div>
+                <h3 className="font-semibold text-xl mb-2">
+                  The story continues…
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Unlock the full storybook to continue this magical journey
+                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                  Unlock the remaining pages to discover how this magical
+                  journey ends — written specially for your child.
                 </p>
 
                 {!paid && (
-                  <button
-                    onClick={() => {
-                      const url =
-                        `https://www.jrbillionaire.com/cart/add` +
-                        `?id=50467255124254` +
-                        `&quantity=1` +
-                        `&properties[bookId]=${data.bookId}`;
+                  <>
+                    <button
+                      onClick={() => {
+                        const url =
+                          `https://www.jrbillionaire.com/cart/add` +
+                          `?id=50467255124254` +
+                          `&quantity=1` +
+                          `&properties[bookId]=${data.bookId}`;
 
-                      window.open(url, "_blank", "noopener,noreferrer");
-                    }}
-                    className="px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
-                  >
-                    ✨ Pay ₹999 to Unlock Full Story
-                  </button>
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      }}
+                      className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg hover:opacity-90"
+                    >
+                      ✨ Unlock the Complete Storybook
+                    </button>
+                    <p className="text-xs text-gray-500 mt-3">
+                      One-time payment • Lifetime access • Printable PDF
+                    </p>
+                  </>
                 )}
               </div>
             </div>
@@ -211,9 +227,9 @@ export default function Preview() {
               onClick={() =>
                 window.open(`${API_URL}/view/${data.bookId}`, "_blank")
               }
-              className="block mx-auto px-8 py-3 rounded-full bg-green-600 text-white font-semibold"
+              className="block mx-auto px-8 py-3 rounded-full bg-green-600 text-white font-semibold shadow-lg hover:opacity-90"
             >
-              📘 View Full Storybook PDF
+              📘 View / Download Storybook PDF
             </button>
           </div>
         )}
@@ -225,8 +241,10 @@ export default function Preview() {
               localStorage.clear();
               navigate("/create");
             }}
-            className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold
-              hover:bg-brandPurple hover:text-white transition-all duration-300 shadow-md hover:shadow-xl"
+            className="group flex items-center gap-3 px-8 py-4 rounded-full
+              border-2 border-brandPurple text-brandPurple font-semibold
+              hover:bg-brandPurple hover:text-white transition-all
+              duration-300 shadow-md hover:shadow-xl"
           >
             <span className="text-xl transition-transform duration-300 group-hover:rotate-12">
               ✨
