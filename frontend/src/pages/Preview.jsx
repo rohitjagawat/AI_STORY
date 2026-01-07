@@ -8,6 +8,7 @@ export default function Preview() {
   const [paid, setPaid] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [direction, setDirection] = useState("next");
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
@@ -74,12 +75,14 @@ export default function Preview() {
   const isFree = currentPage < FREE_PAGES;
   const isLocked = !isFree && !paid;
 
-  const flipTo = (nextPage) => {
+  const flipTo = (nextPage, dir) => {
+    setDirection(dir);
     setIsFlipping(true);
+
     setTimeout(() => {
       setCurrentPage(nextPage);
       setIsFlipping(false);
-    }, 400);
+    }, 650);
   };
 
   return (
@@ -106,39 +109,49 @@ export default function Preview() {
           />
         </div>
 
-        {/* PAGE */}
-        <div className="relative perspective-[1200px]">
+        {/* BOOK */}
+        <div className="relative perspective-[1800px] h-[520px]">
 
+          {/* NEXT PAGE UNDERLAY */}
+          {isFlipping && currentPage + 1 < totalPages && (
+            <div className="absolute inset-0 bg-[#fffaf0] rounded-[28px] border border-yellow-200 shadow-inner overflow-hidden">
+              <img
+                src={`${backendBase}/images/${data.bookId}/page_${currentPage + 2}.png`}
+                className="w-full aspect-[16/9] object-cover opacity-90"
+              />
+            </div>
+          )}
+
+          {/* CURRENT PAGE */}
           <div
-            className={`bg-[#fffaf0] rounded-[28px] border border-yellow-200
+            className={`absolute inset-0 bg-[#fffaf0] rounded-[28px] border border-yellow-200
             shadow-[0_20px_60px_rgba(0,0,0,0.15)]
-            overflow-hidden transition-all duration-400 transform-gpu
+            overflow-hidden transform-gpu
+            transition-transform duration-[650ms] ease-in-out
             ${
-              isFlipping
-                ? "opacity-0 rotate-y-90"
-                : "opacity-100 rotate-y-0"
+              isFlipping && direction === "next"
+                ? "-rotate-y-180 origin-right"
+                : "rotate-y-0 origin-right"
             }
             ${isLocked ? "pointer-events-none" : ""}`}
+            style={{ backfaceVisibility: "hidden" }}
           >
             {/* IMAGE */}
             <div className="relative">
               <img
                 src={`${backendBase}/images/${data.bookId}/page_${currentPage + 1}.png`}
-                alt={`Story page ${currentPage + 1}`}
-                onError={(e) => {
-                  e.currentTarget.src = `${backendBase}/${data.previewImage}`;
-                }}
-                className={`w-full aspect-[16/9] object-cover transition-all duration-500 ${
-                  isLocked ? "blur-[14px] scale-105" : ""
+                onError={(e) =>
+                  (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
+                }
+                className={`w-full aspect-[16/9] object-cover ${
+                  isLocked ? "blur-[14px]" : ""
                 }`}
               />
-
               {isLocked && (
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
               )}
             </div>
 
-            {/* TEXT */}
             {!isLocked && (
               <div className="p-8 text-center text-lg leading-relaxed text-gray-800 font-medium">
                 {text || ""}
@@ -154,32 +167,27 @@ export default function Preview() {
                 <h3 className="font-semibold text-xl mb-2">
                   The story continues…
                 </h3>
-                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                <p className="text-sm text-gray-600 mb-6">
                   Unlock the remaining pages to discover how this magical
                   journey ends — written specially for your child.
                 </p>
 
-                {!paid && (
-                  <>
-                    <button
-                      onClick={() => {
-                        const url =
-                          `https://www.jrbillionaire.com/cart/add` +
-                          `?id=50467255124254` +
-                          `&quantity=1` +
-                          `&properties[bookId]=${data.bookId}`;
-
-                        window.open(url, "_blank", "noopener,noreferrer");
-                      }}
-                      className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg hover:opacity-90"
-                    >
-                      ✨pay ₹999 and Unlock the Complete Storybook
-                    </button>
-                    <p className="text-xs text-gray-500 mt-3">
-                      One-time payment • Lifetime access • Printable PDF
-                    </p>
-                  </>
-                )}
+                <button
+                  onClick={() => {
+                    const url =
+                      `https://www.jrbillionaire.com/cart/add` +
+                      `?id=50467255124254` +
+                      `&quantity=1` +
+                      `&properties[bookId]=${data.bookId}`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+                  }}
+                  className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg"
+                >
+                  ✨pay ₹999 and Unlock the Complete Storybook
+                </button>
+                <p className="text-xs text-gray-500 mt-3">
+                  One-time payment • Lifetime access • Printable PDF
+                </p>
               </div>
             </div>
           )}
@@ -189,7 +197,7 @@ export default function Preview() {
         <div className="flex justify-between items-center pt-4">
           <button
             disabled={currentPage === 0 || isFlipping}
-            onClick={() => flipTo(Math.max(currentPage - 1, 0))}
+            onClick={() => flipTo(currentPage - 1, "prev")}
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === 0
                 ? "bg-gray-200 text-gray-400"
@@ -201,9 +209,7 @@ export default function Preview() {
 
           <button
             disabled={currentPage === totalPages - 1 || isFlipping}
-            onClick={() =>
-              flipTo(Math.min(currentPage + 1, totalPages - 1))
-            }
+            onClick={() => flipTo(currentPage + 1, "next")}
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === totalPages - 1
                 ? "bg-gray-200 text-gray-400"
@@ -214,7 +220,7 @@ export default function Preview() {
           </button>
         </div>
 
-        {/* AFTER PAYMENT CTA */}
+        {/* AFTER PAYMENT */}
         {paid && (
           <div className="text-center pt-6">
             <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full mb-4">
@@ -225,7 +231,7 @@ export default function Preview() {
               onClick={() =>
                 window.open(`${API_URL}/view/${data.bookId}`, "_blank")
               }
-              className="block mx-auto px-8 py-3 rounded-full bg-green-600 text-white font-semibold shadow-lg hover:opacity-90"
+              className="px-8 py-3 rounded-full bg-green-600 text-white font-semibold shadow-lg"
             >
               📘 View / Download Storybook PDF
             </button>
@@ -239,15 +245,9 @@ export default function Preview() {
               localStorage.clear();
               navigate("/create");
             }}
-            className="group flex items-center gap-3 px-8 py-4 rounded-full
-              border-2 border-brandPurple text-brandPurple font-semibold
-              hover:bg-brandPurple hover:text-white transition-all
-              duration-300 shadow-md hover:shadow-xl"
+            className="px-8 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
           >
-            <span className="text-xl transition-transform duration-300 group-hover:rotate-12">
-              ✨
-            </span>
-            Create Another Magical Story
+            ✨ Create Another Magical Story
           </button>
         </div>
 
