@@ -7,6 +7,7 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isFlipping, setIsFlipping] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
@@ -73,6 +74,14 @@ export default function Preview() {
   const isFree = currentPage < FREE_PAGES;
   const isLocked = !isFree && !paid;
 
+  const flipTo = (nextPage) => {
+    setIsFlipping(true);
+    setTimeout(() => {
+      setCurrentPage(nextPage);
+      setIsFlipping(false);
+    }, 400);
+  };
+
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -98,25 +107,18 @@ export default function Preview() {
         </div>
 
         {/* PAGE */}
-        <div className="relative">
+        <div className="relative perspective-[1200px]">
 
-          {/* PAGE LABEL */}
-          <div className="mb-2 text-center text-sm font-medium text-brandMuted">
-            Page {currentPage + 1} of {totalPages}
-            {isLocked && (
-              <span className="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-900 rounded text-xs">
-                LOCKED
-              </span>
-            )}
-          </div>
-
-          {/* STORY PAGE CARD */}
           <div
             className={`bg-[#fffaf0] rounded-[28px] border border-yellow-200
             shadow-[0_20px_60px_rgba(0,0,0,0.15)]
-            overflow-hidden transition-all duration-500 ${
-              isLocked ? "pointer-events-none" : ""
-            }`}
+            overflow-hidden transition-all duration-400 transform-gpu
+            ${
+              isFlipping
+                ? "opacity-0 rotate-y-90"
+                : "opacity-100 rotate-y-0"
+            }
+            ${isLocked ? "pointer-events-none" : ""}`}
           >
             {/* IMAGE */}
             <div className="relative">
@@ -171,7 +173,7 @@ export default function Preview() {
                       }}
                       className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg hover:opacity-90"
                     >
-                      ✨ Unlock the Complete Storybook
+                      ✨pay ₹999 and Unlock the Complete Storybook
                     </button>
                     <p className="text-xs text-gray-500 mt-3">
                       One-time payment • Lifetime access • Printable PDF
@@ -186,10 +188,8 @@ export default function Preview() {
         {/* NAVIGATION */}
         <div className="flex justify-between items-center pt-4">
           <button
-            disabled={currentPage === 0}
-            onClick={() =>
-              setCurrentPage((p) => Math.max(p - 1, 0))
-            }
+            disabled={currentPage === 0 || isFlipping}
+            onClick={() => flipTo(Math.max(currentPage - 1, 0))}
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === 0
                 ? "bg-gray-200 text-gray-400"
@@ -200,11 +200,9 @@ export default function Preview() {
           </button>
 
           <button
-            disabled={currentPage === totalPages - 1}
+            disabled={currentPage === totalPages - 1 || isFlipping}
             onClick={() =>
-              setCurrentPage((p) =>
-                Math.min(p + 1, totalPages - 1)
-              )
+              flipTo(Math.min(currentPage + 1, totalPages - 1))
             }
             className={`px-6 py-3 rounded-full font-semibold ${
               currentPage === totalPages - 1
