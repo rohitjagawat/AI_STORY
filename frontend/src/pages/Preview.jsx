@@ -6,11 +6,12 @@ export default function Preview() {
 
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
 
-  const FREE_PAGES = 2; // 👈 first 2 pages free
+  const FREE_PAGES = 2;
 
   useEffect(() => {
     const result = JSON.parse(localStorage.getItem("storyResult"));
@@ -33,7 +34,6 @@ export default function Preview() {
         setPaid(d.paid);
 
         if (d.paid) {
-          // 🔄 REFRESH FULL STORY AFTER PAYMENT
           const res2 = await fetch(
             `${API_URL}/story/result/${result.bookId}`
           );
@@ -47,7 +47,6 @@ export default function Preview() {
 
           if (poller) clearInterval(poller);
         }
-
       } catch {
         setPaid(false);
       }
@@ -62,7 +61,7 @@ export default function Preview() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading preview...
+        Loading preview…
       </div>
     );
   }
@@ -70,10 +69,13 @@ export default function Preview() {
   const pages = data.story?.pages || [];
   const totalPages = data.story?.totalPages || pages.length;
 
+  const text = pages[currentPage];
+  const isFree = currentPage < FREE_PAGES;
+  const isLocked = !isFree && !paid;
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
-      <div className="max-w-5xl mx-auto space-y-12">
+      <div className="max-w-5xl mx-auto space-y-8">
 
         {/* HEADER */}
         <div className="text-center">
@@ -87,98 +89,120 @@ export default function Preview() {
           )}
         </div>
 
-        {/* STORY PAGES */}
-        {Array.from({ length: totalPages }).map((_, index) => {
-          const text = pages[index];
+        {/* PAGE */}
+        <div className="relative">
 
-          const isFree = index < FREE_PAGES;
-          const isLocked = !isFree && !paid;
+          {/* PAGE LABEL */}
+          <div className="mb-2 text-center text-sm font-medium text-brandMuted">
+            Page {currentPage + 1} of {totalPages}
+            {isLocked && (
+              <span className="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-900 rounded text-xs">
+                LOCKED
+              </span>
+            )}
+          </div>
 
-          return (
-            <div key={index} className="relative">
+          {/* PAGE CARD */}
+          <div
+            className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${
+              isLocked ? "pointer-events-none" : ""
+            }`}
+          >
+            {/* IMAGE */}
+            <div className="relative">
+              <img
+                src={`${backendBase}/images/${data.bookId}/page_${currentPage + 1}.png`}
+                alt={`Story page ${currentPage + 1}`}
+                onError={(e) => {
+                  e.currentTarget.src = `${backendBase}/${data.previewImage}`;
+                }}
+                className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${
+                  isLocked ? "blur-[14px] scale-105" : ""
+                }`}
+              />
 
-              {/* PAGE LABEL */}
-              <div className="mb-2 text-center text-sm font-medium text-brandMuted">
-                Page {index + 1} of {totalPages}
-                {isLocked && (
-                  <span className="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-900 rounded text-xs">
-                    LOCKED
-                  </span>
-                )}
-              </div>
-
-              {/* PAGE CARD */}
-              <div
-                className={`bg-white rounded-2xl shadow-lg overflow-hidden transition ${isLocked ? "pointer-events-none" : ""
-                  }`}
-              >
-                {/* IMAGE */}
-                <div className="relative">
-                  <img
-                    src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                    alt={`Story page ${index + 1}`}
-                    onError={(e) => {
-                      // fallback to preview image (test mode / safety)
-                      e.currentTarget.src = `${backendBase}/${data.previewImage}`;
-                    }}
-                    className={`w-full aspect-[16/9] object-cover transition-all duration-300 ${isLocked ? "blur-[14px] scale-105" : ""
-                      }`}
-                  />
-
-                  {/* DARK OVERLAY ON LOCKED IMAGE */}
-                  {isLocked && (
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-                  )}
-                </div>
-
-                {/* TEXT */}
-                {!isLocked && (
-                  <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
-                   {text || ""}
-
-                  </div>
-                )}
-
-              </div>
-
-              {/* LOCK OVERLAY */}
               {isLocked && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-sm">
-                    <div className="text-4xl mb-3">🔒</div>
-                    <h3 className="font-semibold text-lg mb-2">
-                      This page is locked
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Unlock the full storybook to continue this magical journey
-                    </p>
-
-                    {!paid && (
-                      <button
-                        onClick={() => {
-                          const url =
-                            `https://www.jrbillionaire.com/cart/add` +
-                            `?id=50467255124254` +
-                            `&quantity=1` +
-                            `&properties[bookId]=${data.bookId}`;
-
-                          window.open(url, "_blank", "noopener,noreferrer");
-                        }}
-                        className="px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
-                      >
-                        ✨ Pay ₹999 to Unlock Full Story
-                      </button>
-                    )}
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
               )}
             </div>
-          );
-        })}
+
+            {/* TEXT */}
+            {!isLocked && (
+              <div className="p-6 bg-yellow-50 text-center text-lg font-medium text-gray-800">
+                {text || ""}
+              </div>
+            )}
+          </div>
+
+          {/* LOCK OVERLAY */}
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-sm">
+                <div className="text-4xl mb-3">🔒</div>
+                <h3 className="font-semibold text-lg mb-2">
+                  This page is locked
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Unlock the full storybook to continue this magical journey
+                </p>
+
+                {!paid && (
+                  <button
+                    onClick={() => {
+                      const url =
+                        `https://www.jrbillionaire.com/cart/add` +
+                        `?id=50467255124254` +
+                        `&quantity=1` +
+                        `&properties[bookId]=${data.bookId}`;
+
+                      window.open(url, "_blank", "noopener,noreferrer");
+                    }}
+                    className="px-6 py-3 rounded-full bg-brandPurple text-white font-semibold"
+                  >
+                    ✨ Pay ₹999 to Unlock Full Story
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* NAVIGATION */}
+        <div className="flex justify-between items-center pt-4">
+          <button
+            disabled={currentPage === 0}
+            onClick={() =>
+              setCurrentPage((p) => Math.max(p - 1, 0))
+            }
+            className={`px-6 py-3 rounded-full font-semibold ${
+              currentPage === 0
+                ? "bg-gray-200 text-gray-400"
+                : "bg-brandPurple text-white"
+            }`}
+          >
+            ⬅ Previous
+          </button>
+
+          <button
+            disabled={currentPage === totalPages - 1}
+            onClick={() =>
+              setCurrentPage((p) =>
+                Math.min(p + 1, totalPages - 1)
+              )
+            }
+            className={`px-6 py-3 rounded-full font-semibold ${
+              currentPage === totalPages - 1
+                ? "bg-gray-200 text-gray-400"
+                : "bg-brandPurple text-white"
+            }`}
+          >
+            Next ➡
+          </button>
+        </div>
 
         {/* AFTER PAYMENT CTA */}
         {paid && (
-          <div className="text-center pt-8">
+          <div className="text-center pt-6">
             <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full mb-4">
               ✅ Payment successful! All pages unlocked.
             </div>
@@ -195,14 +219,14 @@ export default function Preview() {
         )}
 
         {/* CREATE ANOTHER */}
-        <div className="flex justify-center pt-12">
+        <div className="flex justify-center pt-10">
           <button
             onClick={() => {
               localStorage.clear();
               navigate("/create");
             }}
             className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold
-               hover:bg-brandPurple hover:text-white transition-all duration-300 shadow-md hover:shadow-xl"
+              hover:bg-brandPurple hover:text-white transition-all duration-300 shadow-md hover:shadow-xl"
           >
             <span className="text-xl transition-transform duration-300 group-hover:rotate-12">
               ✨
