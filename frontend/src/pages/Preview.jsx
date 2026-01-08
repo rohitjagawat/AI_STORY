@@ -126,7 +126,7 @@ export default function Preview() {
             ${isLocked ? "pointer-events-none" : ""}`}
           >
             {/* IMAGE */}
-            <div className="relative flex justify-center bg-[#fffaf0] py-6">
+            <div className="relative flex justify-center bg-[#fffaf0] py-5">
               <img
                 src={`${backendBase}/images/${data.bookId}/page_${currentPage + 1}.png`}
                 loading="lazy"
@@ -136,16 +136,16 @@ export default function Preview() {
                 onError={() =>
                   setLoadingImages((p) => ({ ...p, [currentPage]: true }))
                 }
-                className={`max-h-[420px] w-auto rounded-xl shadow-md ${isLocked ? "blur-[14px]" : ""
+                className={`max-h-[420px] w-auto rounded-xl shadow-lg ${isLocked ? "blur-[14px]" : ""
                   }`}
               />
 
-              {/* IMAGE LOADING OVERLAY */}
+              {/* LOADING OVERLAY */}
               {paid && loadingImages[currentPage] && !isLocked && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
-                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-brandPurple border-t-transparent mb-4"></div>
+                  <div className="animate-spin h-9 w-9 border-4 border-brandPurple border-t-transparent rounded-full mb-3"></div>
                   <p className="text-sm text-brandMuted">
-                    Preparing your child’s illustration…
+                    Preparing illustration…
                   </p>
                 </div>
               )}
