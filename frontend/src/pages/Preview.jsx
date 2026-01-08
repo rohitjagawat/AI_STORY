@@ -117,35 +117,36 @@ export default function Preview() {
             className={`bg-[#fffaf0] rounded-[28px] border border-yellow-200
             shadow-[0_20px_60px_rgba(0,0,0,0.15)]
             transition-all duration-300 ease-in-out
-            ${animating
+            ${
+              animating
                 ? animDir === "next"
                   ? "-translate-x-6 opacity-0"
                   : "translate-x-6 opacity-0"
                 : "translate-x-0 opacity-100"
-              }
+            }
             ${isLocked ? "pointer-events-none" : ""}`}
           >
             {/* IMAGE */}
-            <div className="relative flex justify-center bg-[#fffaf0] py-5">
+            <div className="relative">
               <img
                 src={`${backendBase}/images/${data.bookId}/page_${currentPage + 1}.png`}
-                loading="lazy"
                 onLoad={() =>
                   setLoadingImages((p) => ({ ...p, [currentPage]: false }))
                 }
                 onError={() =>
                   setLoadingImages((p) => ({ ...p, [currentPage]: true }))
                 }
-                className={`max-h-[420px] w-auto rounded-xl shadow-lg ${isLocked ? "blur-[14px]" : ""
-                  }`}
+                className={`w-full aspect-[16/9] object-cover ${
+                  isLocked ? "blur-[14px]" : ""
+                }`}
               />
 
-              {/* LOADING OVERLAY */}
+              {/* IMAGE LOADING OVERLAY */}
               {paid && loadingImages[currentPage] && !isLocked && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
-                  <div className="animate-spin h-9 w-9 border-4 border-brandPurple border-t-transparent rounded-full mb-3"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-brandPurple border-t-transparent mb-4"></div>
                   <p className="text-sm text-brandMuted">
-                    Preparing illustration…
+                    Preparing your child’s illustration…
                   </p>
                 </div>
               )}
@@ -154,7 +155,6 @@ export default function Preview() {
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
               )}
             </div>
-
 
             {/* TEXT */}
             {!isLocked && (
@@ -203,10 +203,11 @@ export default function Preview() {
           <button
             disabled={currentPage === 0 || animating}
             onClick={() => goToPage(currentPage - 1, "prev")}
-            className={`px-6 py-3 rounded-full font-semibold ${currentPage === 0
+            className={`px-6 py-3 rounded-full font-semibold ${
+              currentPage === 0
                 ? "bg-gray-200 text-gray-400"
                 : "bg-brandPurple text-white"
-              }`}
+            }`}
           >
             ⬅ Previous
           </button>
@@ -214,10 +215,11 @@ export default function Preview() {
           <button
             disabled={currentPage === totalPages - 1 || animating}
             onClick={() => goToPage(currentPage + 1, "next")}
-            className={`px-6 py-3 rounded-full font-semibold ${currentPage === totalPages - 1
+            className={`px-6 py-3 rounded-full font-semibold ${
+              currentPage === totalPages - 1
                 ? "bg-gray-200 text-gray-400"
                 : "bg-brandPurple text-white"
-              }`}
+            }`}
           >
             Next ➡
           </button>
