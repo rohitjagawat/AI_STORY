@@ -136,7 +136,7 @@ export default function Preview() {
                 onError={() =>
                   setLoadingImages((p) => ({ ...p, [currentPage]: true }))
                 }
-                className={`w-full aspect-[16/9] object-cover ${
+                className={`w-full aspect-[3/4] object-contain bg-[#fffaf0] ${
                   isLocked ? "blur-[14px]" : ""
                 }`}
               />
