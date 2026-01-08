@@ -8,7 +8,7 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
 
-  // 👇 flip hint (first time only)
+  // flip hint – first time only
   const [showHint, setShowHint] = useState(
     !localStorage.getItem("flip_hint_seen")
   );
@@ -75,9 +75,9 @@ export default function Preview() {
   }
 
   const pages = data.story?.pages || [];
-  const totalPages = data.story?.totalPages || pages.length;
+  const storyPagesCount = data.story?.totalPages || pages.length;
+  const totalPages = storyPagesCount + 1; // +1 for cover
   const childName = data?.name || "Your Child";
-
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
@@ -115,26 +115,78 @@ export default function Preview() {
             }}
           >
             {Array.from({ length: totalPages }).map((_, index) => {
-              const text = pages[index];
-              const isFree = index < FREE_PAGES;
+
+              /* ===============================
+                 COVER PAGE (index 0)
+              ================================ */
+              if (index === 0) {
+                return (
+                  <div
+                    key="cover"
+                    className="relative bg-[#fffaf0] border border-yellow-200
+                               rounded-lg overflow-hidden flex flex-col"
+                  >
+                    {/* COVER IMAGE (PAGE 1 IMAGE) */}
+                    <div className="px-6 pt-8">
+                      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                        <img
+                          src={`${backendBase}/images/${data.bookId}/page_1.png`}
+                          onError={(e) =>
+                            (e.currentTarget.src =
+                              `${backendBase}/${data.previewImage}`)
+                          }
+                          className="w-full h-[300px] object-contain"
+                        />
+                      </div>
+                    </div>
+
+                    {/* TITLE */}
+                    <div className="pt-6 text-center px-6">
+                      <h1 className="text-2xl font-bold text-brandPurple mb-2">
+                        {childName}’s Story
+                      </h1>
+                      <p className="text-sm tracking-widest text-gray-500 uppercase">
+                        A Personalized Storybook
+                      </p>
+                    </div>
+
+                    {/* FOOTER */}
+                    <div className="mt-auto pb-6 text-center text-xs text-gray-400 italic">
+                      Created with ❤️ by Jr Billionaire
+                    </div>
+
+                    {/* NEXT ARROW */}
+                    <div className="absolute bottom-4 right-4 text-gray-400 animate-pulse">
+                      ➡
+                    </div>
+                  </div>
+                );
+              }
+
+              /* ===============================
+                 STORY PAGES
+              ================================ */
+              const storyIndex = index - 1;
+              const text = pages[storyIndex];
+              const isFree = storyIndex < FREE_PAGES;
               const isLocked = !isFree && !paid;
 
               return (
                 <div
                   key={index}
-                  className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
+                  className="relative bg-[#fffaf0] border border-yellow-200
+                             rounded-lg overflow-hidden flex flex-col"
                 >
-                  {/* TOP — CHILD NAME */}
-                  <div className="pt-4 pb-2 text-center text-sm font-medium text-gray-500 tracking-wide">
+                  {/* CHILD NAME */}
+                  <div className="pt-4 pb-2 text-center text-sm font-medium text-gray-500">
                     {childName}’s Story
                   </div>
 
                   {/* IMAGE */}
                   <div className="px-6 pt-2">
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
                       <img
-                        src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                        loading="lazy"
+                        src={`${backendBase}/images/${data.bookId}/page_${storyIndex + 1}.png`}
                         onError={(e) =>
                           (e.currentTarget.src =
                             `${backendBase}/${data.previewImage}`)
@@ -151,19 +203,20 @@ export default function Preview() {
 
                   {/* STORY TEXT */}
                   {!isLocked && (
-                    <div className="px-6 pt-5 pb-4 text-center text-sm leading-relaxed text-gray-800 font-medium flex-1 overflow-hidden">
+                    <div className="px-6 pt-5 pb-4 text-center text-sm leading-relaxed
+                                    text-gray-800 font-medium flex-1">
                       {text}
                     </div>
                   )}
 
-                  {/* PAGE NUMBER (simple) */}
+                  {/* PAGE NUMBER */}
                   <div className="pb-3 text-center text-xs text-gray-400">
-                    {index + 1}
+                    {storyIndex + 1}
                   </div>
 
-                  {/* NEXT ARROW HINT */}
-                  {!isLocked && index < totalPages - 1 && (
-                    <div className="absolute bottom-3 right-4 text-gray-400 text-lg animate-pulse">
+                  {/* NEXT ARROW */}
+                  {!isLocked && storyIndex < storyPagesCount - 1 && (
+                    <div className="absolute bottom-3 right-4 text-gray-400 animate-pulse">
                       ➡
                     </div>
                   )}
@@ -177,8 +230,7 @@ export default function Preview() {
                           This page is locked
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue your magical
-                          journey ✨
+                          Unlock the full storybook to continue your magical journey ✨
                         </p>
 
                         <button
@@ -202,7 +254,7 @@ export default function Preview() {
             })}
           </HTMLFlipBook>
 
-          {/* FLIP INSTRUCTION */}
+          {/* FLIP HINT */}
           {showHint && (
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2
                             text-sm text-gray-500 animate-pulse">
