@@ -93,7 +93,7 @@ Camera:
     const result = await openai.images.generate({
       model: "gpt-image-1.5",
       prompt,
-      size: "1024x1536",
+      size: "1024x1280",
     });
 
     fs.writeFileSync(
