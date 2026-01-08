@@ -8,6 +8,11 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
 
+  // 👇 FLIP HINT (first time only)
+  const [showHint, setShowHint] = useState(
+    !localStorage.getItem("flip_hint_seen")
+  );
+
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
 
@@ -88,7 +93,7 @@ export default function Preview() {
         </div>
 
         {/* BOOK VIEWER */}
-        <div className="flex justify-center">
+        <div className="flex justify-center relative">
           <HTMLFlipBook
             width={360}
             height={520}
@@ -101,6 +106,12 @@ export default function Preview() {
             showCover={false}
             mobileScrollSupport={true}
             className="shadow-2xl"
+            onFlip={() => {
+              if (showHint) {
+                setShowHint(false);
+                localStorage.setItem("flip_hint_seen", "true");
+              }
+            }}
           >
             {Array.from({ length: totalPages }).map((_, index) => {
               const text = pages[index];
@@ -158,7 +169,7 @@ export default function Preview() {
                           This page is locked
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                         Unlock the  the full storybook to continue your magical journey ✨
+                          Unlock the full storybook to continue your magical journey ✨
                         </p>
 
                         <button
@@ -181,6 +192,14 @@ export default function Preview() {
               );
             })}
           </HTMLFlipBook>
+
+          {/* 👇 FLIP HINT */}
+          {showHint && (
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2
+                            text-sm text-gray-500 animate-pulse">
+              👉 Swipe or drag the page to turn it like a real book
+            </div>
+          )}
         </div>
 
         {/* AFTER PAYMENT */}
