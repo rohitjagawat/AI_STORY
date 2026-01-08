@@ -8,7 +8,7 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
 
-  // 👇 FLIP HINT (first time only)
+  // 👇 flip hint (first time only)
   const [showHint, setShowHint] = useState(
     !localStorage.getItem("flip_hint_seen")
   );
@@ -76,7 +76,8 @@ export default function Preview() {
 
   const pages = data.story?.pages || [];
   const totalPages = data.story?.totalPages || pages.length;
-  const childName = data?.input?.name || "Your Child";
+  const childName = data?.name || "Your Child";
+
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
@@ -128,20 +129,20 @@ export default function Preview() {
                     {childName}’s Story
                   </div>
 
-                  {/* IMAGE FRAME */}
+                  {/* IMAGE */}
                   <div className="px-6 pt-2">
                     <div className="relative bg-white rounded-xl shadow-md overflow-hidden">
                       <img
                         src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
                         loading="lazy"
                         onError={(e) =>
-                          (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
+                          (e.currentTarget.src =
+                            `${backendBase}/${data.previewImage}`)
                         }
-                        className={`w-full h-[300px] object-contain ${
+                        className={`w-full h-[260px] object-contain ${
                           isLocked ? "blur-[14px]" : ""
                         }`}
                       />
-
                       {isLocked && (
                         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
                       )}
@@ -150,15 +151,22 @@ export default function Preview() {
 
                   {/* STORY TEXT */}
                   {!isLocked && (
-                    <div className="px-8 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
+                    <div className="px-6 pt-5 pb-4 text-center text-sm leading-relaxed text-gray-800 font-medium flex-1 overflow-hidden">
                       {text}
                     </div>
                   )}
 
-                  {/* PAGE NUMBER */}
-                  <div className="pb-4 text-center text-xs text-gray-400 tracking-widest">
-                    Page {index + 1} of {totalPages}
+                  {/* PAGE NUMBER (simple) */}
+                  <div className="pb-3 text-center text-xs text-gray-400">
+                    {index + 1}
                   </div>
+
+                  {/* NEXT ARROW HINT */}
+                  {!isLocked && index < totalPages - 1 && (
+                    <div className="absolute bottom-3 right-4 text-gray-400 text-lg animate-pulse">
+                      ➡
+                    </div>
+                  )}
 
                   {/* LOCK CTA */}
                   {isLocked && (
@@ -169,7 +177,8 @@ export default function Preview() {
                           This page is locked
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue your magical journey ✨
+                          Unlock the full storybook to continue your magical
+                          journey ✨
                         </p>
 
                         <button
@@ -193,11 +202,11 @@ export default function Preview() {
             })}
           </HTMLFlipBook>
 
-          {/* 👇 FLIP HINT */}
+          {/* FLIP INSTRUCTION */}
           {showHint && (
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2
                             text-sm text-gray-500 animate-pulse">
-              👉 Swipe or drag the page to turn it like a real book
+              👉 Swipe or drag the page to turn it
             </div>
           )}
         </div>
@@ -218,10 +227,6 @@ export default function Preview() {
             >
               📘 View & Download Storybook PDF
             </button>
-
-            <p className="text-xs text-gray-500">
-              You can access this story anytime using this link
-            </p>
           </div>
         )}
 
