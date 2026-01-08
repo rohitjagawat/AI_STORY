@@ -149,124 +149,123 @@ export default function Preview() {
                   </p>
                 </div>
               )}
+
+              {isLocked && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+              )}
             </div>
 
 
-            {isLocked && (
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            {/* TEXT */}
+            {!isLocked && (
+              <div className="p-8 text-center text-lg leading-relaxed text-gray-800 font-medium">
+                {text || ""}
+              </div>
             )}
           </div>
 
-          {/* TEXT */}
-          {!isLocked && (
-            <div className="p-8 text-center text-lg leading-relaxed text-gray-800 font-medium">
-              {text || ""}
+          {/* LOCK OVERLAY */}
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white/95 rounded-3xl shadow-2xl p-8 text-center max-w-sm">
+                <div className="text-4xl mb-4">✨</div>
+                <h3 className="font-semibold text-xl mb-2">
+                  The story continues…
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Unlock the remaining pages to discover how this magical
+                  journey ends — written specially for your child.
+                </p>
+
+                <button
+                  onClick={() => {
+                    const url =
+                      `https://www.jrbillionaire.com/cart/add` +
+                      `?id=50467255124254` +
+                      `&quantity=1` +
+                      `&properties[bookId]=${data.bookId}`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+                  }}
+                  className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg"
+                >
+                  ✨ Pay ₹999 & Unlock Full Story
+                </button>
+                <p className="text-xs text-gray-500 mt-3">
+                  One-time payment • Lifetime access • Printable PDF
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        {/* LOCK OVERLAY */}
-        {isLocked && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-white/95 rounded-3xl shadow-2xl p-8 text-center max-w-sm">
-              <div className="text-4xl mb-4">✨</div>
-              <h3 className="font-semibold text-xl mb-2">
-                The story continues…
-              </h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Unlock the remaining pages to discover how this magical
-                journey ends — written specially for your child.
-              </p>
-
-              <button
-                onClick={() => {
-                  const url =
-                    `https://www.jrbillionaire.com/cart/add` +
-                    `?id=50467255124254` +
-                    `&quantity=1` +
-                    `&properties[bookId]=${data.bookId}`;
-                  window.open(url, "_blank", "noopener,noreferrer");
-                }}
-                className="px-8 py-3 rounded-full bg-brandPurple text-white font-semibold shadow-lg"
-              >
-                ✨ Pay ₹999 & Unlock Full Story
-              </button>
-              <p className="text-xs text-gray-500 mt-3">
-                One-time payment • Lifetime access • Printable PDF
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* NAVIGATION */}
-      <div className="flex justify-between items-center pt-4">
-        <button
-          disabled={currentPage === 0 || animating}
-          onClick={() => goToPage(currentPage - 1, "prev")}
-          className={`px-6 py-3 rounded-full font-semibold ${currentPage === 0
-              ? "bg-gray-200 text-gray-400"
-              : "bg-brandPurple text-white"
-            }`}
-        >
-          ⬅ Previous
-        </button>
-
-        <button
-          disabled={currentPage === totalPages - 1 || animating}
-          onClick={() => goToPage(currentPage + 1, "next")}
-          className={`px-6 py-3 rounded-full font-semibold ${currentPage === totalPages - 1
-              ? "bg-gray-200 text-gray-400"
-              : "bg-brandPurple text-white"
-            }`}
-        >
-          Next ➡
-        </button>
-      </div>
-
-      {/* AFTER PAYMENT */}
-      {paid && (
-        <div className="mt-12 flex flex-col items-center gap-6">
-          <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
-            ✅ Payment successful! Your full storybook is unlocked.
-          </div>
-
+        {/* NAVIGATION */}
+        <div className="flex justify-between items-center pt-4">
           <button
-            onClick={() =>
-              window.open(`${API_URL}/view/${data.bookId}`, "_blank")
-            }
-            className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg
-                         shadow-lg hover:shadow-xl transition-all"
+            disabled={currentPage === 0 || animating}
+            onClick={() => goToPage(currentPage - 1, "prev")}
+            className={`px-6 py-3 rounded-full font-semibold ${currentPage === 0
+                ? "bg-gray-200 text-gray-400"
+                : "bg-brandPurple text-white"
+              }`}
           >
-            📘 View & Download Storybook PDF
+            ⬅ Previous
           </button>
 
-          <p className="text-xs text-gray-500">
-            You can access this story anytime using this link
-          </p>
+          <button
+            disabled={currentPage === totalPages - 1 || animating}
+            onClick={() => goToPage(currentPage + 1, "next")}
+            className={`px-6 py-3 rounded-full font-semibold ${currentPage === totalPages - 1
+                ? "bg-gray-200 text-gray-400"
+                : "bg-brandPurple text-white"
+              }`}
+          >
+            Next ➡
+          </button>
         </div>
-      )}
 
-      {/* CREATE ANOTHER STORY */}
-      <div className="pt-16 flex justify-center">
-        <button
-          onClick={() => {
-            localStorage.clear();
-            navigate("/create");
-          }}
-          className="group flex items-center gap-3 px-10 py-4 rounded-full
+        {/* AFTER PAYMENT */}
+        {paid && (
+          <div className="mt-12 flex flex-col items-center gap-6">
+            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
+              ✅ Payment successful! Your full storybook is unlocked.
+            </div>
+
+            <button
+              onClick={() =>
+                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+              }
+              className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg
+                         shadow-lg hover:shadow-xl transition-all"
+            >
+              📘 View & Download Storybook PDF
+            </button>
+
+            <p className="text-xs text-gray-500">
+              You can access this story anytime using this link
+            </p>
+          </div>
+        )}
+
+        {/* CREATE ANOTHER STORY */}
+        <div className="pt-16 flex justify-center">
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/create");
+            }}
+            className="group flex items-center gap-3 px-10 py-4 rounded-full
                        border-2 border-brandPurple text-brandPurple font-semibold
                        hover:bg-brandPurple hover:text-white transition-all
                        shadow-md hover:shadow-xl"
-        >
-          <span className="text-xl transition-transform group-hover:rotate-12">
-            ✨
-          </span>
-          Create Another Magical Story
-        </button>
-      </div>
+          >
+            <span className="text-xl transition-transform group-hover:rotate-12">
+              ✨
+            </span>
+            Create Another Magical Story
+          </button>
+        </div>
 
+      </div>
     </div>
-    </div >
   );
 }
