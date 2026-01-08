@@ -71,6 +71,7 @@ export default function Preview() {
 
   const pages = data.story?.pages || [];
   const totalPages = data.story?.totalPages || pages.length;
+  const childName = data?.input?.name || "Your Child";
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
@@ -109,32 +110,44 @@ export default function Preview() {
               return (
                 <div
                   key={index}
-                  className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden"
+                  className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
                 >
-                  {/* IMAGE */}
-                  <div className="relative">
-                    <img
-                      src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                      loading="lazy"
-                      onError={(e) =>
-                        (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
-                      }
-                      className={`w-full h-[300px] object-contain ${
-                        isLocked ? "blur-[14px]" : ""
-                      }`}
-                    />
-
-                    {isLocked && (
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                    )}
+                  {/* TOP — CHILD NAME */}
+                  <div className="pt-4 pb-2 text-center text-sm font-medium text-gray-500 tracking-wide">
+                    {childName}’s Story
                   </div>
 
-                  {/* TEXT */}
+                  {/* IMAGE FRAME */}
+                  <div className="px-6 pt-2">
+                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden">
+                      <img
+                        src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
+                        loading="lazy"
+                        onError={(e) =>
+                          (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
+                        }
+                        className={`w-full h-[300px] object-contain ${
+                          isLocked ? "blur-[14px]" : ""
+                        }`}
+                      />
+
+                      {isLocked && (
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* STORY TEXT */}
                   {!isLocked && (
-                    <div className="p-5 text-center text-base leading-relaxed text-gray-800 font-medium">
+                    <div className="px-8 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
                       {text}
                     </div>
                   )}
+
+                  {/* PAGE NUMBER */}
+                  <div className="pb-4 text-center text-xs text-gray-400 tracking-widest">
+                    Page {index + 1} of {totalPages}
+                  </div>
 
                   {/* LOCK CTA */}
                   {isLocked && (
@@ -145,7 +158,7 @@ export default function Preview() {
                           This page is locked
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue
+                         Unlock the  the full storybook to continue your magical journey ✨
                         </p>
 
                         <button
@@ -159,7 +172,7 @@ export default function Preview() {
                           }}
                           className="px-6 py-2 rounded-full bg-brandPurple text-white font-semibold"
                         >
-                          Unlock Full Book
+                          Pay ₹999 to Unlock Full Book
                         </button>
                       </div>
                     </div>
