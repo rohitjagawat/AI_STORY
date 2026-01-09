@@ -60,7 +60,7 @@ export default function Generating() {
         formData.append("siblingName", payload.siblingName || "");
         formData.append("additionalInfo", payload.additionalInfo || "");
 
-        
+
 
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/story/generate`,
@@ -88,7 +88,16 @@ export default function Generating() {
 
               localStorage.setItem(
                 "storyResult",
-                JSON.stringify({ ...result, bookId })
+                JSON.stringify({
+                  ...result,
+                  bookId,
+                  input: {
+                    name: payload.name,
+                    age: payload.age,
+                    gender: payload.gender,
+                    interest: payload.interest,
+                  },
+                })
               );
 
               setProgress(100);
