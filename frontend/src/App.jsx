@@ -12,10 +12,6 @@ export default function App() {
         <Route path="/create" element={<CreateStory />} />
         <Route path="/generating" element={<Generating />} />
         <Route path="/preview" element={<Preview />} />
-        <Route
-          path="/pdf-view/:storyId"
-          element={<Preview pdfMode={true} />}
-        />
       </Routes>
     </BrowserRouter>
   );
