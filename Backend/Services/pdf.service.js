@@ -50,8 +50,23 @@ export async function generatePDF(bookId) {
     );
   });
 
+  // ✅ EXTRA SAFETY
+  await page.waitForFunction(
+    () => {
+      const imgs = Array.from(document.images);
+      return imgs.length > 0 && imgs.every(img => img.complete);
+    },
+    { timeout: 60000 }
+  );
+
   // ✅ WAIT FOR FONTS
   await page.evaluateHandle("document.fonts.ready");
+
+  // 🔥 FORCE SCREEN CSS (MOST IMPORTANT)
+  await page.emulateMediaType("screen");
+
+  // 🧠 LET REACT-PAGEFLIP STABILIZE
+  await page.waitForTimeout(2000);
 
   await page.pdf({
     path: pdfPath,
