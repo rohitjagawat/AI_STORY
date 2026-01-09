@@ -2,11 +2,7 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
-
-/**
- * Draw text that always fits inside the given height
- * without cutting or overlapping.
- */
+/* ================= TEXT FIT HELPER (KEEP SAME) ================= */
 function drawFittingText(doc, text, x, y, width, maxHeight) {
   let fontSize = 18;
   const minFontSize = 11;
@@ -28,11 +24,9 @@ function drawFittingText(doc, text, x, y, width, maxHeight) {
       });
       return;
     }
-
-    fontSize -= 1;
+    fontSize--;
   }
 
-  // fallback
   doc.fontSize(minFontSize).text(text, x, y, {
     width,
     align: "center",
@@ -40,13 +34,101 @@ function drawFittingText(doc, text, x, y, width, maxHeight) {
   });
 }
 
-export function generatePDF(storyPages, imagePaths, bookId) {
+/* ================= DRAW SINGLE STORY PAGE ================= */
+function drawStoryPage(doc, text, imagePath, side) {
+  const PAGE_WIDTH = doc.page.width / 2; // A4 split
+  const PAGE_HEIGHT = doc.page.height;
+  const xOffset = side === "left" ? 0 : PAGE_WIDTH;
+
+  const PADDING = 22;
+  const CARD_WIDTH = PAGE_WIDTH - PADDING * 2;
+
+  /* ===== IMAGE ===== */
+  const IMAGE_Y = 40;
+  const IMAGE_HEIGHT = 420;
+
+  doc.image(imagePath, xOffset + PADDING, IMAGE_Y, {
+    width: CARD_WIDTH,
+    height: IMAGE_HEIGHT,
+  });
+
+  /* ===== TEXT ===== */
+  const TEXT_Y = IMAGE_Y + IMAGE_HEIGHT + 20;
+  const TEXT_HEIGHT = 260;
+
+  doc
+    .font("Times-Roman")
+    .fillColor("#1F1F1F");
+
+  drawFittingText(
+    doc,
+    text,
+    xOffset + PADDING,
+    TEXT_Y,
+    CARD_WIDTH,
+    TEXT_HEIGHT
+  );
+}
+
+/* ================= COVER PAGE ================= */
+function drawCoverPage(doc, coverImage, title, subtitle) {
+  const { width, height } = doc.page;
+
+  // full image
+  doc.image(coverImage, 0, 0, {
+    width,
+    height,
+  });
+
+  // dark overlay (premium blur feel)
+  doc.save();
+  doc.rect(60, height / 2 - 80, width - 120, 160)
+     .fillOpacity(0.55)
+     .fill("#000");
+  doc.restore();
+
+  // title
+  doc
+    .fillColor("#FFFFFF")
+    .font("Times-Bold")
+    .fontSize(32)
+    .text(title, 80, height / 2 - 40, {
+      width: width - 160,
+      align: "center",
+    });
+
+  // subtitle
+  doc
+    .moveDown(1)
+    .font("Times-Italic")
+    .fontSize(16)
+    .fillColor("#EAEAEA")
+    .text(subtitle, {
+      align: "center",
+    });
+
+  // footer
+  doc
+    .fontSize(12)
+    .fillColor("#FFFFFF")
+    .text("Created by Jr. Billionaire", 0, height - 40, {
+      align: "center",
+    });
+}
+
+/* ================= MAIN PDF FUNCTION ================= */
+export function generatePDF({
+  storyPages,
+  imagePaths,
+  coverImage,
+  title,
+  subtitle,
+  bookId,
+}) {
   return new Promise((resolve, reject) => {
     try {
       const outputDir = "output";
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
-      }
+      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
       const pdfPath = path.join(outputDir, `${bookId}.pdf`);
 
@@ -58,56 +140,33 @@ export function generatePDF(storyPages, imagePaths, bookId) {
       const stream = fs.createWriteStream(pdfPath);
       doc.pipe(stream);
 
-      // 🛑 SAFETY CHECK
-      if (!imagePaths || imagePaths.length === 0) {
-        throw new Error("No images available for PDF generation");
-      }
+      /* ===== COVER PAGE ===== */
+      drawCoverPage(
+        doc,
+        path.resolve(coverImage),
+        title,
+        subtitle
+      );
 
-      for (let i = 0; i < storyPages.length; i++) {
-        if (i !== 0) doc.addPage();
+      /* ===== STORY SPREADS ===== */
+      for (let i = 0; i < storyPages.length; i += 2) {
+        doc.addPage();
 
-        const pageWidth = doc.page.width;
-        const pageHeight = doc.page.height;
-
-        // 🔁 TEST MODE SAFE: reuse first image if others missing
-        const safeImage = imagePaths[i] || imagePaths[0];
-
-        if (!safeImage) {
-          throw new Error("No valid image available for PDF");
-        }
-
-        const imagePath = path.resolve(safeImage);
-
-        /* ================= IMAGE (80%) ================= */
-        const imageHeight = pageHeight * 0.8;
-        doc.image(imagePath, 0, 0, {
-          width: pageWidth,
-          height: imageHeight,
-        });
-
-        /* ================= TEXT AREA (20%) ================= */
-        const textBgY = imageHeight;
-        const textBgHeight = pageHeight - imageHeight;
-
-        // background
-        doc.save();
-        doc.rect(0, textBgY, pageWidth, textBgHeight).fill("#F3D97A");
-        doc.restore();
-
-        /* ================= TEXT ================= */
-        doc.save();
-        doc.fillColor("#1F1F1F").font("Times-Italic");
-
-        drawFittingText(
+        drawStoryPage(
           doc,
           storyPages[i],
-          60,
-          textBgY + 25,
-          pageWidth - 120,
-          textBgHeight - 50
+          path.resolve(imagePaths[i] || imagePaths[0]),
+          "left"
         );
 
-        doc.restore();
+        if (storyPages[i + 1]) {
+          drawStoryPage(
+            doc,
+            storyPages[i + 1],
+            path.resolve(imagePaths[i + 1] || imagePaths[0]),
+            "right"
+          );
+        }
       }
 
       doc.end();
