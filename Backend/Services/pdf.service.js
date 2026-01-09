@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 
@@ -14,10 +14,6 @@ export async function generatePDF(bookId) {
 
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath:
-      process.platform === "win32"
-        ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-        : "/usr/bin/google-chrome",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
@@ -37,10 +33,10 @@ export async function generatePDF(bookId) {
     }
   );
 
-  // ✅ WAIT FOR ANY IMAGE (REAL SIGNAL)
+  // ✅ WAIT FOR ANY IMAGE
   await page.waitForSelector("img", { timeout: 60000 });
 
-  // ✅ WAIT UNTIL ALL IMAGES FULLY LOAD
+  // ✅ WAIT UNTIL ALL IMAGES LOAD
   await page.evaluate(async () => {
     const images = Array.from(document.images);
     await Promise.all(
@@ -54,7 +50,7 @@ export async function generatePDF(bookId) {
     );
   });
 
-  // ✅ FONTS READY
+  // ✅ WAIT FOR FONTS
   await page.evaluateHandle("document.fonts.ready");
 
   await page.pdf({
