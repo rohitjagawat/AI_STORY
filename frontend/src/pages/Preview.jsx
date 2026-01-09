@@ -120,12 +120,18 @@ export default function Preview() {
                 src={`${backendBase}/images/${data.bookId}/page_1.png`}
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/70" />
+
 
               <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
-                <h1 className="text-3xl font-extrabold text-white leading-tight">
+                <h1
+                  className="text-4xl font-extrabold text-white leading-tight"
+                  style={{
+                    textShadow: "0 4px 18px rgba(0,0,0,0.55)",
+                  }}
+                >
                   {data.title}
                 </h1>
+
 
                 <p className="mt-4 text-sm text-white/80 italic">
                   A story for {childName}
@@ -158,12 +164,11 @@ export default function Preview() {
                     <img
                       src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
                       onError={(e) =>
-                        (e.currentTarget.src =
-                          `${backendBase}/${data.previewImage}`)
+                      (e.currentTarget.src =
+                        `${backendBase}/${data.previewImage}`)
                       }
-                      className={`w-full h-[300px] object-cover rounded-lg ${
-                        isLocked ? "blur-[14px]" : ""
-                      }`}
+                      className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
+                        }`}
                     />
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
