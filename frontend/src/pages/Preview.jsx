@@ -124,7 +124,7 @@ export default function Preview() {
 
               <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
                 <h1
-                  className="text-4xl font-extrabold text-white leading-tight"
+                  className="text-4xl font-bold text-white leading-tight"
                   style={{
                     textShadow: "0 4px 18px rgba(0,0,0,0.55)",
                   }}
