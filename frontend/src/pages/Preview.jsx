@@ -121,8 +121,8 @@ export default function Preview() {
                     <img
                       src={`${backendBase}/images/${data.bookId}/page_1.png`}
                       onError={(e) =>
-                        (e.currentTarget.src =
-                          `${backendBase}/${data.previewImage}`)
+                      (e.currentTarget.src =
+                        `${backendBase}/${data.previewImage}`)
                       }
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -181,13 +181,13 @@ export default function Preview() {
                       <img
                         src={`${backendBase}/images/${data.bookId}/page_${storyIndex + 1}.png`}
                         onError={(e) =>
-                          (e.currentTarget.src =
-                            `${backendBase}/${data.previewImage}`)
+                        (e.currentTarget.src =
+                          `${backendBase}/${data.previewImage}`)
                         }
-                        className={`w-full h-[260px] object-contain ${
-                          isLocked ? "blur-[14px]" : ""
-                        }`}
+                        className={`w-full h-[260px] object-cover ${isLocked ? "blur-[14px]" : ""
+                          }`}
                       />
+
                       {isLocked && (
                         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
                       )}
@@ -223,7 +223,7 @@ export default function Preview() {
                           This page is locked
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue ✨
+                          Unlock the full storybook to continue your magical journey ✨
                         </p>
 
                         <button
