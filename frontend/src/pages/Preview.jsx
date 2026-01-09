@@ -121,27 +121,32 @@ export default function Preview() {
                 className="absolute inset-0 w-full h-full object-cover"
               />
 
+              {/* subtle dark gradient for contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
 
               <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
-                <h1
-                  className="text-2xl font-bold text-white leading-tight"
-                  style={{
-                    textShadow: "0 4px 18px rgba(0,0,0,0.55)",
-                  }}
-                >
-                  {data.title}
-                </h1>
 
+                {/* GLASS TITLE CARD */}
+                <div className="backdrop-blur-md bg-white/15 border border-white/30
+                    rounded-2xl px-6 py-6 shadow-2xl max-w-sm">
+                  <h1
+                    className="text-2xl font-bold text-white leading-snug tracking-wide"
+                    style={{ textShadow: "0 6px 20px rgba(0,0,0,0.6)" }}
+                  >
+                    {data.title}
+                  </h1>
 
-                <p className="mt-4 text-sm text-white/80 italic">
-                  A story for {childName}
-                </p>
+                  <p className="mt-3 text-sm text-white/80 italic">
+                    A story for {childName}
+                  </p>
+                </div>
 
-                <p className="absolute bottom-6 text-xs text-white/70">
+                <p className="absolute bottom-6 text-xs text-white/70 tracking-wide">
                   Created by Jr. Billionaire
                 </p>
               </div>
             </div>
+
 
             {/* ================= STORY PAGES ================= */}
             {Array.from({ length: totalPages }).map((_, index) => {
