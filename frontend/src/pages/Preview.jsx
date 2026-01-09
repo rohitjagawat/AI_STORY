@@ -215,7 +215,7 @@ export default function Preview({ pdfMode = false }) {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-white rounded-xl p-6 text-center">
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue ✨
+                          Unlock the full storybook to continue your ✨magical journey
                         </p>
                         <button
                           onClick={() => {
@@ -228,7 +228,7 @@ export default function Preview({ pdfMode = false }) {
                           }}
                           className="px-6 py-2 bg-brandPurple text-white rounded-full"
                         >
-                          Pay ₹999 to Unlock
+                          Pay ₹999 to Unlock the full Storybook
                         </button>
                       </div>
                     </div>

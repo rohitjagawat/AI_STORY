@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import fs from "fs";
 import path from "path";
 
@@ -10,16 +10,14 @@ export async function generatePDF(bookId) {
 
   const pdfPath = path.join(outputDir, `${bookId}.pdf`);
 
-  // ♻️ Agar already bana hua hai, dobara mat banao
-  if (fs.existsSync(pdfPath)) {
-    console.log("ℹ️ PDF already exists:", bookId);
-    return pdfPath;
-  }
-
   console.log("📄 Generating PDF via viewer for:", bookId);
 
   const browser = await puppeteer.launch({
     headless: "new",
+    executablePath:
+      process.platform === "win32"
+        ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        : "/usr/bin/google-chrome",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
@@ -31,14 +29,32 @@ export async function generatePDF(bookId) {
     deviceScaleFactor: 2,
   });
 
-  // 🔥 FRONTEND URL (VERY IMPORTANT)
   await page.goto(
     `https://ai-story-sage.vercel.app/pdf-view/${bookId}`,
-    { waitUntil: "networkidle0" }
+    {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    }
   );
 
-  // Ensure flipbook rendered
-  await page.waitForSelector(".page");
+  // ✅ WAIT FOR ANY IMAGE (REAL SIGNAL)
+  await page.waitForSelector("img", { timeout: 60000 });
+
+  // ✅ WAIT UNTIL ALL IMAGES FULLY LOAD
+  await page.evaluate(async () => {
+    const images = Array.from(document.images);
+    await Promise.all(
+      images.map(
+        (img) =>
+          img.complete ||
+          new Promise((resolve) => {
+            img.onload = img.onerror = resolve;
+          })
+      )
+    );
+  });
+
+  // ✅ FONTS READY
   await page.evaluateHandle("document.fonts.ready");
 
   await page.pdf({
