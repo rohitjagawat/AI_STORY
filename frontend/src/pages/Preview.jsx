@@ -8,7 +8,6 @@ export default function Preview() {
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
 
-  // flip hint – first time only
   const [showHint, setShowHint] = useState(
     !localStorage.getItem("flip_hint_seen")
   );
@@ -19,7 +18,7 @@ export default function Preview() {
   const FREE_PAGES = 2;
 
   /* ===============================
-     LOAD STORY + POLL PAYMENT
+     LOAD STORY + PAYMENT POLLING
   ================================ */
   useEffect(() => {
     const result = JSON.parse(localStorage.getItem("storyResult"));
@@ -76,7 +75,7 @@ export default function Preview() {
 
   const pages = data.story?.pages || [];
   const storyPagesCount = data.story?.totalPages || pages.length;
-  const totalPages = storyPagesCount + 1; // +1 for cover
+  const totalPages = storyPagesCount + 1; // cover included
   const childName = data?.name || "Your Child";
 
   return (
@@ -104,7 +103,6 @@ export default function Preview() {
             minHeight={460}
             maxHeight={580}
             maxShadowOpacity={0.45}
-            showCover={false}
             mobileScrollSupport={true}
             className="shadow-2xl"
             onFlip={() => {
@@ -117,46 +115,47 @@ export default function Preview() {
             {Array.from({ length: totalPages }).map((_, index) => {
 
               /* ===============================
-                 COVER PAGE (index 0)
+                 FULL COVER PAGE
               ================================ */
               if (index === 0) {
                 return (
                   <div
                     key="cover"
-                    className="relative bg-[#fffaf0] border border-yellow-200
-                               rounded-lg overflow-hidden flex flex-col"
+                    className="relative w-full h-full overflow-hidden rounded-lg"
                   >
-                    {/* COVER IMAGE (PAGE 1 IMAGE) */}
-                    <div className="px-6 pt-8">
-                      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                        <img
-                          src={`${backendBase}/images/${data.bookId}/page_1.png`}
-                          onError={(e) =>
-                            (e.currentTarget.src =
-                              `${backendBase}/${data.previewImage}`)
-                          }
-                          className="w-full h-[300px] object-contain"
-                        />
-                      </div>
-                    </div>
+                    {/* FULL COVER IMAGE */}
+                    <img
+                      src={`${backendBase}/images/${data.bookId}/page_1.png`}
+                      onError={(e) =>
+                        (e.currentTarget.src =
+                          `${backendBase}/${data.previewImage}`)
+                      }
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+
+                    {/* DARK GRADIENT */}
+                    <div className="absolute inset-0 bg-gradient-to-t
+                                    from-black/60 via-black/20 to-transparent" />
 
                     {/* TITLE */}
-                    <div className="pt-6 text-center px-6">
-                      <h1 className="text-2xl font-bold text-brandPurple mb-2">
+                    <div className="absolute top-10 w-full text-center px-6">
+                      <h1 className="text-3xl font-extrabold text-white drop-shadow-lg">
                         {childName}’s Story
                       </h1>
-                      <p className="text-sm tracking-widest text-gray-500 uppercase">
+                      <p className="mt-2 text-xs uppercase tracking-widest text-white/80">
                         A Personalized Storybook
                       </p>
                     </div>
 
                     {/* FOOTER */}
-                    <div className="mt-auto pb-6 text-center text-xs text-gray-400 italic">
+                    <div className="absolute bottom-6 w-full text-center
+                                    text-xs text-white/70 italic">
                       Created with ❤️ by Jr Billionaire
                     </div>
 
                     {/* NEXT ARROW */}
-                    <div className="absolute bottom-4 right-4 text-gray-400 animate-pulse">
+                    <div className="absolute bottom-4 right-4
+                                    text-white text-2xl animate-pulse">
                       ➡
                     </div>
                   </div>
@@ -258,7 +257,7 @@ export default function Preview() {
           {showHint && (
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2
                             text-sm text-gray-500 animate-pulse">
-              👉 Swipe or drag the page to turn it
+              👉 Swipe or drag to turn the page
             </div>
           )}
         </div>
