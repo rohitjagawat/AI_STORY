@@ -7,8 +7,6 @@ export default function Preview() {
 
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
-
-  // 👇 Flip hint (first time only)
   const [showHint, setShowHint] = useState(
     !localStorage.getItem("flip_hint_seen")
   );
@@ -49,7 +47,8 @@ export default function Preview() {
 
           setData((prev) => ({
             ...prev,
-            ...updated,
+            story: updated.story,
+            previewImage: updated.previewImage,
           }));
 
           if (poller) clearInterval(poller);
@@ -75,36 +74,34 @@ export default function Preview() {
 
   const pages = data.story?.pages || [];
   const totalPages = data.story?.totalPages || pages.length;
-
-  const title = data.title || "A Magical Story";
-  const childName = data.childName || "Your Child";
+  const childName = data?.input?.name || "";
 
   return (
     <div className="min-h-screen bg-brandBg px-4 py-10">
-      <div className="max-w-5xl mx-auto space-y-10">
+      <div className="max-w-6xl mx-auto space-y-10">
 
         {/* HEADER */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-brandPurple">
-            {title}
+            Your Child’s Personalized Storybook 📘
           </h1>
           <p className="mt-1 text-sm text-brandMuted italic">
-            A personalized storybook for {childName}
+            A magical bedtime story crafted just for your child ✨
           </p>
         </div>
 
-        {/* BOOK VIEWER */}
+        {/* BOOK */}
         <div className="flex justify-center relative">
           <HTMLFlipBook
             width={380}
             height={560}
             size="stretch"
             minWidth={320}
-            maxWidth={420}
+            maxWidth={440}
             minHeight={500}
             maxHeight={600}
-            maxShadowOpacity={0.45}
-            showCover={true}
+            maxShadowOpacity={0.5}
+            showCover={false}
             mobileScrollSupport={true}
             className="shadow-2xl"
             onFlip={() => {
@@ -114,34 +111,35 @@ export default function Preview() {
               }
             }}
           >
-            {/* ===============================
-               COVER PAGE
-            ================================ */}
-            <div className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col items-center justify-center text-center px-8">
+            {/* DUMMY PAGE (prevents blank left page) */}
+            <div className="bg-transparent"></div>
+
+            {/* ================= COVER PAGE ================= */}
+            <div className="relative bg-black rounded-lg overflow-hidden">
               <img
-                src={`${backendBase}/${data.previewImage}`}
-                className="absolute inset-0 w-full h-full object-cover opacity-25"
+                src={`${backendBase}/images/${data.bookId}/page_1.png`}
+                className="absolute inset-0 w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/70" />
 
-              <div className="relative z-10">
-                <h2 className="text-3xl font-extrabold text-brandPurple mb-3">
-                  {title}
-                </h2>
+              <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
+                <h1 className="text-3xl font-extrabold text-white leading-tight">
+                  {data.title}
+                </h1>
 
-                <p className="text-sm text-gray-700 italic mb-6">
+                <p className="mt-4 text-sm text-white/80 italic">
                   A story for {childName}
                 </p>
 
-                <p className="text-xs text-gray-500 tracking-wide">
+                <p className="absolute bottom-6 text-xs text-white/70">
                   Created by Jr. Billionaire
                 </p>
               </div>
             </div>
 
-            {/* ===============================
-               STORY PAGES
-            ================================ */}
-            {pages.map((text, index) => {
+            {/* ================= STORY PAGES ================= */}
+            {Array.from({ length: totalPages }).map((_, index) => {
+              const text = pages[index];
               const isFree = index < FREE_PAGES;
               const isLocked = !isFree && !paid;
 
@@ -150,52 +148,47 @@ export default function Preview() {
                   key={index}
                   className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
                 >
-                  {/* TOP NAME */}
-                  <div className="pt-4 pb-2 text-center text-sm font-medium text-gray-500">
+                  {/* CHILD NAME */}
+                  <div className="pt-4 text-center text-sm font-medium text-gray-500">
                     {childName}’s Story
                   </div>
 
-                  {/* IMAGE (FULL WIDTH – NO EMPTY SPACE) */}
-                  <div className="px-4">
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden">
-                      <img
-                        src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                        loading="lazy"
-                        onError={(e) =>
-                          (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
-                        }
-                        className={`w-full h-[300px] object-cover ${
-                          isLocked ? "blur-[14px]" : ""
-                        }`}
-                      />
-                      {isLocked && (
-                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                      )}
-                    </div>
+                  {/* IMAGE */}
+                  <div className="px-4 pt-3">
+                    <img
+                      src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
+                      onError={(e) =>
+                        (e.currentTarget.src =
+                          `${backendBase}/${data.previewImage}`)
+                      }
+                      className={`w-full h-[300px] object-cover rounded-lg ${
+                        isLocked ? "blur-[14px]" : ""
+                      }`}
+                    />
+                    {isLocked && (
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                    )}
                   </div>
 
-                  {/* STORY TEXT */}
+                  {/* TEXT */}
                   {!isLocked && (
-                    <div className="px-8 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
+                    <div className="px-6 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
                       {text}
                     </div>
                   )}
 
-                  {/* PAGE NUMBER (SIMPLE) */}
+                  {/* PAGE NUMBER */}
                   <div className="pb-4 text-center text-xs text-gray-400">
                     {index + 1}
                   </div>
 
-                  {/* LOCK CTA */}
+                  {/* LOCK */}
                   {isLocked && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-xs">
                         <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold mb-2">
-                          This page is locked
-                        </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue the journey ✨
+                          Unlock the full storybook to continue your magical journey✨
                         </p>
 
                         <button
@@ -209,7 +202,7 @@ export default function Preview() {
                           }}
                           className="px-6 py-2 rounded-full bg-brandPurple text-white font-semibold"
                         >
-                          Pay ₹999 to Unlock
+                          Pay ₹999 to Unlock full Storybook
                         </button>
                       </div>
                     </div>
@@ -222,7 +215,7 @@ export default function Preview() {
           {/* FLIP HINT */}
           {showHint && (
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-sm text-gray-500 animate-pulse">
-              👉 Swipe or drag the page to turn it like a real book
+              👉 Swipe or drag the page to flip
             </div>
           )}
         </div>
@@ -230,7 +223,7 @@ export default function Preview() {
         {/* AFTER PAYMENT */}
         {paid && (
           <div className="pt-10 flex flex-col items-center gap-6">
-            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium shadow-sm">
+            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium">
               ✅ Payment successful! Your full storybook is unlocked.
             </div>
 
@@ -238,32 +231,25 @@ export default function Preview() {
               onClick={() =>
                 window.open(`${API_URL}/view/${data.bookId}`, "_blank")
               }
-              className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all"
+              className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg shadow-lg"
             >
               📘 View & Download Storybook PDF
             </button>
           </div>
         )}
 
-        {/* CREATE ANOTHER STORY */}
+        {/* CREATE ANOTHER */}
         <div className="pt-16 flex justify-center">
           <button
             onClick={() => {
               localStorage.clear();
               navigate("/create");
             }}
-            className="group flex items-center gap-3 px-10 py-4 rounded-full
-                       border-2 border-brandPurple text-brandPurple font-semibold
-                       hover:bg-brandPurple hover:text-white transition-all
-                       shadow-md hover:shadow-xl"
+            className="px-10 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
           >
-            <span className="text-xl transition-transform group-hover:rotate-12">
-              ✨
-            </span>
-            Create Another Magical Story
+            ✨ Create Another Magical Story
           </button>
         </div>
-
       </div>
     </div>
   );
