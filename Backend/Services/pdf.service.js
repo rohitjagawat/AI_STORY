@@ -13,12 +13,16 @@ export async function generatePDF({
   // 🔹 TEST MODE: sirf 2 pages
   const finalPages = isTest ? pages.slice(0, 2) : pages;
 
-  const html = buildPDFHtml({
-    bookId,
-    title,
-    childName,
-    pages: finalPages,
-  });
+ const baseUrl = process.env.BACKEND_BASE_URL;
+
+const html = buildPDFHtml({
+  bookId,
+  title,
+  childName,
+  pages: finalPages,
+  baseUrl,
+});
+
 
   // 🔥 CRITICAL FIX FOR RAILWAY (folder must exist)
   const outputDir = path.join(process.cwd(), "output");

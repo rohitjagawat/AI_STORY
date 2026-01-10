@@ -21,8 +21,9 @@ export function buildPDFHtml({ title, childName, bookId, pages }) {
       <div class="child-name">${childName}’s Story</div>
 
       <div class="img-wrap">
-       <img src="images/${bookId}/page_${i + 1}.png"
-     onerror="this.src='images/${bookId}/page_1.png'" />
+       <img src="{{BASE_URL}}/images/${bookId}/page_${i + 1}.png"
+     onerror="this.src='{{BASE_URL}}/images/${bookId}/page_1.png'" />
+
 
       </div>
 
@@ -34,6 +35,6 @@ export function buildPDFHtml({ title, childName, bookId, pages }) {
   return template
     .replace("{{TITLE}}", title)
     .replace("{{CHILD_NAME}}", childName)
-    .replace("{{COVER_IMAGE}}", `images/${bookId}/page_1.png`)
+    .replace("{{COVER_IMAGE}}", `{{BASE_URL}}/images/${bookId}/page_1.png`)
     .replace("{{PAGES}}", pagesHTML);
 }
