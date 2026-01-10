@@ -42,16 +42,20 @@ export async function generatePDF({
 
   const page = await browser.newPage();
 
-  // ❌ setContent MAT use karo
-await page.goto(`file://${htmlPath}`, {
-  waitUntil: "load",      // 🔥 IMPORTANT
-  timeout: 0              // 🔥 NO TIMEOUT
-});
+  
+// 🔥 CRITICAL FIX
+  await page.setRequestInterception(true);
+  page.on("request", (req) => {
+    if (["font", "stylesheet"].includes(req.resourceType())) {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
 
-// ✅ wait a bit so images render properly
-await new Promise(resolve => setTimeout(resolve, 2000));
-
-
+  await page.goto(`file://${htmlPath}`, {
+    timeout: 0,
+  });
 
   await page.pdf({
     path: pdfPath,
@@ -62,6 +66,6 @@ await new Promise(resolve => setTimeout(resolve, 2000));
   });
 
   await browser.close();
-
   return pdfPath;
 }
+
