@@ -16,9 +16,10 @@ export default function Preview() {
 
   const FREE_PAGES = 2;
 
-    /* ===============================
-     PDF / PREVIEW SCROLL LOCK
-  ================================ */
+
+  /* ===============================
+   PDF / PREVIEW SCROLL LOCK
+================================ */
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
@@ -27,6 +28,21 @@ export default function Preview() {
     };
   }, []);
 
+  /* ===============================
+     PDF DIRECT LOAD (NO localStorage)
+  =============================== */
+  useEffect(() => {
+    if (window.location.search.includes("pdf=true") && !data) {
+      fetch(`${API_URL}/story/result/${storyId}`)
+        .then((res) => res.json())
+        .then((result) => {
+          setData(result);
+        })
+        .catch(() => {
+          navigate("/create");
+        });
+    }
+  }, [API_URL, storyId, data, navigate]);
 
   /* ===============================
      LOAD STORY + POLL PAYMENT
@@ -34,10 +50,17 @@ export default function Preview() {
   useEffect(() => {
     const result = JSON.parse(localStorage.getItem("storyResult"));
 
+    // 🔥 ALLOW PUPPETEER / DIRECT ACCESS
     if (!result || !result.bookId) {
+      if (window.location.search.includes("pdf=true")) {
+        // allow backend PDF capture
+        return;
+      }
+
       navigate("/create");
       return;
     }
+
 
     setData(result);
 
@@ -104,136 +127,136 @@ export default function Preview() {
 
         {/* BOOK */}
         <div className="flex justify-center relative">
-            <div id="storybook-root">
-          <HTMLFlipBook
-            width={380}
-            height={560}
-            size="stretch"
-            minWidth={320}
-            maxWidth={440}
-            minHeight={500}
-            maxHeight={600}
-            maxShadowOpacity={0.5}
-            showCover={false}
-            mobileScrollSupport={true}
-            className="shadow-2xl"
-            onFlip={() => {
-              if (showHint) {
-                setShowHint(false);
-                localStorage.setItem("flip_hint_seen", "true");
-              }
-            }}
-          >
-            {/* DUMMY PAGE (prevents blank left page) */}
-            <div className="bg-transparent"></div>
+          <div id="storybook-root">
+            <HTMLFlipBook
+              width={380}
+              height={560}
+              size="stretch"
+              minWidth={320}
+              maxWidth={440}
+              minHeight={500}
+              maxHeight={600}
+              maxShadowOpacity={0.5}
+              showCover={false}
+              mobileScrollSupport={true}
+              className="shadow-2xl"
+              onFlip={() => {
+                if (showHint) {
+                  setShowHint(false);
+                  localStorage.setItem("flip_hint_seen", "true");
+                }
+              }}
+            >
+              {/* DUMMY PAGE (prevents blank left page) */}
+              <div className="bg-transparent"></div>
 
-            {/* ================= COVER PAGE ================= */}
-            <div className="relative bg-black rounded-lg overflow-hidden">
-              <img
-                src={`${backendBase}/images/${data.bookId}/page_1.png`}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              {/* ================= COVER PAGE ================= */}
+              <div className="relative bg-black rounded-lg overflow-hidden">
+                <img
+                  src={`${backendBase}/images/${data.bookId}/page_1.png`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
 
-              {/* subtle dark gradient for contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
+                {/* subtle dark gradient for contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
 
-              <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
+                <div className="relative z-10 flex flex-col justify-center items-center h-full px-6 text-center">
 
-                {/* GLASS TITLE CARD */}
-                <div className="backdrop-blur-md bg-white/15 border border-white/30
+                  {/* GLASS TITLE CARD */}
+                  <div className="backdrop-blur-md bg-white/15 border border-white/30
                     rounded-2xl px-6 py-6 shadow-2xl max-w-sm">
-                  <h1
-                    className="text-2xl font-bold text-white leading-snug tracking-wide"
-                    style={{ textShadow: "0 6px 20px rgba(0,0,0,0.6)" }}
-                  >
-                    {data.title}
-                  </h1>
+                    <h1
+                      className="text-2xl font-bold text-white leading-snug tracking-wide"
+                      style={{ textShadow: "0 6px 20px rgba(0,0,0,0.6)" }}
+                    >
+                      {data.title}
+                    </h1>
 
-                  <p className="mt-3 text-sm text-white/80 italic">
-                    A story for {childName}
+                    <p className="mt-3 text-sm text-white/80 italic">
+                      A story for {childName}
+                    </p>
+                  </div>
+
+                  <p className="absolute bottom-6 text-xs text-white/70 tracking-wide">
+                    Created by Jr. Billionaire
                   </p>
                 </div>
-
-                <p className="absolute bottom-6 text-xs text-white/70 tracking-wide">
-                  Created by Jr. Billionaire
-                </p>
               </div>
-            </div>
 
 
-            {/* ================= STORY PAGES ================= */}
-            {Array.from({ length: totalPages }).map((_, index) => {
-              const text = pages[index];
-              const isFree = index < FREE_PAGES;
-              const isLocked = !isFree && !paid;
+              {/* ================= STORY PAGES ================= */}
+              {Array.from({ length: totalPages }).map((_, index) => {
+                const text = pages[index];
+                const isFree = index < FREE_PAGES;
+                const isLocked = !isFree && !paid;
 
-              return (
-                <div
-                  key={index}
-                  className="page relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
-                >
-                  {/* CHILD NAME */}
-                  <div className="pt-4 text-center text-sm font-medium text-gray-500">
-                    {childName}’s Story
-                  </div>
+                return (
+                  <div
+                    key={index}
+                    className="page relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
+                  >
+                    {/* CHILD NAME */}
+                    <div className="pt-4 text-center text-sm font-medium text-gray-500">
+                      {childName}’s Story
+                    </div>
 
-                  {/* IMAGE */}
-                  <div className="px-4 pt-3">
-                    <img
-                      src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                      onError={(e) =>
-                      (e.currentTarget.src =
-                        `${backendBase}/${data.previewImage}`)
-                      }
-                      className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
-                        }`}
-                    />
+                    {/* IMAGE */}
+                    <div className="px-4 pt-3">
+                      <img
+                        src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
+                        onError={(e) =>
+                        (e.currentTarget.src =
+                          `${backendBase}/${data.previewImage}`)
+                        }
+                        className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
+                          }`}
+                      />
+                      {isLocked && (
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                      )}
+                    </div>
+
+                    {/* TEXT */}
+                    {!isLocked && (
+                      <div className="px-6 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
+                        {text}
+                      </div>
+                    )}
+
+                    {/* PAGE NUMBER */}
+                    <div className="pb-4 text-center text-xs text-gray-400">
+                      {index + 1}
+                    </div>
+
+                    {/* LOCK */}
                     {isLocked && (
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-xs">
+                          <div className="text-3xl mb-3">🔒</div>
+                          <p className="text-sm text-gray-600 mb-4">
+                            Unlock the full storybook to continue your magical journey✨
+                          </p>
+
+                          <button
+                            onClick={() => {
+                              const url =
+                                `https://www.jrbillionaire.com/cart/add` +
+                                `?id=50467255124254` +
+                                `&quantity=1` +
+                                `&properties[bookId]=${data.bookId}`;
+                              window.open(url, "_blank", "noopener,noreferrer");
+                            }}
+                            className="px-6 py-2 rounded-full bg-brandPurple text-white font-semibold"
+                          >
+                            Pay ₹999 to Unlock full Storybook
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {/* TEXT */}
-                  {!isLocked && (
-                    <div className="px-6 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
-                      {text}
-                    </div>
-                  )}
-
-                  {/* PAGE NUMBER */}
-                  <div className="pb-4 text-center text-xs text-gray-400">
-                    {index + 1}
-                  </div>
-
-                  {/* LOCK */}
-                  {isLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-xs">
-                        <div className="text-3xl mb-3">🔒</div>
-                        <p className="text-sm text-gray-600 mb-4">
-                          Unlock the full storybook to continue your magical journey✨
-                        </p>
-
-                        <button
-                          onClick={() => {
-                            const url =
-                              `https://www.jrbillionaire.com/cart/add` +
-                              `?id=50467255124254` +
-                              `&quantity=1` +
-                              `&properties[bookId]=${data.bookId}`;
-                            window.open(url, "_blank", "noopener,noreferrer");
-                          }}
-                          className="px-6 py-2 rounded-full bg-brandPurple text-white font-semibold"
-                        >
-                          Pay ₹999 to Unlock full Storybook
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </HTMLFlipBook>
+                );
+              })}
+            </HTMLFlipBook>
           </div>
 
           {/* FLIP HINT */}

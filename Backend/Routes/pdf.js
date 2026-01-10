@@ -15,7 +15,8 @@ router.get("/generate/:bookId", async (req, res) => {
       throw new Error("FRONTEND_BASE not set in Railway");
     }
 
-    const PREVIEW_URL = `${FRONTEND_URL}/preview/${bookId}`;
+    const PREVIEW_URL = `${FRONTEND_BASE_URL}/preview/${bookId}?pdf=true`;
+
     console.log("📘 Opening:", PREVIEW_URL);
 
     const browser = await puppeteer.launch({
