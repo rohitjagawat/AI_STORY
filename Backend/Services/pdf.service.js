@@ -1,71 +1,121 @@
-import puppeteer from "puppeteer";
+import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import { buildPDFHtml } from "./pdf.helper.js";
 
-export async function generatePDF({
-  bookId,
-  title,
-  childName,
-  pages,
-  isTest = false,
-}) {
-  // ✅ test mode → sirf 2 pages
-  const finalPages = isTest ? pages.slice(0, 2) : pages;
 
-  const baseUrl = process.env.BACKEND_BASE_URL;
+/**
+ * Draw text that always fits inside the given height
+ * without cutting or overlapping.
+ */
+function drawFittingText(doc, text, x, y, width, maxHeight) {
+  let fontSize = 18;
+  const minFontSize = 11;
 
-  const html = buildPDFHtml({
-    bookId,
-    title,
-    childName,
-    pages: finalPages,
-    baseUrl,
-  });
+  while (fontSize >= minFontSize) {
+    doc.fontSize(fontSize);
 
-  // ✅ ensure output folder
-  const outputDir = path.join(process.cwd(), "output");
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+    const textHeight = doc.heightOfString(text, {
+      width,
+      align: "center",
+      lineGap: 6,
+    });
+
+    if (textHeight <= maxHeight) {
+      doc.text(text, x, y, {
+        width,
+        align: "center",
+        lineGap: 6,
+      });
+      return;
+    }
+
+    fontSize -= 1;
   }
 
-  // ✅ WRITE HTML FILE (IMPORTANT)
-  const htmlPath = path.join(outputDir, `${bookId}.html`);
-  fs.writeFileSync(htmlPath, html);
-
-  const pdfPath = path.join(outputDir, `${bookId}.pdf`);
-
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  // fallback
+  doc.fontSize(minFontSize).text(text, x, y, {
+    width,
+    align: "center",
+    lineGap: 6,
   });
-
-  const page = await browser.newPage();
-
-  
-// 🔥 CRITICAL FIX
-  await page.setRequestInterception(true);
-  page.on("request", (req) => {
-    if (["font", "stylesheet"].includes(req.resourceType())) {
-      req.abort();
-    } else {
-      req.continue();
-    }
-  });
-
-  await page.goto(`file://${htmlPath}`, {
-    timeout: 0,
-  });
-
-  await page.pdf({
-    path: pdfPath,
-    width: "380px",
-    height: "560px",
-    printBackground: true,
-    margin: { top: 0, bottom: 0, left: 0, right: 0 },
-  });
-
-  await browser.close();
-  return pdfPath;
 }
 
+export function generatePDF(storyPages, imagePaths, bookId) {
+  return new Promise((resolve, reject) => {
+    try {
+      const outputDir = "output";
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir);
+      }
+
+      const pdfPath = path.join(outputDir, `${bookId}.pdf`);
+
+      const doc = new PDFDocument({
+        size: "A4",
+        margins: { top: 0, bottom: 0, left: 0, right: 0 },
+      });
+
+      const stream = fs.createWriteStream(pdfPath);
+      doc.pipe(stream);
+
+      // 🛑 SAFETY CHECK
+      if (!imagePaths || imagePaths.length === 0) {
+        throw new Error("No images available for PDF generation");
+      }
+
+      for (let i = 0; i < storyPages.length; i++) {
+        if (i !== 0) doc.addPage();
+
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height;
+
+        // 🔁 TEST MODE SAFE: reuse first image if others missing
+        const safeImage = imagePaths[i] || imagePaths[0];
+
+        if (!safeImage) {
+          throw new Error("No valid image available for PDF");
+        }
+
+        const imagePath = path.resolve(safeImage);
+
+        /* ================= IMAGE (80%) ================= */
+        const imageHeight = pageHeight * 0.8;
+        doc.image(imagePath, 0, 0, {
+          width: pageWidth,
+          height: imageHeight,
+        });
+
+        /* ================= TEXT AREA (20%) ================= */
+        const textBgY = imageHeight;
+        const textBgHeight = pageHeight - imageHeight;
+
+        // background
+        doc.save();
+        doc.rect(0, textBgY, pageWidth, textBgHeight).fill("#F3D97A");
+        doc.restore();
+
+        /* ================= TEXT ================= */
+        doc.save();
+        doc.fillColor("#1F1F1F").font("Times-Italic");
+
+        drawFittingText(
+          doc,
+          storyPages[i],
+          60,
+          textBgY + 25,
+          pageWidth - 120,
+          textBgHeight - 50
+        );
+
+        doc.restore();
+      }
+
+      doc.end();
+
+      stream.on("finish", () => resolve(pdfPath));
+      stream.on("error", reject);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

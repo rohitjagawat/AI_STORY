@@ -8,10 +8,8 @@ const router = express.Router();
 router.get("/:bookId", (req, res) => {
   const { bookId } = req.params;
 
-  const testKey = req.query.testKey;
-  const isTestUser = testKey === process.env.TEST_UNLOCK_KEY;
-
-  if (!isTestUser && !hasPaidForBook(bookId)) {
+  // 🔐 PAYMENT CHECK (BOOKID BASED)
+  if (!hasPaidForBook(bookId)) {
     return res.status(403).json({ error: "Payment required" });
   }
 
@@ -23,6 +21,5 @@ router.get("/:bookId", (req, res) => {
 
   res.download(filePath);
 });
-
 
 export default router;
