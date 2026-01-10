@@ -1,12 +1,13 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-
 import storyRoute from "./Routes/story.route.js";
 import shopifyRoutes from "./Routes/shopify.route.js";
 import paymentRoutes from "./Routes/payment.route.js";
 import downloadRoutes from "./Routes/download.route.js";
 import viewRoutes from "./Routes/view.route.js";
+import pdfViewRoutes from "./Routes/pdfView.route.js";
+
 
 
 const app = express();
@@ -26,7 +27,7 @@ app.use("/shopify", shopifyRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/download", downloadRoutes);
 app.use("/api", viewRoutes);
-
+app.use("/", pdfViewRoutes);
 
 const PORT = process.env.PORT || 8080;
 
