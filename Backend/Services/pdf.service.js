@@ -43,10 +43,14 @@ export async function generatePDF({
   const page = await browser.newPage();
 
   // ❌ setContent MAT use karo
-  // ✅ file:// se load karo
-  await page.goto(`file://${htmlPath}`, {
-    waitUntil: "networkidle0",
-  });
+await page.goto(`file://${htmlPath}`, {
+  waitUntil: "load",      // 🔥 IMPORTANT
+  timeout: 0              // 🔥 NO TIMEOUT
+});
+
+// ✅ wait a bit so images render properly
+await page.waitForTimeout(2000);
+
 
   await page.pdf({
     path: pdfPath,
