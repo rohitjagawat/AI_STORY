@@ -3,6 +3,7 @@ import Landing from "./pages/Landing";
 import CreateStory from "./pages/CreateStory";
 import Generating from "./pages/Generating";
 import Preview from "./pages/Preview";
+import PrintView from "./pages/PrintView"
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/create" element={<CreateStory />} />
         <Route path="/generating" element={<Generating />} />
         <Route path="/preview" element={<Preview />} />
+        <Route path="/print/:bookId" element={<PrintView />} />
       </Routes>
     </BrowserRouter>
   );
