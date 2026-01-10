@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { extractVisualScenes } from "./sceneExtractor.service.js";
 import { generateImages } from "./image.service.js";
-import { generatePDF } from "./pdf.service.js";
+
 
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
@@ -100,8 +100,17 @@ export async function handleOrderPaid(order) {
     .sort()
     .map((f) => path.join(imagesDir, f));
 
-  // 📄 GENERATE PDF USING ALL IMAGES
-  await generatePDF(fullStoryPages, imageFiles, bookId);
+ const meta = JSON.parse(
+  fs.readFileSync(`stories/${bookId}.meta.json`)
+);
+
+await generatePDF({
+  bookId,
+  title: meta.title,
+  childName: meta.childName,
+  pages: fullStoryPages
+});
+
 
   console.log("✅ PAYMENT FLOW COMPLETE (STORY + IMAGES CONSISTENT):", bookId);
 }
