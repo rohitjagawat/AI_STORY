@@ -16,6 +16,18 @@ export default function Preview() {
 
   const FREE_PAGES = 2;
 
+    /* ===============================
+     PDF / PREVIEW SCROLL LOCK
+  ================================ */
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
+
   /* ===============================
      LOAD STORY + POLL PAYMENT
   ================================ */
@@ -92,6 +104,7 @@ export default function Preview() {
 
         {/* BOOK */}
         <div className="flex justify-center relative">
+            <div id="storybook-root">
           <HTMLFlipBook
             width={380}
             height={560}
@@ -157,7 +170,7 @@ export default function Preview() {
               return (
                 <div
                   key={index}
-                  className="relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
+                  className="page relative bg-[#fffaf0] border border-yellow-200 rounded-lg overflow-hidden flex flex-col"
                 >
                   {/* CHILD NAME */}
                   <div className="pt-4 text-center text-sm font-medium text-gray-500">
@@ -221,6 +234,7 @@ export default function Preview() {
               );
             })}
           </HTMLFlipBook>
+          </div>
 
           {/* FLIP HINT */}
           {showHint && (

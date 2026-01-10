@@ -8,3 +8,28 @@ body {
   font-family: "Poppins", sans-serif;
   background-color: #faf7ff;
 }
+/* ===============================
+   PDF / PRINT SUPPORT
+================================ */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  #storybook-root {
+    width: 100%;
+  }
+
+  /* Each flipbook page = new PDF page */
+  .page {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
