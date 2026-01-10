@@ -10,25 +10,28 @@ export async function generatePDF({
   pages,
   isTest = false,
 }) {
-  // 🔹 TEST MODE: sirf 2 pages
+  // ✅ test mode → sirf 2 pages
   const finalPages = isTest ? pages.slice(0, 2) : pages;
 
- const baseUrl = process.env.BACKEND_BASE_URL;
+  const baseUrl = process.env.BACKEND_BASE_URL;
 
-const html = buildPDFHtml({
-  bookId,
-  title,
-  childName,
-  pages: finalPages,
-  baseUrl,
-});
+  const html = buildPDFHtml({
+    bookId,
+    title,
+    childName,
+    pages: finalPages,
+    baseUrl,
+  });
 
-
-  // 🔥 CRITICAL FIX FOR RAILWAY (folder must exist)
+  // ✅ ensure output folder
   const outputDir = path.join(process.cwd(), "output");
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
+
+  // ✅ WRITE HTML FILE (IMPORTANT)
+  const htmlPath = path.join(outputDir, `${bookId}.html`);
+  fs.writeFileSync(htmlPath, html);
 
   const pdfPath = path.join(outputDir, `${bookId}.pdf`);
 
@@ -39,11 +42,12 @@ const html = buildPDFHtml({
 
   const page = await browser.newPage();
 
-  await page.setContent(html, {
+  // ❌ setContent MAT use karo
+  // ✅ file:// se load karo
+  await page.goto(`file://${htmlPath}`, {
     waitUntil: "networkidle0",
   });
 
-  // ✅ IMPORTANT: yahin pdfPath use hoga
   await page.pdf({
     path: pdfPath,
     width: "380px",
