@@ -7,8 +7,6 @@ import shopifyRoutes from "./Routes/shopify.route.js";
 import paymentRoutes from "./Routes/payment.route.js";
 import downloadRoutes from "./Routes/download.route.js";
 import viewRoutes from "./Routes/view.route.js";
-import pdfRoutes from "./Routes/pdf.js";
-
 
 
 const app = express();
@@ -28,7 +26,7 @@ app.use("/shopify", shopifyRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/download", downloadRoutes);
 app.use("/api", viewRoutes);
-app.use("/api/pdf", pdfRoutes);
+
 
 const PORT = process.env.PORT || 8080;
 
