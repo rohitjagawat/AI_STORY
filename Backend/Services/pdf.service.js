@@ -49,7 +49,8 @@ await page.goto(`file://${htmlPath}`, {
 });
 
 // ✅ wait a bit so images render properly
-await page.waitForTimeout(2000);
+await new Promise(resolve => setTimeout(resolve, 2000));
+
 
 
   await page.pdf({
