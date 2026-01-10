@@ -8,19 +8,25 @@ export async function generatePDF({
   title,
   childName,
   pages,
-  isTest = false
+  isTest = false,
 }) {
-
+  // 🔹 TEST MODE: sirf 2 pages
   const finalPages = isTest ? pages.slice(0, 2) : pages;
 
-const html = buildPDFHtml({
-  bookId,
-  title,
-  childName,
-  pages: finalPages
-});
+  const html = buildPDFHtml({
+    bookId,
+    title,
+    childName,
+    pages: finalPages,
+  });
 
-  const outputPath = path.join("output", `${bookId}.pdf`);
+  // 🔥 CRITICAL FIX FOR RAILWAY (folder must exist)
+  const outputDir = path.join(process.cwd(), "output");
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  const pdfPath = path.join(outputDir, `${bookId}.pdf`);
 
   const browser = await puppeteer.launch({
     headless: "new",
@@ -29,10 +35,13 @@ const html = buildPDFHtml({
 
   const page = await browser.newPage();
 
-  await page.setContent(html, { waitUntil: "networkidle0" });
+  await page.setContent(html, {
+    waitUntil: "networkidle0",
+  });
 
+  // ✅ IMPORTANT: yahin pdfPath use hoga
   await page.pdf({
-    path: outputPath,
+    path: pdfPath,
     width: "380px",
     height: "560px",
     printBackground: true,
@@ -40,4 +49,6 @@ const html = buildPDFHtml({
   });
 
   await browser.close();
+
+  return pdfPath;
 }
