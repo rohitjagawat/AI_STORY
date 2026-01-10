@@ -7,7 +7,7 @@ import shopifyRoutes from "./Routes/shopify.route.js";
 import paymentRoutes from "./Routes/payment.route.js";
 import downloadRoutes from "./Routes/download.route.js";
 import viewRoutes from "./Routes/view.route.js";
-import pdfRoutes from "./routes/pdf.js";
+import pdfRoutes from "./Routes/pdf.js";
 
 
 
