@@ -2,116 +2,106 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
+const IS_TEST_MODE = process.env.TEST_MODE === "true";
+
+if (IS_TEST_MODE) {
+  console.log("🧪 TEST MODE: PDF using available images only");
+}
+
 export async function generatePDF(
   pages,
-  imagePaths,
+  images,
   bookId,
-  options = {}
+  meta = {}
 ) {
-  const { title = "A Magical Storybook", childName = "Your Child" } = options;
-
-  const outputDir = path.join("output");
+  const outputDir = "output";
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
   const pdfPath = path.join(outputDir, `${bookId}.pdf`);
-  const doc = new PDFDocument({
-    size: "A4",
-    margins: { top: 40, bottom: 40, left: 40, right: 40 },
-  });
 
-  const stream = fs.createWriteStream(pdfPath);
-  doc.pipe(stream);
-
-  /* ===============================
-     📘 COVER PAGE
-  ================================ */
-  if (imagePaths[0] && fs.existsSync(imagePaths[0])) {
-    doc.image(imagePaths[0], 0, 0, {
-      width: doc.page.width,
-      height: doc.page.height,
-    });
-  }
-
-  // Dark overlay
-  doc.rect(0, 0, doc.page.width, doc.page.height)
-    .fillOpacity(0.35)
-    .fill("black")
-    .fillOpacity(1);
-
-  // Title
-  doc
-    .fillColor("white")
-    .fontSize(32)
-    .font("Helvetica-Bold")
-    .text(title, 60, doc.page.height / 2 - 40, {
-      align: "center",
-      width: doc.page.width - 120,
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({
+      size: "A4",
+      margins: { top: 50, bottom: 50, left: 50, right: 50 },
     });
 
-  doc
-    .moveDown(1)
-    .fontSize(16)
-    .font("Helvetica")
-    .text(`A story for ${childName}`, {
-      align: "center",
-    });
+    const stream = fs.createWriteStream(pdfPath);
+    doc.pipe(stream);
 
-  doc
-    .fontSize(10)
-    .fillColor("white")
-    .text("Created by Jr. Billionaire", 0, doc.page.height - 60, {
-      align: "center",
-    });
-
-  /* ===============================
-     📖 STORY PAGES
-  ================================ */
-  for (let i = 0; i < pages.length; i++) {
-    doc.addPage();
-
-    // Header
+    /* ===============================
+       COVER PAGE
+    ================================ */
     doc
-      .fillColor("#666")
-      .fontSize(12)
-      .font("Helvetica")
-      .text(`${childName}’s Story`, 0, 20, {
+      .image(images[0], {
+        fit: [500, 650],
+        align: "center",
+        valign: "center",
+      });
+
+    doc
+      .fontSize(28)
+      .fillColor("#ffffff")
+      .text(meta.title || "A Magical Storybook", 0, 280, {
         align: "center",
       });
 
-    /* IMAGE */
-    const imgPath = imagePaths[i];
-    if (imgPath && fs.existsSync(imgPath)) {
-      doc.image(imgPath, 60, 50, {
-        fit: [doc.page.width - 120, 300],
-        align: "center",
-      });
-    }
-
-    /* STORY TEXT (STRICT BOX → no blank space) */
     doc
-      .fillColor("#333")
+      .moveDown()
       .fontSize(14)
-      .font("Helvetica")
-      .text(pages[i], 80, 370, {
-        width: doc.page.width - 160,
+      .fillColor("#ffffff")
+      .text(`A story for ${meta.childName || "Your Child"}`, {
         align: "center",
-        lineGap: 4,
       });
 
-    /* PAGE NUMBER */
     doc
       .fontSize(10)
-      .fillColor("#999")
-      .text(`${i + 1}`, 0, doc.page.height - 50, {
+      .fillColor("#ffffff")
+      .text("Created by Jr. Billionaire", 0, 720, {
         align: "center",
       });
-  }
 
-  doc.end();
+    /* ===============================
+       STORY PAGES (1 PAGE = IMAGE + TEXT + NUMBER)
+    ================================ */
+    for (let i = 0; i < pages.length; i++) {
+      doc.addPage();
 
-  return new Promise((resolve) => {
+      // IMAGE
+      if (images[i]) {
+        doc.image(images[i], {
+          fit: [480, 320],
+          align: "center",
+          valign: "top",
+        });
+      }
+
+      // STORY TEXT
+      doc
+        .moveDown(1.5)
+        .fontSize(14)
+        .fillColor("#333333")
+        .text(pages[i], {
+          align: "center",
+          width: 420,
+        });
+
+      // PAGE NUMBER (BOTTOM CENTER)
+      doc
+        .fontSize(10)
+        .fillColor("#999999")
+        .text(
+          `${i + 1}`,
+          0,
+          doc.page.height - 60,
+          { align: "center" }
+        );
+    }
+
+    doc.end();
+
     stream.on("finish", () => resolve(pdfPath));
+    stream.on("error", reject);
   });
 }

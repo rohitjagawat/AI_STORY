@@ -2,6 +2,9 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
+const IS_TEST_MODE = process.env.TEST_MODE === "true";
+const MAX_TEST_IMAGES = 2; // 👈 TEST MODE LIMIT
+
 /* ===============================
    CHARACTER LOCK
 ================================ */
@@ -47,23 +50,35 @@ export async function generateImages(
 
   fs.mkdirSync(folderPath, { recursive: true });
 
+  const limit = IS_TEST_MODE
+  ? Math.min(MAX_TEST_IMAGES, pages.length)
+  : pages.length;
+
+
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
   const imagePaths = [];
 
-  for (let i = 0; i < pages.length; i++) {
-    const pageNumber = startIndex + i + 1;
-    const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
+ for (let i = 0; i < limit; i++) {
+  const pageNumber = startIndex + i + 1;
+  const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
 
-    // 🔒 DO NOT regenerate existing images
-    if (fs.existsSync(imagePath)) {
-      imagePaths.push(imagePath);
-      continue;
-    }
+  // ♻️ REUSE IMAGE IF EXISTS
+  if (fs.existsSync(imagePath)) {
+    console.log(`♻️ Reusing image page ${pageNumber}`);
+    imagePaths.push(imagePath);
+    continue;
+  }
 
-    const prompt = `
+  // 🧪 EXTRA SAFETY (TEST MODE)
+  if (IS_TEST_MODE && i >= MAX_TEST_IMAGES) {
+    console.log("🧪 TEST MODE: image generation stopped");
+    break;
+  }
+
+  const prompt = `
 ${getCharacterProfile(childProfile)}
 
 Illustrate this exact scene from a children's picture book:
@@ -90,20 +105,21 @@ Camera:
 - Scene-focused composition
 `;
 
-    const result = await openai.images.generate({
-      model: "gpt-image-1.5",
-      prompt,
-      size: "1024x1024",
-    });
+  const result = await openai.images.generate({
+    model: "gpt-image-1.5",
+    prompt,
+    size: "1024x1024",
+  });
 
-    fs.writeFileSync(
-      imagePath,
-      Buffer.from(result.data[0].b64_json, "base64")
-    );
+  fs.writeFileSync(
+    imagePath,
+    Buffer.from(result.data[0].b64_json, "base64")
+  );
 
-    imagePaths.push(imagePath);
-    console.log(`🖼️ Image generated: page ${pageNumber}`);
-  }
+  imagePaths.push(imagePath);
+  console.log(`🖼️ Image generated: page ${pageNumber}`);
+}
+
 
   return imagePaths;
 }

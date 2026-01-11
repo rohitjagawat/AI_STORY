@@ -27,6 +27,8 @@ function savePayment(orderId, bookId) {
 }
 
 export async function handleOrderPaid(order) {
+  const IS_TEST_MODE = process.env.TEST_MODE === "true";
+
   const bookId =
     order.line_items?.[0]?.properties?.find(
       (p) => p.name === "bookId"
@@ -76,6 +78,12 @@ export async function handleOrderPaid(order) {
   const existingCount = fs.existsSync(imagesDir)
     ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
     : 0;
+    
+  if (IS_TEST_MODE) {
+    console.log("🧪 TEST MODE: Skipping remaining image generation after payment");
+    return;
+  }
+
 
   // 🖼️ GENERATE ONLY MISSING IMAGES
   if (existingCount < fullStoryPages.length) {
