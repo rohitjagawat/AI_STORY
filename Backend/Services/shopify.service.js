@@ -29,10 +29,33 @@ function savePayment(orderId, bookId) {
 export async function handleOrderPaid(order) {
 
   // 🧪 TEST MODE: skip image + PDF generation
-  if (process.env.TEST_MODE === "true") {
-    console.log("🧪 TEST MODE: Shopify post-payment flow skipped");
-    return;
-  }
+ if (process.env.TEST_MODE === "true") {
+  console.log("🧪 TEST MODE: generating FAKE PDF (single image)");
+
+  const bookId =
+    order.line_items?.[0]?.properties?.find(
+      (p) => p.name === "bookId"
+    )?.value;
+
+  if (!bookId) return;
+
+  const storyPath = path.join("stories", `${bookId}.json`);
+  if (!fs.existsSync(storyPath)) return;
+
+  const fullStoryPages = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
+
+  const imagePath = path.join("images", bookId, "page_1.png");
+
+  await generatePDF(
+    fullStoryPages,
+    [imagePath], // 🔥 ONLY ONE IMAGE
+    bookId
+  );
+
+  console.log("✅ TEST MODE PDF READY:", bookId);
+  return;
+}
+
   const bookId =
     order.line_items?.[0]?.properties?.find(
       (p) => p.name === "bookId"
