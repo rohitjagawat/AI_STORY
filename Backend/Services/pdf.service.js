@@ -2,12 +2,6 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 
-const IS_TEST_MODE = process.env.TEST_MODE === "true";
-
-if (IS_TEST_MODE) {
-  console.log("🧪 TEST MODE: PDF using available images only");
-}
-
 export async function generatePDF(
   pages,
   images,
@@ -24,77 +18,118 @@ export async function generatePDF(
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
-      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+      margins: { top: 40, bottom: 40, left: 40, right: 40 },
     });
 
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
 
-    /* ===============================
-       COVER PAGE
-    ================================ */
-    doc
-      .image(images[0], {
-        fit: [500, 650],
+    /* =====================================================
+       📘 COVER PAGE (FULL PAGE, FLIPBOOK STYLE)
+    ====================================================== */
+
+    // Cover image (bright, no dull overlay)
+    if (images[0]) {
+      doc.image(images[0], {
+        fit: [520, 760],
         align: "center",
         valign: "center",
       });
+    }
 
+    /* ---------- GLASS TITLE PANEL ---------- */
+    const glassX = 80;
+    const glassY = 260;
+    const glassWidth = 435;
+    const glassHeight = 130;
+
+    // glass background
     doc
-      .fontSize(28)
-      .fillColor("#ffffff")
-      .text(meta.title || "A Magical Storybook", 0, 280, {
+      .save()
+      .roundedRect(glassX, glassY, glassWidth, glassHeight, 20)
+      .fillOpacity(0.35)
+      .fill("#ffffff")
+      .restore();
+
+    // glass border
+    doc
+      .roundedRect(glassX, glassY, glassWidth, glassHeight, 20)
+      .lineWidth(1)
+      .strokeColor("#ffffff");
+
+    // title
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(26)
+      .fillColor("#1f2937")
+      .text(meta.title || "A Magical Storybook", glassX + 20, glassY + 32, {
+        width: glassWidth - 40,
         align: "center",
       });
 
+    // subtitle
     doc
-      .moveDown()
-      .fontSize(14)
-      .fillColor("#ffffff")
-      .text(`A story for ${meta.childName || "Your Child"}`, {
-        align: "center",
-      });
+      .font("Helvetica")
+      .fontSize(13)
+      .fillColor("#374151")
+      .text(
+        `A story for ${meta.childName || "Your Child"}`,
+        glassX,
+        glassY + 85,
+        {
+          width: glassWidth,
+          align: "center",
+        }
+      );
 
+    // footer
     doc
       .fontSize(10)
-      .fillColor("#ffffff")
-      .text("Created by Jr. Billionaire", 0, 720, {
+      .fillColor("#374151")
+      .text("Created by Jr. Billionaire", 0, 760, {
         align: "center",
       });
 
-    /* ===============================
-       STORY PAGES (1 PAGE = IMAGE + TEXT + NUMBER)
-    ================================ */
+    /* =====================================================
+       📖 STORY PAGES — EXACT FLIPBOOK SPACING
+    ====================================================== */
     for (let i = 0; i < pages.length; i++) {
       doc.addPage();
 
-      // IMAGE
+      // IMAGE (same size & padding as viewer)
+      const imageX = 80;
+      const imageY = 60;
+      const imageWidth = 435;
+      const imageHeight = 300;
+
       if (images[i]) {
-        doc.image(images[i], {
-          fit: [480, 320],
-          align: "center",
-          valign: "top",
+        doc.image(images[i], imageX, imageY, {
+          width: imageWidth,
+          height: imageHeight,
         });
       }
 
-      // STORY TEXT
+      // STORY TEXT (no extra blank space)
+      const textY = imageY + imageHeight + 26;
+
       doc
-        .moveDown(1.5)
+        .font("Helvetica")
         .fontSize(14)
-        .fillColor("#333333")
-        .text(pages[i], {
+        .fillColor("#1f2937")
+        .text(pages[i], imageX, textY, {
+          width: imageWidth,
           align: "center",
-          width: 420,
+          lineGap: 6,
         });
 
-      // PAGE NUMBER (BOTTOM CENTER)
+      // PAGE NUMBER (same page, bottom center)
       doc
         .fontSize(10)
-        .fillColor("#999999")
+        .fillColor("#9ca3af")
         .text(
           `${i + 1}`,
           0,
-          doc.page.height - 60,
+          doc.page.height - 50,
           { align: "center" }
         );
     }
