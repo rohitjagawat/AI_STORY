@@ -39,7 +39,7 @@ export async function handleOrderPaid(order) {
 
   console.log("✅ PAYMENT RECEIVED:", bookId, order.email);
 
-  // 1️⃣ Save payment
+  // 1️⃣ SAVE PAYMENT
   savePayment(order.id, bookId);
 
   /* ===============================
@@ -48,12 +48,13 @@ export async function handleOrderPaid(order) {
   ================================ */
 
   const storyPath = path.join("stories", `${bookId}.json`);
+  const inputPath = path.join("stories", `${bookId}.input.json`);
+
   if (!fs.existsSync(storyPath)) {
     console.log("❌ Story not found:", bookId);
     return;
   }
 
-  const inputPath = path.join("stories", `${bookId}.input.json`);
   if (!fs.existsSync(inputPath)) {
     console.log("❌ Story input not found:", bookId);
     return;
@@ -63,10 +64,11 @@ export async function handleOrderPaid(order) {
     fs.readFileSync(storyPath, "utf-8")
   );
 
-  const input = JSON.parse(
+  const inputData = JSON.parse(
     fs.readFileSync(inputPath, "utf-8")
   );
 
+  // 🎨 EXTRACT SCENES
   const visualScenes = await extractVisualScenes(fullStoryPages);
 
   // 📸 COUNT EXISTING IMAGES
@@ -75,42 +77,40 @@ export async function handleOrderPaid(order) {
     ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
     : 0;
 
-  // 🛑 IF ALL IMAGES ALREADY GENERATED
-  if (existingCount >= fullStoryPages.length) {
-    console.log("ℹ️ All images already exist, skipping generation");
-  } else {
-    // 🖼️ GENERATE ONLY REMAINING IMAGES
+  // 🖼️ GENERATE ONLY MISSING IMAGES
+  if (existingCount < fullStoryPages.length) {
     await generateImages(
       visualScenes.slice(existingCount),
       fullStoryPages.slice(existingCount),
       {
-        name: input.name,
-        age: input.age,
-        gender: input.gender,
+        name: inputData.name,
+        age: inputData.age,
+        gender: inputData.gender,
       },
       bookId,
       { startIndex: existingCount }
     );
+  } else {
+    console.log("ℹ️ All images already exist");
   }
 
-  // 📄 COLLECT ALL IMAGE PATHS (ORDERED)
+  // 📄 COLLECT IMAGES (ORDERED)
   const imageFiles = fs
     .readdirSync(imagesDir)
-    .filter((f) => f.endsWith(".png"))
+    .filter(f => f.endsWith(".png"))
     .sort()
-    .map((f) => path.join(imagesDir, f));
+    .map(f => path.join(imagesDir, f));
 
-  // 📄 GENERATE PDF USING ALL IMAGES
+  // 📘 GENERATE VIEWER-STYLE PDF
   await generatePDF(
     fullStoryPages,
     imageFiles,
     bookId,
     {
-      title: data.title,
-      childName: data.input.name,
+      title: inputData.title || "A Magical Storybook",
+      childName: inputData.name || "Your Child",
     }
   );
 
-
-  console.log("✅ PAYMENT FLOW COMPLETE (STORY + IMAGES CONSISTENT):", bookId);
+  console.log("✅ PAYMENT FLOW COMPLETE:", bookId);
 }
