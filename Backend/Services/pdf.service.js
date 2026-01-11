@@ -20,7 +20,7 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     doc.pipe(stream);
 
     /* =================================================
-       PAGE LAYOUT CONSTANTS (MATCH SCREENSHOT)
+       PAGE LAYOUT CONSTANTS (MATCH VIEWER)
     ================================================== */
     const PAGE_WIDTH = doc.page.width;
     const PAGE_HEIGHT = doc.page.height;
@@ -36,17 +36,76 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     const IMAGE_HEIGHT = 300;
 
     /* =================================================
-       STORY PAGES — ONE PAGE = ONE STORY
+       🟣 COVER PAGE
+    ================================================== */
+    // Background image (page_1)
+    if (images[0]) {
+      doc.image(images[0], CARD_X, CARD_Y, {
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT,
+      });
+    }
+
+    // Glass overlay
+    doc
+      .rect(CARD_X, CARD_Y + CARD_HEIGHT / 2 - 90, CARD_WIDTH, 180)
+      .fillOpacity(0.35)
+      .fill("#ffffff");
+
+    doc.fillOpacity(1);
+
+    // Title
+    doc
+      .fontSize(28)
+      .fillColor("#1f1f1f")
+      .text(
+        meta.title || "A Magical Storybook",
+        CARD_X + 40,
+        CARD_Y + CARD_HEIGHT / 2 - 40,
+        {
+          width: CARD_WIDTH - 80,
+          align: "center",
+        }
+      );
+
+    // Subtitle
+    doc
+      .moveDown(0.5)
+      .fontSize(14)
+      .fillColor("#444444")
+      .text(
+        `A story for ${meta.childName || "Your Child"}`,
+        {
+          align: "center",
+        }
+      );
+
+    // Footer
+    doc
+      .fontSize(10)
+      .fillColor("#555555")
+      .text(
+        "Created by Jr. Billionaire",
+        CARD_X,
+        CARD_Y + CARD_HEIGHT - 40,
+        {
+          width: CARD_WIDTH,
+          align: "center",
+        }
+      );
+
+    /* =================================================
+       📘 STORY PAGES — ONE PAGE = ONE STORY
     ================================================== */
     for (let i = 0; i < pages.length; i++) {
-      if (i !== 0) doc.addPage();
+      doc.addPage();
 
       /* ---- Yellow Card ---- */
       doc
         .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
         .fill("#fff8e8");
 
-      /* ---- Title (Top Center) ---- */
+      /* ---- Title ---- */
       doc
         .fontSize(12)
         .fillColor("#7a7a7a")
@@ -65,8 +124,6 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
         doc.image(images[i], IMAGE_X, IMAGE_Y, {
           width: IMAGE_WIDTH,
           height: IMAGE_HEIGHT,
-          align: "center",
-          valign: "center",
         });
       }
 
