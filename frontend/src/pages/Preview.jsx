@@ -167,14 +167,11 @@ export default function Preview() {
                   {/* IMAGE */}
                   <div className="px-4 pt-3">
                     <img
-                      src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                      onError={(e) =>
-                      (e.currentTarget.src =
-                        `${backendBase}/${data.previewImage}`)
-                      }
+                      src={`${backendBase}/${data.previewImage}`}
                       className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
                         }`}
                     />
+
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
                     )}

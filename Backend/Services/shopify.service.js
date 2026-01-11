@@ -27,6 +27,12 @@ function savePayment(orderId, bookId) {
 }
 
 export async function handleOrderPaid(order) {
+
+  // 🧪 TEST MODE: skip image + PDF generation
+  if (process.env.TEST_MODE === "true") {
+    console.log("🧪 TEST MODE: Shopify post-payment flow skipped");
+    return;
+  }
   const bookId =
     order.line_items?.[0]?.properties?.find(
       (p) => p.name === "bookId"

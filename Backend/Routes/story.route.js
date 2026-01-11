@@ -115,14 +115,26 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
     // 🎨 EXTRACT VISUAL SCENES
     const visualScenes = await extractVisualScenes(storyPages);
 
-    // 🖼️ GENERATE ONLY FIRST 2 IMAGES (PREVIEW)
-    await generateImages(
-      visualScenes.slice(0, 2),
-      storyPages.slice(0, 2),
-      { name, age, gender },
-      bookId,
-      { startIndex: 0 }
-    );
+   // 🖼️ GENERATE ONLY 1 IMAGE (TEST MODE)
+if (process.env.TEST_MODE === "true") {
+  await generateImages(
+    visualScenes.slice(0, 1),
+    storyPages.slice(0, 1),
+    { name, age, gender },
+    bookId,
+    { startIndex: 0 }
+  );
+} else {
+  // 🧾 PRODUCTION PREVIEW (2 images)
+  await generateImages(
+    visualScenes.slice(0, 2),
+    storyPages.slice(0, 2),
+    { name, age, gender },
+    bookId,
+    { startIndex: 0 }
+  );
+}
+
 
     const previewImage = `images/${bookId}/page_1.png`;
 
