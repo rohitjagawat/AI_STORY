@@ -101,7 +101,16 @@ export async function handleOrderPaid(order) {
     .map((f) => path.join(imagesDir, f));
 
   // 📄 GENERATE PDF USING ALL IMAGES
-  await generatePDF(fullStoryPages, imageFiles, bookId);
+  await generatePDF(
+    fullStoryPages,
+    imageFiles,
+    bookId,
+    {
+      title: data.title,
+      childName: data.input.name,
+    }
+  );
+
 
   console.log("✅ PAYMENT FLOW COMPLETE (STORY + IMAGES CONSISTENT):", bookId);
 }
