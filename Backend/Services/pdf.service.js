@@ -70,10 +70,7 @@ export function generatePDF(storyPages, imagePaths, bookId) {
         const pageHeight = doc.page.height;
 
         // 🔁 TEST MODE SAFE: reuse first image if others missing
-        const safeImage =
-          process.env.TEST_MODE === "true"
-            ? imagePaths[0]
-            : imagePaths[i] || imagePaths[0];
+        const safeImage = imagePaths[i] || imagePaths[0];
 
         if (!safeImage) {
           throw new Error("No valid image available for PDF");
