@@ -41,14 +41,14 @@ export async function handleOrderPaid(order) {
 
   console.log("✅ PAYMENT RECEIVED:", bookId, order.email);
 
-  // 1️⃣ SAVE PAYMENT
+  /* ===============================
+     1️⃣ SAVE PAYMENT
+  ================================ */
   savePayment(order.id, bookId);
 
   /* ===============================
-     🔥 POST-PAYMENT WORK
-     (NO STORY REGENERATION)
+     2️⃣ LOAD STORY + INPUT
   ================================ */
-
   const storyPath = path.join("stories", `${bookId}.json`);
   const inputPath = path.join("stories", `${bookId}.input.json`);
 
@@ -70,46 +70,58 @@ export async function handleOrderPaid(order) {
     fs.readFileSync(inputPath, "utf-8")
   );
 
-  // 🎨 EXTRACT SCENES
+  /* ===============================
+     3️⃣ IMAGE GENERATION (SAFE)
+  ================================ */
   const visualScenes = await extractVisualScenes(fullStoryPages);
 
-  // 📸 COUNT EXISTING IMAGES
   const imagesDir = path.join("images", bookId);
   const existingCount = fs.existsSync(imagesDir)
     ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
     : 0;
-    
+
   if (IS_TEST_MODE) {
-    console.log("🧪 TEST MODE: Skipping remaining image generation after payment");
+    console.log("🧪 TEST MODE: Skipping remaining image generation");
+  } else {
+    if (existingCount < fullStoryPages.length) {
+      await generateImages(
+        visualScenes.slice(existingCount),
+        fullStoryPages.slice(existingCount),
+        {
+          name: inputData.name,
+          age: inputData.age,
+          gender: inputData.gender,
+        },
+        bookId,
+        { startIndex: existingCount }
+      );
+    } else {
+      console.log("ℹ️ All images already exist");
+    }
+  }
+
+  /* ===============================
+     4️⃣ COLLECT IMAGES (ORDERED)
+  ================================ */
+  if (!fs.existsSync(imagesDir)) {
+    console.log("❌ Images directory missing:", imagesDir);
     return;
   }
 
-
-  // 🖼️ GENERATE ONLY MISSING IMAGES
-  if (existingCount < fullStoryPages.length) {
-    await generateImages(
-      visualScenes.slice(existingCount),
-      fullStoryPages.slice(existingCount),
-      {
-        name: inputData.name,
-        age: inputData.age,
-        gender: inputData.gender,
-      },
-      bookId,
-      { startIndex: existingCount }
-    );
-  } else {
-    console.log("ℹ️ All images already exist");
-  }
-
-  // 📄 COLLECT IMAGES (ORDERED)
   const imageFiles = fs
     .readdirSync(imagesDir)
     .filter(f => f.endsWith(".png"))
     .sort()
     .map(f => path.join(imagesDir, f));
 
-  // 📘 GENERATE VIEWER-STYLE PDF
+  if (imageFiles.length === 0) {
+    console.log("❌ No images found for PDF generation");
+    return;
+  }
+
+  /* ===============================
+     5️⃣ GENERATE VIEWER-STYLE PDF
+  ================================ */
   await generatePDF(
     fullStoryPages,
     imageFiles,
@@ -120,5 +132,5 @@ export async function handleOrderPaid(order) {
     }
   );
 
-  console.log("✅ PAYMENT FLOW COMPLETE:", bookId);
+  console.log("✅ PAYMENT FLOW COMPLETE (PDF READY):", bookId);
 }
