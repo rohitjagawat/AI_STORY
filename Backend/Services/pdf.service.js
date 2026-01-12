@@ -33,7 +33,9 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     const IMAGE_X = CARD_X + 25;
     const IMAGE_Y = CARD_Y + 70;
     const IMAGE_WIDTH = CARD_WIDTH - 50;
-    const IMAGE_HEIGHT = 300;
+    const IMAGE_HEIGHT = CARD_HEIGHT - 240;
+    // fills vertical space but leaves room for text + page number
+
 
     /* =================================================
        🟣 COVER PAGE
@@ -124,7 +126,10 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
         doc.image(images[i], IMAGE_X, IMAGE_Y, {
           width: IMAGE_WIDTH,
           height: IMAGE_HEIGHT,
+          align: "center",
+          valign: "center",
         });
+
       }
 
       /* ---- Story Text ---- */
