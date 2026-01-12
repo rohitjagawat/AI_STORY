@@ -56,31 +56,63 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
 
     doc.fillOpacity(1);
 
-    // Title
-    doc
-      .fontSize(28)
-      .fillColor("#1f1f1f")
-      .text(
-        meta.title || "A Magical Storybook",
-        CARD_X + 40,
-        CARD_Y + CARD_HEIGHT / 2 - 40,
-        {
-          width: CARD_WIDTH - 80,
-          align: "center",
-        }
-      );
+   // ================= PREMIUM TITLE (GLASS + CINEMATIC SHADOW) =================
 
-    // Subtitle
-    doc
-      .moveDown(0.5)
-      .fontSize(14)
-      .fillColor("#444444")
-      .text(
-        `A story for ${meta.childName || "Your Child"}`,
-        {
-          align: "center",
-        }
-      );
+// Soft glow shadow
+doc
+  .fontSize(28)
+  .fillColor("rgba(0,0,0,0.35)")
+  .text(
+    meta.title || "A Magical Storybook",
+    CARD_X + 42,
+    CARD_Y + CARD_HEIGHT / 2 - 38,
+    {
+      width: CARD_WIDTH - 80,
+      align: "center",
+    }
+  );
+
+// Deep dark shadow
+doc
+  .fontSize(28)
+  .fillColor("rgba(0,0,0,0.65)")
+  .text(
+    meta.title || "A Magical Storybook",
+    CARD_X + 41,
+    CARD_Y + CARD_HEIGHT / 2 - 39,
+    {
+      width: CARD_WIDTH - 80,
+      align: "center",
+    }
+  );
+
+// Main title (top layer)
+doc
+  .fontSize(28)
+  .fillColor("#ffffff")
+  .text(
+    meta.title || "A Magical Storybook",
+    CARD_X + 40,
+    CARD_Y + CARD_HEIGHT / 2 - 40,
+    {
+      width: CARD_WIDTH - 80,
+      align: "center",
+    }
+  );
+
+
+    // ================= SUBTITLE (SOFT & PREMIUM) =================
+
+doc
+  .moveDown(0.6)
+  .fontSize(15)
+  .fillColor("rgba(255,255,255,0.85)")
+  .text(
+    `A story for ${meta.childName || "Your Child"}`,
+    {
+      align: "center",
+    }
+  );
 
     // Footer
     doc
