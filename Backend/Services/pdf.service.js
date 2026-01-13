@@ -37,72 +37,41 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     // fills vertical space but leaves room for text + page number
 
 
-    /* =================================================
-       🟣 COVER PAGE
-    ================================================== */
-    // Background image (page_1)
-    if (images[0]) {
-      doc.image(images[0], CARD_X, CARD_Y, {
-        width: CARD_WIDTH,
-        height: CARD_HEIGHT,
-      });
-    }
+  /* =================================================
+   🟣 COVER PAGE (BOTTOM TITLE – BOOK STYLE)
+================================================== */
 
-    // Glass overlay
-    doc
-      .rect(CARD_X, CARD_Y + CARD_HEIGHT / 2 - 90, CARD_WIDTH, 180)
-      .fillOpacity(0.35)
-      .fill("#ffffff");
+// Full background image (page_1)
+if (images[0]) {
+  doc.image(images[0], CARD_X, CARD_Y, {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+  });
+}
 
-    doc.fillOpacity(1);
-
-   // ================= PREMIUM TITLE (GLASS + CINEMATIC SHADOW) =================
-
-// Soft glow shadow
+/* ---- Bottom dark gradient strip for readability ---- */
 doc
-  .fontSize(28)
-  .fillColor("rgba(0,0,0,0.35)")
-  .text(
-    meta.title || "A Magical Storybook",
-    CARD_X + 42,
-    CARD_Y + CARD_HEIGHT / 2 - 38,
-    {
-      width: CARD_WIDTH - 80,
-      align: "center",
-    }
-  );
+  .rect(CARD_X, CARD_Y + CARD_HEIGHT - 240, CARD_WIDTH, 240)
+  .fillOpacity(0.55)
+  .fill("#000000");
 
-// Deep dark shadow
-doc
-  .fontSize(28)
-  .fillColor("rgba(0,0,0,0.65)")
-  .text(
-    meta.title || "A Magical Storybook",
-    CARD_X + 41,
-    CARD_Y + CARD_HEIGHT / 2 - 39,
-    {
-      width: CARD_WIDTH - 80,
-      align: "center",
-    }
-  );
+doc.fillOpacity(1);
 
-// Main title (top layer)
+/* ---- TITLE (BOTTOM CENTER) ---- */
 doc
-  .fontSize(28)
+  .fontSize(30)
   .fillColor("#ffffff")
   .text(
     meta.title || "A Magical Storybook",
     CARD_X + 40,
-    CARD_Y + CARD_HEIGHT / 2 - 40,
+    CARD_Y + CARD_HEIGHT - 190,
     {
       width: CARD_WIDTH - 80,
       align: "center",
     }
   );
 
-
-    // ================= SUBTITLE (SOFT & PREMIUM) =================
-
+/* ---- SUBTITLE ---- */
 doc
   .moveDown(0.6)
   .fontSize(15)
@@ -114,19 +83,20 @@ doc
     }
   );
 
-    // Footer
-    doc
-      .fontSize(10)
-      .fillColor("#555555")
-      .text(
-        "Created by Jr. Billionaire",
-        CARD_X,
-        CARD_Y + CARD_HEIGHT - 40,
-        {
-          width: CARD_WIDTH,
-          align: "center",
-        }
-      );
+/* ---- FOOTER BRAND ---- */
+doc
+  .fontSize(11)
+  .fillColor("rgba(255,255,255,0.75)")
+  .text(
+    "Created by Jr. Billionaire",
+    CARD_X,
+    CARD_Y + CARD_HEIGHT - 50,
+    {
+      width: CARD_WIDTH,
+      align: "center",
+    }
+  );
+
 
     /* =================================================
        📘 STORY PAGES — ONE PAGE = ONE STORY
