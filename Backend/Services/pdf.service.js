@@ -160,32 +160,42 @@ for (let i = 0; i < pages.length; i++) {
     .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
     .fill("#fff8e8");
 
-  doc
-    .fontSize(12)
-    .fillColor("#7a7a7a")
-    .text(
-      `${childName}’s Story`,
-      CARD_X,
-      CARD_Y + 30,
-      {
-        width: CARD_WIDTH,
-        align: "center",
-      }
-    );
+  // ---- SIDE TITLE (VERTICAL STYLE) ----
+doc
+  .save()
+  .rotate(-90, {
+    origin: [CARD_X + 25, CARD_Y + CARD_HEIGHT / 2],
+  })
+  .font("TitleSemi")
+  .fontSize(12)
+  .fillColor("#b5a77a")
+  .text(
+    `${childName}’s Story`,
+    CARD_X - CARD_HEIGHT / 2 + 40,
+    CARD_Y + CARD_HEIGHT / 2 - 6,
+    {
+      align: "center",
+      letterSpacing: 1,
+    }
+  )
+  .restore();
+
 
   doc
-    .fontSize(16)
-    .fillColor("#333333")
-    .text(
-      pages[i],
-      CARD_X + 60,
-      CARD_Y + 140,
-      {
-        width: CARD_WIDTH - 120,
-        align: "center",
-        lineGap: 8,
-      }
-    );
+  .font("TitleSemi")
+  .fontSize(18)
+  .fillColor("#2f2a1f")
+  .text(
+    pages[i],
+    CARD_X + 120,
+    CARD_Y + 180,
+    {
+      width: CARD_WIDTH - 240,
+      align: "center",
+      lineGap: 10,
+    }
+  );
+
 
   /* ---- PAGE NUMBER (TEXT PAGE ONLY) ---- */
   doc
