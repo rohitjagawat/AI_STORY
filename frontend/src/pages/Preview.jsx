@@ -117,7 +117,7 @@ export default function Preview() {
             {/* ================= COVER PAGE ================= */}
             <div className="relative bg-black rounded-lg overflow-hidden">
               <img
-                src={`${backendBase}/images/${data.bookId}/page_1.png`}
+                src={`${backendBase}/images/${data.bookId}/page_01.png`}
                 className="absolute inset-0 w-full h-full object-cover"
               />
 
@@ -166,19 +166,25 @@ export default function Preview() {
 
                   {/* IMAGE */}
                   <div className="px-4 pt-3">
-                    <img
-                      src={`${backendBase}/images/${data.bookId}/page_${index + 1}.png`}
-                      onError={(e) =>
-                      (e.currentTarget.src =
-                        `${backendBase}/${data.previewImage}`)
-                      }
-                      className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
-                        }`}
-                    />
+                    {(() => {
+                      const pageNumber = String(index + 1).padStart(2, "0");
+                      return (
+                        <img
+                          src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png`}
+                          onError={(e) =>
+                            (e.currentTarget.src = `${backendBase}/${data.previewImage}`)
+                          }
+                          className={`w-full h-[300px] object-cover rounded-lg ${isLocked ? "blur-[14px]" : ""
+                            }`}
+                        />
+                      );
+                    })()}
+
                     {isLocked && (
                       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
                     )}
                   </div>
+
 
                   {/* TEXT */}
                   {!isLocked && (
