@@ -37,33 +37,33 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     // fills vertical space but leaves room for text + page number
 
 
- /* =================================================
-   🟣 COVER PAGE (IMAGE TOP + YELLOW TEXT AREA)
+/* =================================================
+   🟣 COVER PAGE (BALANCED – IMAGE BIGGER, LESS BLANK)
 ================================================== */
 
-// ---- Yellow Card Background (same as story pages) ----
+// ---- Yellow Card Background ----
 doc
   .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
   .fill("#fff8e8");
 
-// ---- IMAGE SECTION (TOP – NOT STRETCHED) ----
-const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.6; // 60% image, 40% text
+// ---- IMAGE SECTION (BIG & CLEAN – LIKE STORY PAGES) ----
+const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.7; // ⬅️ was 0.6, now 70%
 
 if (images[0]) {
-  doc.image(images[0], IMAGE_X, CARD_Y + 25, {
+  doc.image(images[0], IMAGE_X, CARD_Y + 30, {
     width: IMAGE_WIDTH,
-    height: COVER_IMAGE_HEIGHT - 40,
+    height: COVER_IMAGE_HEIGHT - 60, // tighter crop
     align: "center",
     valign: "center",
   });
 }
 
-// ---- TITLE AREA START ----
-const TITLE_START_Y = CARD_Y + COVER_IMAGE_HEIGHT + 10;
+// ---- TITLE AREA (PULLED UP) ----
+const TITLE_START_Y = CARD_Y + COVER_IMAGE_HEIGHT - 20;
 
 /* ---- TITLE ---- */
 doc
-  .fontSize(28)
+  .fontSize(32)
   .fillColor("#333333")
   .text(
     meta.title || "A Magical Storybook",
@@ -72,13 +72,14 @@ doc
     {
       width: CARD_WIDTH - 80,
       align: "center",
+      lineGap: 2,
     }
   );
 
-/* ---- SUBTITLE ---- */
+/* ---- SUBTITLE (TIGHT SPACING) ---- */
 doc
-  .moveDown(0.6)
-  .fontSize(15)
+  .moveDown(0.2) // ⬅️ less vertical gap
+  .fontSize(18)
   .fillColor("#555555")
   .text(
     `A story for ${meta.childName || "Your Child"}`,
@@ -87,19 +88,20 @@ doc
     }
   );
 
-/* ---- FOOTER BRAND ---- */
+/* ---- FOOTER BRAND (SLIGHTLY UP) ---- */
 doc
-  .fontSize(11)
+  .fontSize(13)
   .fillColor("#888888")
   .text(
     "Created by Jr. Billionaire",
     CARD_X,
-    CARD_Y + CARD_HEIGHT - 40,
+    CARD_Y + CARD_HEIGHT - 35,
     {
       width: CARD_WIDTH,
       align: "center",
     }
   );
+
 
 
 
