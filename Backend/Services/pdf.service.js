@@ -37,77 +37,68 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     // fills vertical space but leaves room for text + page number
 
 /* =================================================
-   🟣 COVER PAGE (FIXED: TALLER IMAGE, LESS BLANK SPACE)
+   🟣 COVER PAGE (EXACT SS2 MATCH: OVERLAY BOX STYLE)
 ================================================== */
 
-// 1. Full Page Background (Beige/Cream)
-doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT).fill("#fff8e8");
-
-// 2. IMAGE SECTION (Taller Image - 70% of Card Height)
-const COVER_IMAGE_WIDTH = CARD_WIDTH;
-const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.7; // ⬅️ Height badha di (was 0.55)
-
+// 1. Full Bleed Image (Poore Page Par Image)
 if (images[0]) {
-  doc.save();
-  // Image ko rounded corners ke saath clip kiya
-  doc
-    .roundedRect(CARD_X, CARD_Y, COVER_IMAGE_WIDTH, COVER_IMAGE_HEIGHT, 14)
-    .clip();
-
-  doc.image(images[0], CARD_X, CARD_Y, {
-    width: COVER_IMAGE_WIDTH,
-    height: COVER_IMAGE_HEIGHT,
+  doc.image(images[0], 0, 0, {
+    width: PAGE_WIDTH,
+    height: PAGE_HEIGHT,
     align: "center",
     valign: "center",
   });
-  doc.restore();
 }
 
-// 3. WHITE CARD (Pushed Down to avoid blank space)
-// Yeh card ab bachi hui space (30%) fill karega
-const WHITE_CARD_Y = CARD_Y + COVER_IMAGE_HEIGHT - 10; // Image se thoda overlap
-const WHITE_CARD_HEIGHT = CARD_HEIGHT - COVER_IMAGE_HEIGHT + 10;
+// 2. Glass-Morphism Overlay Box (Centered Box over Image)
+const BOX_WIDTH = PAGE_WIDTH * 0.8;
+const BOX_HEIGHT = 200;
+const BOX_X = (PAGE_WIDTH - BOX_WIDTH) / 2;
+const BOX_Y = (PAGE_HEIGHT - BOX_HEIGHT) / 2;
 
 doc
-  .roundedRect(CARD_X, WHITE_CARD_Y, CARD_WIDTH, WHITE_CARD_HEIGHT, 14)
-  .fill("#ffffff");
+  .save()
+  .roundedRect(BOX_X, BOX_Y, BOX_WIDTH, BOX_HEIGHT, 15)
+  .fillOpacity(0.4) // Box ko transparent banane ke liye
+  .fill("#ffffff") 
+  .restore();
 
-// 4. TITLE & SUBTITLE (Centered in the remaining White Area)
-const TITLE_Y = WHITE_CARD_Y + 35;
-
+// 3. TITLE & SUBTITLE (Inside the Box)
 doc
-  .fontSize(30) // Size thoda chota kiya balance ke liye
-  .fillColor("#333333")
+  .fillOpacity(1) // Text ko poora solid dikhane ke liye
+  .fillColor("#ffffff") // White text jaisa SS2 mein hai
+  .fontSize(32)
   .text(
     meta.title || "A Magical Storybook",
-    CARD_X + 20,
-    TITLE_Y,
+    BOX_X + 20,
+    BOX_Y + 50,
     {
-      width: CARD_WIDTH - 40,
+      width: BOX_WIDTH - 40,
       align: "center",
+      lineGap: 5
     }
   );
 
 doc
-  .moveDown(0.3)
-  .fontSize(16)
-  .fillColor("#666666")
+  .fontSize(18)
   .text(
     `A story for ${meta.childName || "Your Child"}`,
+    BOX_X + 20,
+    BOX_Y + BOX_HEIGHT - 60,
     {
-      width: CARD_WIDTH - 40,
+      width: BOX_WIDTH - 40,
       align: "center",
     }
   );
 
-// 5. FOOTER (Bottom fixed)
+// 4. FOOTER (Bottom Center, White Text)
 doc
-  .fontSize(13)
-  .fillColor("#7a7a7a")
+  .fontSize(14)
+  .fillColor("#ffffff")
   .text(
     "Created by Jr. Billionaire",
     0,
-    CARD_Y + CARD_HEIGHT - 25, // White card ke thoda niche beige area mein
+    PAGE_HEIGHT - 50,
     {
       width: PAGE_WIDTH,
       align: "center",
