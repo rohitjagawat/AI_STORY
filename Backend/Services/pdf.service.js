@@ -38,70 +38,87 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
 
 
 /* =================================================
-   🟣 COVER PAGE (BALANCED – IMAGE BIGGER, LESS BLANK)
+   🟣 COVER PAGE (EXACT SS2 STYLE)
 ================================================== */
 
-// ---- Yellow Card Background ----
-doc
-  .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
-  .fill("#fff8e8");
+// 1. Full Page Background (Beige/Cream)
+doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT).fill("#fff8e8");
 
-// ---- IMAGE SECTION (BIG & CLEAN – LIKE STORY PAGES) ----
-const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.7; // ⬅️ was 0.6, now 70%
+// 2. White Card (Text Area Background)
+// Yeh white box image ke thoda upar se start hota hai aur bottom tak jata hai
+const WHITE_CARD_HEIGHT = CARD_HEIGHT * 0.45;
+const WHITE_CARD_Y = CARD_Y + (CARD_HEIGHT - WHITE_CARD_HEIGHT);
+
+doc
+  .roundedRect(CARD_X, WHITE_CARD_Y, CARD_WIDTH, WHITE_CARD_HEIGHT, 14)
+  .fill("#ffffff");
+
+// 3. IMAGE SECTION (Rounded Corners like SS2)
+// Image ko white card ke thoda upar rakha hai taaki balance dikhe
+const COVER_IMAGE_WIDTH = CARD_WIDTH;
+const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.55; 
 
 if (images[0]) {
-  doc.image(images[0], IMAGE_X, CARD_Y + 30, {
-    width: IMAGE_WIDTH,
-    height: COVER_IMAGE_HEIGHT - 60, // tighter crop
+  doc.save(); // Save state to clip rounded corners
+  
+  // Rounded rectangle path for the image
+  doc
+    .roundedRect(CARD_X, CARD_Y, COVER_IMAGE_WIDTH, COVER_IMAGE_HEIGHT, 14)
+    .clip();
+
+  doc.image(images[0], CARD_X, CARD_Y, {
+    width: COVER_IMAGE_WIDTH,
+    height: COVER_IMAGE_HEIGHT,
     align: "center",
     valign: "center",
   });
+  
+  doc.restore(); // Restore state after clipping
 }
 
-// ---- TITLE AREA (PULLED UP) ----
-const TITLE_START_Y = CARD_Y + COVER_IMAGE_HEIGHT - 20;
+// 4. TITLE & SUBTITLE (Inside the White Area)
+const TITLE_Y = WHITE_CARD_Y + 40;
 
-/* ---- TITLE ---- */
+/* ---- MAIN TITLE ---- */
 doc
   .fontSize(32)
   .fillColor("#333333")
   .text(
     meta.title || "A Magical Storybook",
-    CARD_X + 40,
-    TITLE_START_Y,
+    CARD_X + 20,
+    TITLE_Y,
     {
-      width: CARD_WIDTH - 80,
+      width: CARD_WIDTH - 40,
       align: "center",
-      lineGap: 2,
     }
   );
 
-/* ---- SUBTITLE (TIGHT SPACING) ---- */
+/* ---- SUBTITLE ---- */
 doc
-  .moveDown(0.2) // ⬅️ less vertical gap
+  .moveDown(0.5)
   .fontSize(18)
-  .fillColor("#555555")
+  .fillColor("#666666")
   .text(
     `A story for ${meta.childName || "Your Child"}`,
     {
+      width: CARD_WIDTH - 40,
       align: "center",
     }
   );
 
-/* ---- FOOTER BRAND (SLIGHTLY UP) ---- */
+// 5. FOOTER (Outside the white card, on the beige background)
 doc
-  .fontSize(13)
-  .fillColor("#888888")
+  .fontSize(14)
+  .fillColor("#7a7a7a")
   .text(
     "Created by Jr. Billionaire",
-    CARD_X,
-    CARD_Y + CARD_HEIGHT - 35,
+    0,
+    PAGE_HEIGHT - 60,
     {
-      width: CARD_WIDTH,
+      width: PAGE_WIDTH,
       align: "center",
     }
   );
-
 
 
 
