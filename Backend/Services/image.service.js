@@ -62,8 +62,8 @@ export async function generateImages(
   const imagePaths = [];
 
  for (let i = 0; i < limit; i++) {
-  const pageNumber = startIndex + i + 1;
-  const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
+ const pageNumber = String(startIndex + i + 1).padStart(2, "0");
+const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
 
   // ♻️ REUSE IMAGE IF EXISTS
   if (fs.existsSync(imagePath)) {
