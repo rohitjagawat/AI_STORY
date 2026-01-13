@@ -37,64 +37,63 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     // fills vertical space but leaves room for text + page number
 
 /* =================================================
-   🟣 COVER PAGE (EXACT SS2 MATCH: OVERLAY BOX STYLE)
+   🟣 COVER PAGE (EXACT SS2: DARK FROSTED GLASS BOX)
 ================================================== */
 
-// 1. Full Bleed Image (Poore Page Par Image)
+// 1. FULL PAGE IMAGE
 if (images[0]) {
   doc.image(images[0], 0, 0, {
     width: PAGE_WIDTH,
     height: PAGE_HEIGHT,
-    align: "center",
-    valign: "center",
   });
 }
 
-// 2. Glass-Morphism Overlay Box (Centered Box over Image)
-const BOX_WIDTH = PAGE_WIDTH * 0.8;
-const BOX_HEIGHT = 200;
+// 2. DARK FROSTED GLASS BOX (High Opacity to hide background details)
+const BOX_WIDTH = PAGE_WIDTH * 0.85; // Thoda wide box jaisa reference mein hai
+const BOX_HEIGHT = 220; 
 const BOX_X = (PAGE_WIDTH - BOX_WIDTH) / 2;
 const BOX_Y = (PAGE_HEIGHT - BOX_HEIGHT) / 2;
 
 doc
   .save()
   .roundedRect(BOX_X, BOX_Y, BOX_WIDTH, BOX_HEIGHT, 15)
-  .fillOpacity(0.4) // Box ko transparent banane ke liye
+  .fillOpacity(0.9) // ⬅️ Isse glass bohot dark/solid dikhega (0.9 = 90% solid)
   .fill("#ffffff") 
   .restore();
 
-// 3. TITLE & SUBTITLE (Inside the Box)
+// 3. TITLE & SUBTITLE (Solid Dark Text)
 doc
-  .fillOpacity(1) // Text ko poora solid dikhane ke liye
-  .fillColor("#ffffff") // White text jaisa SS2 mein hai
-  .fontSize(32)
+  .fillOpacity(1) // Text ko 100% solid rakhna hai
+  .fillColor("#333333") 
+  .fontSize(34)
   .text(
     meta.title || "A Magical Storybook",
-    BOX_X + 20,
+    BOX_X + 30,
     BOX_Y + 50,
     {
-      width: BOX_WIDTH - 40,
+      width: BOX_WIDTH - 60,
       align: "center",
-      lineGap: 5
+      lineGap: 4
     }
   );
 
 doc
   .fontSize(18)
+  .fillColor("#555555")
   .text(
     `A story for ${meta.childName || "Your Child"}`,
-    BOX_X + 20,
-    BOX_Y + BOX_HEIGHT - 60,
+    BOX_X + 30,
+    BOX_Y + BOX_HEIGHT - 65,
     {
-      width: BOX_WIDTH - 40,
+      width: BOX_WIDTH - 60,
       align: "center",
     }
   );
 
-// 4. FOOTER (Bottom Center, White Text)
+// 4. FOOTER (Bottom Center - Solid White Text on Image)
 doc
   .fontSize(14)
-  .fillColor("#ffffff")
+  .fillColor("#ffffff") 
   .text(
     "Created by Jr. Billionaire",
     0,
@@ -104,6 +103,8 @@ doc
       align: "center",
     }
   );
+
+// Note: Ensure NO doc.addPage() is here to prevent the blank page issue.
 
 
     /* =================================================
