@@ -37,34 +37,38 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     // fills vertical space but leaves room for text + page number
 
 
-  /* =================================================
-   🟣 COVER PAGE (BOTTOM TITLE – BOOK STYLE)
+ /* =================================================
+   🟣 COVER PAGE (IMAGE TOP + YELLOW TEXT AREA)
 ================================================== */
 
-// Full background image (page_1)
+// ---- Yellow Card Background (same as story pages) ----
+doc
+  .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+  .fill("#fff8e8");
+
+// ---- IMAGE SECTION (TOP – NOT STRETCHED) ----
+const COVER_IMAGE_HEIGHT = CARD_HEIGHT * 0.6; // 60% image, 40% text
+
 if (images[0]) {
-  doc.image(images[0], CARD_X, CARD_Y, {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
+  doc.image(images[0], IMAGE_X, CARD_Y + 25, {
+    width: IMAGE_WIDTH,
+    height: COVER_IMAGE_HEIGHT - 40,
+    align: "center",
+    valign: "center",
   });
 }
 
-/* ---- Bottom dark gradient strip for readability ---- */
-doc
-  .rect(CARD_X, CARD_Y + CARD_HEIGHT - 240, CARD_WIDTH, 240)
-  .fillOpacity(0.55)
-  .fill("#000000");
+// ---- TITLE AREA START ----
+const TITLE_START_Y = CARD_Y + COVER_IMAGE_HEIGHT + 10;
 
-doc.fillOpacity(1);
-
-/* ---- TITLE (BOTTOM CENTER) ---- */
+/* ---- TITLE ---- */
 doc
-  .fontSize(30)
-  .fillColor("#ffffff")
+  .fontSize(28)
+  .fillColor("#333333")
   .text(
     meta.title || "A Magical Storybook",
     CARD_X + 40,
-    CARD_Y + CARD_HEIGHT - 190,
+    TITLE_START_Y,
     {
       width: CARD_WIDTH - 80,
       align: "center",
@@ -75,7 +79,7 @@ doc
 doc
   .moveDown(0.6)
   .fontSize(15)
-  .fillColor("rgba(255,255,255,0.85)")
+  .fillColor("#555555")
   .text(
     `A story for ${meta.childName || "Your Child"}`,
     {
@@ -86,16 +90,17 @@ doc
 /* ---- FOOTER BRAND ---- */
 doc
   .fontSize(11)
-  .fillColor("rgba(255,255,255,0.75)")
+  .fillColor("#888888")
   .text(
     "Created by Jr. Billionaire",
     CARD_X,
-    CARD_Y + CARD_HEIGHT - 50,
+    CARD_Y + CARD_HEIGHT - 40,
     {
       width: CARD_WIDTH,
       align: "center",
     }
   );
+
 
 
     /* =================================================
