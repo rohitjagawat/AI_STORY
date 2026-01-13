@@ -97,17 +97,23 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
       );
 
     // ---- SUBTITLE ----
+    const childName =
+      meta.childName
+        ? meta.childName.charAt(0).toUpperCase() + meta.childName.slice(1)
+        : "Your Child";
+
     doc
       .moveDown(0.25)
       .font("TitleSemi")
       .fontSize(15)
       .fillColor("#555555")
       .text(
-        `A story for ${meta.childName || "Your Child"}`,
+        `A story of ${childName}`,
         {
           align: "center",
         }
       );
+
 
     // ---- FOOTER ----
     doc
@@ -124,65 +130,80 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
       );
 
     /* =================================================
-       📘 STORY PAGES
-    ================================================= */
+   📘 STORY PAGES (IMAGE PAGE + TEXT PAGE)
+================================================= */
 
-    for (let i = 0; i < pages.length; i++) {
-      doc.addPage();
+let textPageNumber = 1;
 
-      doc
-        .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
-        .fill("#fff8e8");
+for (let i = 0; i < pages.length; i++) {
 
-      doc
-        .fontSize(12)
-        .fillColor("#7a7a7a")
-        .text(
-          `${meta.childName || "Your Child"}’s Story`,
-          CARD_X,
-          CARD_Y + 20,
-          {
-            width: CARD_WIDTH,
-            align: "center",
-          }
-        );
+  /* ---------- IMAGE PAGE ---------- */
+  doc.addPage();
 
-      if (images[i]) {
-        doc.image(images[i], IMAGE_X, IMAGE_Y, {
-          width: IMAGE_WIDTH,
-          height: IMAGE_HEIGHT,
-          align: "center",
-          valign: "center",
-        });
+  doc
+    .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+    .fill("#fff8e8");
+
+  if (images[i]) {
+    doc.image(images[i], IMAGE_X, IMAGE_Y, {
+      width: IMAGE_WIDTH,
+      height: IMAGE_HEIGHT,
+      align: "center",
+      valign: "center",
+    });
+  }
+
+  /* ---------- TEXT PAGE ---------- */
+  doc.addPage();
+
+  doc
+    .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+    .fill("#fff8e8");
+
+  doc
+    .fontSize(12)
+    .fillColor("#7a7a7a")
+    .text(
+      `${childName}’s Story`,
+      CARD_X,
+      CARD_Y + 30,
+      {
+        width: CARD_WIDTH,
+        align: "center",
       }
+    );
 
-      doc
-        .fontSize(14)
-        .fillColor("#333333")
-        .text(
-          pages[i],
-          CARD_X + 40,
-          IMAGE_Y + IMAGE_HEIGHT + 30,
-          {
-            width: CARD_WIDTH - 80,
-            align: "center",
-            lineGap: 6,
-          }
-        );
+  doc
+    .fontSize(16)
+    .fillColor("#333333")
+    .text(
+      pages[i],
+      CARD_X + 60,
+      CARD_Y + 140,
+      {
+        width: CARD_WIDTH - 120,
+        align: "center",
+        lineGap: 8,
+      }
+    );
 
-      doc
-        .fontSize(10)
-        .fillColor("#9a9a9a")
-        .text(
-          `${i + 1}`,
-          CARD_X,
-          CARD_Y + CARD_HEIGHT - 30,
-          {
-            width: CARD_WIDTH,
-            align: "center",
-          }
-        );
-    }
+  /* ---- PAGE NUMBER (TEXT PAGE ONLY) ---- */
+  doc
+    .fontSize(10)
+    .fillColor("#9a9a9a")
+    .text(
+      `${textPageNumber}`,
+      CARD_X,
+      CARD_Y + CARD_HEIGHT - 30,
+      {
+        width: CARD_WIDTH,
+        align: "center",
+      }
+    );
+
+  textPageNumber++;
+}
+
 
     doc.end();
 
