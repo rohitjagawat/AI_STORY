@@ -36,75 +36,66 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     const IMAGE_HEIGHT = CARD_HEIGHT - 240;
     // fills vertical space but leaves room for text + page number
 
-/* =================================================
-   🟣 COVER PAGE (EXACT SS2: DARK FROSTED GLASS BOX)
+
+   /* =================================================
+   🟣 COVER PAGE (EXACT STORY PAGE LAYOUT)
 ================================================== */
 
-// 1. FULL PAGE IMAGE
+// ---- Yellow Card (SAME AS STORY PAGES) ----
+doc
+  .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+  .fill("#fff8e8");
+
+// ---- Image (EXACT SAME POSITION & SIZE AS STORY PAGE) ----
 if (images[0]) {
-  doc.image(images[0], 0, 0, {
-    width: PAGE_WIDTH,
-    height: PAGE_HEIGHT,
+  doc.image(images[0], IMAGE_X, IMAGE_Y, {
+    width: IMAGE_WIDTH,
+    height: IMAGE_HEIGHT,
+    align: "center",
+    valign: "center",
   });
 }
 
-// 2. DARK FROSTED GLASS BOX (High Opacity to hide background details)
-const BOX_WIDTH = PAGE_WIDTH * 0.85; // Thoda wide box jaisa reference mein hai
-const BOX_HEIGHT = 220; 
-const BOX_X = (PAGE_WIDTH - BOX_WIDTH) / 2;
-const BOX_Y = (PAGE_HEIGHT - BOX_HEIGHT) / 2;
-
+// ---- TITLE (REPLACES STORY TEXT POSITION) ----
 doc
-  .save()
-  .roundedRect(BOX_X, BOX_Y, BOX_WIDTH, BOX_HEIGHT, 15)
-  .fillOpacity(0.9) // ⬅️ Isse glass bohot dark/solid dikhega (0.9 = 90% solid)
-  .fill("#ffffff") 
-  .restore();
-
-// 3. TITLE & SUBTITLE (Solid Dark Text)
-doc
-  .fillOpacity(1) // Text ko 100% solid rakhna hai
-  .fillColor("#333333") 
-  .fontSize(34)
+  .fontSize(26)
+  .fillColor("#333333")
   .text(
     meta.title || "A Magical Storybook",
-    BOX_X + 30,
-    BOX_Y + 50,
+    CARD_X + 40,
+    IMAGE_Y + IMAGE_HEIGHT + 30, // ⬅️ SAME as story text start
     {
-      width: BOX_WIDTH - 60,
+      width: CARD_WIDTH - 80,
       align: "center",
-      lineGap: 4
+      lineGap: 4,
     }
   );
 
+// ---- SUBTITLE (TIGHT, NO EXTRA GAP) ----
 doc
-  .fontSize(18)
+  .moveDown(0.3)
+  .fontSize(15)
   .fillColor("#555555")
   .text(
     `A story for ${meta.childName || "Your Child"}`,
-    BOX_X + 30,
-    BOX_Y + BOX_HEIGHT - 65,
     {
-      width: BOX_WIDTH - 60,
       align: "center",
     }
   );
 
-// 4. FOOTER (Bottom Center - Solid White Text on Image)
+// ---- FOOTER (SAME STYLE, NO BIG GAP) ----
 doc
-  .fontSize(14)
-  .fillColor("#ffffff") 
+  .fontSize(11)
+  .fillColor("#888888")
   .text(
     "Created by Jr. Billionaire",
-    0,
-    PAGE_HEIGHT - 50,
+    CARD_X,
+    CARD_Y + CARD_HEIGHT - 30,
     {
-      width: PAGE_WIDTH,
+      width: CARD_WIDTH,
       align: "center",
     }
   );
-
-// Note: Ensure NO doc.addPage() is here to prevent the blank page issue.
 
 
     /* =================================================
