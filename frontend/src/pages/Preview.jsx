@@ -249,6 +249,8 @@ export default function Preview() {
               );
             })}
           </HTMLFlipBook>
+          </div>
+          
           {/* AFTER PAYMENT */}
           {paid && (
             <div className="pt-10 flex flex-col items-center gap-6">
@@ -266,6 +268,7 @@ export default function Preview() {
               </button>
             </div>
           )}
+
           {/* CREATE ANOTHER */}
           <div className="pt-16 flex justify-center">
             <button
@@ -279,7 +282,7 @@ export default function Preview() {
             </button>
           </div>
 
-        </div>
+        
       </div>
     </div>
   );
