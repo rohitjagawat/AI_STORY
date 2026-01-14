@@ -71,30 +71,30 @@ export default function Preview() {
 
 
   // 🔁 RESET image loaded state when new preview opens
-useEffect(() => {
-  if (data?.bookId) {
-    setLoadedImages({});
-  }
-}, [data?.bookId]);
+  useEffect(() => {
+    if (data?.bookId) {
+      setLoadedImages({});
+    }
+  }, [data?.bookId]);
 
 
   /* ===============================
      🔄 AUTO REFRESH IMAGES (PAID)
   ================================ */
   useEffect(() => {
-  if (!paid || !data?.story) return;
+    if (!paid || !data?.story) return;
 
-  const total = data.story.pages.length;
-  const loadedCount = Object.keys(loadedImages).length;
+    const total = data.story.pages.length;
+    const loadedCount = Object.keys(loadedImages).length;
 
-  if (loadedCount >= total) return; // ✅ all images loaded
+    if (loadedCount >= total) return; // ✅ all images loaded
 
-  const interval = setInterval(() => {
-    setRefreshKey((k) => k + 1);
-  }, 4000);
+    const interval = setInterval(() => {
+      setRefreshKey((k) => k + 1);
+    }, 4000);
 
-  return () => clearInterval(interval);
-}, [paid, loadedImages, data]);
+    return () => clearInterval(interval);
+  }, [paid, loadedImages, data]);
 
 
 
@@ -194,7 +194,8 @@ useEffect(() => {
                   <div className="px-4 pt-3">
                     {(() => {
                       const pageNumber = String(index + 1).padStart(2, "0");
-                      const isLoaded = loadedImages[pageNumber];
+                      const isLoaded = loadedImages[pageNumber] || refreshKey > 0;
+
 
                       return (
                         <div className="relative w-full h-[300px]">
@@ -213,9 +214,14 @@ useEffect(() => {
                             }
                             onError={(e) => {
                               e.currentTarget.onerror = null;
+                              setLoadedImages((prev) => ({
+                                ...prev,
+                                [pageNumber]: true,
+                              }));
                               e.currentTarget.src =
                                 `${backendBase}/images/${data.bookId}/page_01.png`;
                             }}
+
                             className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
                               } ${isLocked ? "blur-[14px]" : ""}`}
                           />
@@ -266,40 +272,40 @@ useEffect(() => {
               );
             })}
           </HTMLFlipBook>
-          </div>
-          
-          {/* AFTER PAYMENT */}
-          {paid && (
-            <div className="pt-10 flex flex-col items-center gap-6">
-              <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium">
-                ✅ Payment successful! Your full storybook is unlocked.
-              </div>
+        </div>
 
-              <button
-                onClick={() =>
-                  window.open(`${API_URL}/view/${data.bookId}`, "_blank")
-                }
-                className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg shadow-lg"
-              >
-                📘 View & Download Storybook PDF
-              </button>
+        {/* AFTER PAYMENT */}
+        {paid && (
+          <div className="pt-10 flex flex-col items-center gap-6">
+            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-medium">
+              ✅ Payment successful! Your full storybook is unlocked.
             </div>
-          )}
 
-          {/* CREATE ANOTHER */}
-          <div className="pt-16 flex justify-center">
             <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/create");
-              }}
-              className="px-10 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
+              onClick={() =>
+                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+              }
+              className="px-10 py-4 rounded-full bg-green-600 text-white font-semibold text-lg shadow-lg"
             >
-              ✨ Create Another Magical Story
+              📘 View & Download Storybook PDF
             </button>
           </div>
+        )}
 
-        
+        {/* CREATE ANOTHER */}
+        <div className="pt-16 flex justify-center">
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/create");
+            }}
+            className="px-10 py-4 rounded-full border-2 border-brandPurple text-brandPurple font-semibold hover:bg-brandPurple hover:text-white transition"
+          >
+            ✨ Create Another Magical Story
+          </button>
+        </div>
+
+
       </div>
     </div>
   );
