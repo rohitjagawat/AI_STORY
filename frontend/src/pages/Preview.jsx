@@ -73,19 +73,20 @@ export default function Preview() {
      🔄 AUTO REFRESH IMAGES (PAID)
   ================================ */
   useEffect(() => {
-  if (!paid) return;
+  if (!paid || !data?.story) return;
 
-  // check if any image is still NOT loaded
-  const hasMissingImages = Object.keys(loadedImages).length < totalPages;
+  const total = data.story.pages.length;
+  const loadedCount = Object.keys(loadedImages).length;
 
-  if (!hasMissingImages) return; // ✅ stop refreshing once all images loaded
+  if (loadedCount >= total) return; // ✅ all images loaded
 
   const interval = setInterval(() => {
     setRefreshKey((k) => k + 1);
   }, 4000);
 
   return () => clearInterval(interval);
-}, [paid, loadedImages, totalPages]);
+}, [paid, loadedImages, data]);
+
 
 
   if (!data) {
