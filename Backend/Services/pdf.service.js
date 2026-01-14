@@ -164,18 +164,19 @@ for (let i = 0; i < pages.length; i++) {
 // ---- TOP TITLE (HORIZONTAL) ----
 doc
   .font("TitleSemi")
-  .fontSize(14)
+  .fontSize(12)
   .fillColor("#b5a77a")
   .text(
     `${childName}’s Story`,
     CARD_X,
-    CARD_Y + 80,
+    CARD_Y + 40,
     {
-      width: CARD_WIDTH,
-      align: "center",
-      letterSpacing: 1,
+      width: CARD_WIDTH - 20,
+      align: "right",
+      letterSpacing: 1.2,
     }
   );
+
 
 
 
@@ -258,7 +259,7 @@ else {
     .text(
       "Created by Jr. Billionaire",
       CARD_X,
-      CARD_Y + CARD_HEIGHT - 22,
+      CARD_Y + CARD_HEIGHT - 14,
       {
         width: CARD_WIDTH,
         align: "center",
