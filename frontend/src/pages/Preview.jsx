@@ -13,6 +13,8 @@ export default function Preview() {
 
   // 🔥 NEW: auto refresh key (PAID users)
   const [refreshKey, setRefreshKey] = useState(0);
+  const [loadedImages, setLoadedImages] = useState({});
+
 
   const API_URL = import.meta.env.VITE_API_URL;
   const backendBase = API_URL.replace("/api", "");
@@ -176,29 +178,34 @@ export default function Preview() {
                   <div className="px-4 pt-3">
                     {(() => {
                       const pageNumber = String(index + 1).padStart(2, "0");
-                      const [loaded, setLoaded] = useState(false);
+                      const isLoaded = loadedImages[pageNumber];
 
                       return (
                         <div className="relative w-full h-[300px]">
-                          {!loaded && (
+                          {!isLoaded && (
                             <div className="absolute inset-0 rounded-lg bg-gray-300 animate-pulse" />
                           )}
 
                           <img
                             src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png?rev=${refreshKey}`}
-                            onLoad={() => setLoaded(true)}
+                            onLoad={() =>
+                              setLoadedImages((prev) => ({
+                                ...prev,
+                                [pageNumber]: true,
+                              }))
+                            }
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src =
                                 `${backendBase}/images/${data.bookId}/page_01.png`;
                             }}
-                            className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-500 ${
-                              loaded ? "opacity-100" : "opacity-0"
-                            } ${isLocked ? "blur-[14px]" : ""}`}
+                            className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
+                              } ${isLocked ? "blur-[14px]" : ""}`}
                           />
                         </div>
                       );
                     })()}
+
                   </div>
 
                   {/* TEXT */}
