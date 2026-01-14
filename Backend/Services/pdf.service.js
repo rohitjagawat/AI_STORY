@@ -191,7 +191,7 @@ doc
     CARD_Y + 180,
     {
       width: CARD_WIDTH - 240,
-      align: "center",
+      align: "left",
       lineGap: 10,
     }
   );
