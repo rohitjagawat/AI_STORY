@@ -73,14 +73,20 @@ export default function Preview() {
      🔄 AUTO REFRESH IMAGES (PAID)
   ================================ */
   useEffect(() => {
-    if (!paid) return;
+  if (!paid) return;
 
-    const interval = setInterval(() => {
-      setRefreshKey((k) => k + 1);
-    }, 4000);
+  // check if any image is still NOT loaded
+  const hasMissingImages = Object.keys(loadedImages).length < totalPages;
 
-    return () => clearInterval(interval);
-  }, [paid]);
+  if (!hasMissingImages) return; // ✅ stop refreshing once all images loaded
+
+  const interval = setInterval(() => {
+    setRefreshKey((k) => k + 1);
+  }, 4000);
+
+  return () => clearInterval(interval);
+}, [paid, loadedImages, totalPages]);
+
 
   if (!data) {
     return (
