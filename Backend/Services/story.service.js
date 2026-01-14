@@ -73,12 +73,22 @@ CORE STORY RULES:
 - Keep language age-appropriate and engaging
 
 ENDING & MORAL (VERY IMPORTANT):
-- Page 10 must feel warm, calm, and emotionally complete
-- The problem introduced earlier must be resolved
-- The child should succeed because of a choice they made
-- The moral should be implied through what happens
-- If a moral line is included, it should sound like a soft realization, not advice
-- End with a positive emotion (peace, confidence, belonging, joy)
+- Page 10 MUST include a gentle moral or realization
+- The moral must be written as a soft reflection, not advice
+- Example style:
+  "That day, [Name] realized that trying, even when it feels hard, can lead to wonderful things."
+- Moral must connect directly to the child’s challenge
+- Do NOT lecture
+- Do NOT use words like "should", "must", or "always"
+
+Camera & Composition:
+- Medium-wide shot
+- Child clearly visible (not cropped)
+- Eye-level perspective (child-height camera)
+- Natural storybook framing
+- Subject centered or slightly off-center
+- No extreme zoom
+- No dramatic cinematic angles
 
 OUTPUT FORMAT (STRICT):
 Page 1:

@@ -78,32 +78,41 @@ const imagePath = path.join(folderPath, `page_${pageNumber}.png`);
     break;
   }
 
-  const prompt = `
+ const prompt = `
 ${getCharacterProfile(childProfile)}
 
-Illustrate this exact scene from a children's picture book:
+⚠️ VERY IMPORTANT:
+This illustration MUST match the story page EXACTLY.
+Do NOT change the location, setting, or activity.
+Do NOT invent new places.
 
+STORY PAGE TEXT (GROUND TRUTH):
+"${pages[i]}"
+
+VISUAL SCENE TO ILLUSTRATE:
 ${visualScenes[i]}
 
-Emotion:
+STRICT RULES:
+- The environment MUST match the story page
+- If the story mentions school, show a classroom or school area
+- If the story mentions home, show an indoor home setting
+- If the story mentions outdoors, match that exact outdoor place
+- NEVER mix locations
+- NEVER replace activities
+- No fantasy unless mentioned
+- No unrelated backgrounds
+
+Emotion (only if visible):
 ${getEmotionForPage(pageNumber - 1)}
 
-Illustration rules:
+Illustration style:
 - Bright, warm colors
 - Soft lighting
-- Kid-friendly, wholesome
-- Main character must be clearly visible
-- Background must match the scene
-- Environment details required
+- Children's storybook illustration
+- High consistency with previous pages
 - No text, no letters, no speech bubbles
-- No signs with text
-- No animals unless mentioned
-- No distortion, no extra limbs
-
-Camera:
-- Medium-wide shot
-- Scene-focused composition
 `;
+
 
   const result = await openai.images.generate({
     model: "gpt-image-1.5",

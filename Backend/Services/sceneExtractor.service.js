@@ -8,7 +8,12 @@ export async function extractVisualScenes(storyPages) {
   const prompt = `
 You are helping illustrate a children's picture book.
 
-For EACH story page, extract ONE clear visual scene description.
+For EACH story page, extract ONE visual scene that DIRECTLY matches the actions and setting in the story text.
+Do NOT invent new locations.
+Do NOT change the environment.
+If the page mentions school, the scene MUST be a school.
+If it mentions home, the scene MUST be indoors at home.
+
 
 Rules:
 - Describe ONLY what can be SEEN
