@@ -69,6 +69,15 @@ export default function Preview() {
     return () => poller && clearInterval(poller);
   }, [API_URL, navigate]);
 
+
+  // 🔁 RESET image loaded state when new preview opens
+useEffect(() => {
+  if (data?.bookId) {
+    setLoadedImages({});
+  }
+}, [data?.bookId]);
+
+
   /* ===============================
      🔄 AUTO REFRESH IMAGES (PAID)
   ================================ */
@@ -194,7 +203,8 @@ export default function Preview() {
                           )}
 
                           <img
-                            src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png?rev=${refreshKey}`}
+                            src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png${!isLoaded ? `?rev=${refreshKey}` : ""}`}
+
                             onLoad={() =>
                               setLoadedImages((prev) => ({
                                 ...prev,
