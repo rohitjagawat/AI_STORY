@@ -42,15 +42,13 @@ const CreateStory = () => {
     navigate("/generating");
   };
 
-
-
   return (
-    <div className="min-h-screen bg-brandBg flex justify-center px-4 py-12">
+    <div className="min-h-screen bg-brandRed flex justify-center px-4 py-12">
       <div className="w-full max-w-3xl">
 
         {/* HEADER */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-brandPurple mb-3">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-black mb-3">
             Create Your Child’s Story ✨
           </h1>
           <p className="text-brandText text-lg">
@@ -60,19 +58,22 @@ const CreateStory = () => {
         </div>
 
         {/* FORM CARD */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <div className="bg-white rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.25)] p-6 md:p-12 relative overflow-hidden">
+
+          {/* decorative ring */}
+          <div className="absolute -top-24 -right-24 w-[300px] h-[300px] border-[6px] border-black/10 rounded-full"></div>
 
           {error && (
-            <div className="mb-6 text-center text-red-500 font-medium">
+            <div className="mb-6 text-center text-brandRed font-semibold">
               ⚠️ {error}
             </div>
           )}
 
-          <div className="space-y-10">
+          <div className="space-y-10 relative z-10">
 
             {/* CHILD DETAILS */}
             <div>
-              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+              <h2 className="text-xl font-semibold text-black mb-4">
                 👶 Child Details
               </h2>
 
@@ -85,7 +86,7 @@ const CreateStory = () => {
                   onChange={(e) => setName(e.target.value)}
                   type="text"
                   placeholder="e.g. Aarav"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
               </div>
 
@@ -98,7 +99,7 @@ const CreateStory = () => {
                   onChange={(e) => setAge(e.target.value)}
                   type="number"
                   placeholder="e.g. 6"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
               </div>
 
@@ -110,9 +111,9 @@ const CreateStory = () => {
                   <button
                     type="button"
                     onClick={() => setGender("boy")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "boy"
-                      ? "bg-brandPurple text-white border-brandPurple"
-                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                    className={`px-6 py-3 rounded-full border transition font-medium ${gender === "boy"
+                        ? "bg-brandRed text-white border-brandRed"
+                        : "border-brandRed text-brandRed hover:bg-brandRed hover:text-white"
                       }`}
                   >
                     👦 Boy
@@ -121,9 +122,9 @@ const CreateStory = () => {
                   <button
                     type="button"
                     onClick={() => setGender("girl")}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full border transition ${gender === "girl"
-                      ? "bg-brandPurple text-white border-brandPurple"
-                      : "border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white"
+                    className={`px-6 py-3 rounded-full border transition font-medium ${gender === "girl"
+                        ? "bg-brandRed text-white border-brandRed"
+                        : "border-brandRed text-brandRed hover:bg-brandRed hover:text-white"
                       }`}
                   >
                     👧 Girl
@@ -134,7 +135,7 @@ const CreateStory = () => {
 
             {/* STORY PREFERENCES */}
             <div>
-              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+              <h2 className="text-xl font-semibold text-black mb-4">
                 📖 Story Preferences
               </h2>
 
@@ -147,7 +148,7 @@ const CreateStory = () => {
                   onChange={(e) => setInterest(e.target.value)}
                   type="text"
                   placeholder="e.g. Dinosaurs, Space, Princess"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
                 <p className="text-sm text-brandMuted mt-2">
                   We’ll use this to shape the story’s world and adventures
@@ -174,7 +175,6 @@ const CreateStory = () => {
                     { label: "Confidence", emoji: "🌟" },
                     { label: "Expressing Emotions", emoji: "💬" },
                     { label: "Anger Suppression", emoji: "🔥" },
-                    { label: "Mom Guilt", emoji: "❤️‍🩹" },
                   ].map(({ label, emoji }) => {
                     const selected = challenges.includes(label);
                     const disabled = !selected && challenges.length >= 3;
@@ -186,18 +186,16 @@ const CreateStory = () => {
                         disabled={disabled}
                         onClick={() => {
                           if (selected) {
-                            setChallenges(
-                              challenges.filter((c) => c !== label)
-                            );
+                            setChallenges(challenges.filter((c) => c !== label));
                           } else if (challenges.length < 3) {
                             setChallenges([...challenges, label]);
                           }
                         }}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all duration-200 ${selected
-                          ? "bg-brandPurple text-white border-brandPurple shadow-lg scale-105"
-                          : disabled
-                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-brandPurple border-brandPurple hover:bg-brandPurple hover:text-white hover:scale-105"
+                        className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm font-medium transition-all ${selected
+                            ? "bg-brandRed text-white border-brandRed shadow-lg scale-105"
+                            : disabled
+                              ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                              : "bg-white text-brandRed border-brandRed hover:bg-brandRed hover:text-white hover:scale-105"
                           }`}
                       >
                         <span className="text-lg">{emoji}</span>
@@ -215,7 +213,7 @@ const CreateStory = () => {
 
             {/* PERSONAL TOUCH */}
             <div>
-              <h2 className="text-xl font-semibold text-brandPurple mb-4">
+              <h2 className="text-xl font-semibold text-black mb-4">
                 ❤️ Personal Touch
               </h2>
 
@@ -227,12 +225,8 @@ const CreateStory = () => {
                   value={siblingName}
                   onChange={(e) => setSiblingName(e.target.value)}
                   type="text"
-                  placeholder="e.g. Aarav"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
-                <p className="text-sm text-brandMuted mt-2">
-                  May appear as a gentle supporting character
-                </p>
               </div>
 
               <div className="mb-6">
@@ -248,8 +242,7 @@ const CreateStory = () => {
                       setAdditionalInfo(e.target.value);
                     }
                   }}
-                  placeholder="For example: struggles with change, shy at school, gets upset when routines break..."
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandPurple transition focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
                 <p className="text-xs text-brandMuted mt-2">
                   {additionalInfo.trim()
@@ -260,6 +253,7 @@ const CreateStory = () => {
               </div>
             </div>
 
+
             {/* PHOTO */}
             <div>
               <label className="block text-brandText font-medium mb-2">
@@ -268,21 +262,21 @@ const CreateStory = () => {
               </label>
 
               <p className="text-sm text-brandMuted mb-3">
-                This helps us imagine the main character better.
-                A clear face photo works best.
+                This photo helps us design a story character inspired by your child’s look.
+                The illustrations will be artistic, not an exact copy.
               </p>
 
               <ul className="text-xs text-brandMuted mb-4 list-disc list-inside space-y-1">
-                <li>🙂 One child, facing the camera</li>
-                <li>🌤️ Good lighting (daylight is perfect)</li>
-                <li>🚫 Avoid group photos or filters</li>
+                <li>🙂 Clear face photo of one child</li>
+                <li>🌤️ Good lighting (natural daylight works best)</li>
+                <li>🚫 Avoid group photos, heavy filters, or sunglasses</li>
               </ul>
 
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setChildPhoto(e.target.files[0])}
-                className="w-full px-4 py-3 border border-dashed border-brandPurple rounded-xl bg-brandBg cursor-pointer hover:bg-white transition"
+                className="w-full px-4 py-3 border border-dashed border-brandRed rounded-xl bg-brandRedSoft cursor-pointer hover:bg-white transition"
               />
 
               {childPhoto && (
@@ -297,7 +291,7 @@ const CreateStory = () => {
             <div className="flex flex-col items-center mt-12">
               <button
                 onClick={handleSubmit}
-                className="px-12 py-4 rounded-full bg-brandPurple text-white text-lg font-semibold shadow-lg hover:scale-105 transition"
+                className="px-12 py-4 rounded-full bg-brandRed text-white text-lg font-bold shadow-lg hover:bg-black hover:scale-105 transition"
               >
                 Create My Child’s Story ✨
               </button>
