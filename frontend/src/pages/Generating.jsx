@@ -4,21 +4,20 @@ import { useNavigate } from "react-router-dom";
 export default function Generating() {
   const navigate = useNavigate();
 
-  const [progress, setProgress] = useState(5);
+  const [progress, setProgress] = useState(3);
   const [stepIndex, setStepIndex] = useState(0);
 
   const hasStarted = useRef(false);
   const pollerRef = useRef(null);
   const isMounted = useRef(true);
-  
 
   const steps = [
-    "✨ Opening the magic book...",
-    "🧒 Creating your hero...",
-    "📝 Writing the story...",
-    "🎨 Painting beautiful pictures...",
-    "📖 Binding the storybook...",
-    "🎉 Almost ready!",
+    "✨ Opening the magic book…",
+    "🧒 Creating your hero…",
+    "📝 Writing the story…",
+    "🎨 Painting beautiful illustrations…",
+    "📖 Binding the storybook…",
+    "🎉 Final touches in progress…",
   ];
 
   useEffect(() => {
@@ -31,40 +30,37 @@ export default function Generating() {
       return;
     }
 
-    // clear old state
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
 
     isMounted.current = true;
 
-    /* ---------- STEP TEXT ---------- */
+    /* ---------------- STEP TEXT ---------------- */
     const stepTimer = setInterval(() => {
       if (!isMounted.current) return;
       setStepIndex((prev) => (prev + 1) % steps.length);
-    }, 1400);
+    }, 1800);
 
-    /* ---------- PROGRESS (MAX 85%) ---------- */
- const progressTimer = setInterval(() => {
-  if (!isMounted.current) return;
+    /* ---------------- PROGRESS (VERY SMOOTH) ---------------- */
+    const progressTimer = setInterval(() => {
+      if (!isMounted.current) return;
 
-  setProgress((prev) => {
-    // Phase 1: fast (0 → 70)
-    if (prev < 70) return prev + 1;
+      setProgress((prev) => {
+        // Phase 1: slow start (0–40)
+        if (prev < 40) return prev + 1;
 
-    // Phase 2: slow (70 → 90)
-    if (prev < 90) {
-      // slow down by skipping some ticks
-      return Math.random() > 0.6 ? prev + 1 : prev;
-    }
+        // Phase 2: slower middle (40–75)
+        if (prev < 75) return prev + (prev % 3 === 0 ? 1 : 0);
 
-    // Phase 3: wait for backend
-    return prev;
-  });
-}, 120);
+        // Phase 3: very slow premium wait (75–92)
+        if (prev < 92) return prev + (prev % 6 === 0 ? 1 : 0);
 
+        // Phase 4: wait for backend
+        return prev;
+      });
+    }, 180);
 
-
-    /* ---------- START GENERATION ---------- */
+    /* ---------------- START GENERATION ---------------- */
     (async () => {
       try {
         const formData = new FormData();
@@ -75,8 +71,6 @@ export default function Generating() {
         formData.append("challenges", JSON.stringify(payload.challenges || []));
         formData.append("siblingName", payload.siblingName || "");
         formData.append("additionalInfo", payload.additionalInfo || "");
-
-
 
         const res = await fetch(
           `${import.meta.env.VITE_API_URL}/story/generate`,
@@ -89,7 +83,7 @@ export default function Generating() {
         const data = await res.json();
         const bookId = data.bookId;
 
-        /* ---------- POLL FOR RESULT ---------- */
+        /* ---------------- POLL RESULT ---------------- */
         pollerRef.current = setInterval(async () => {
           try {
             const r = await fetch(
@@ -119,15 +113,13 @@ export default function Generating() {
               setProgress(100);
 
               setTimeout(() => {
-                if (isMounted.current) {
-                  navigate("/preview");
-                }
-              }, 600);
+                if (isMounted.current) navigate("/preview");
+              }, 800);
             }
           } catch (err) {
             console.error(err);
           }
-        }, 2000);
+        }, 2500);
       } catch (err) {
         console.error(err);
         alert("Something went wrong 😢");
@@ -143,26 +135,27 @@ export default function Generating() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-brandBg to-white flex items-center justify-center px-4 py-12">
-      <div className="bg-white w-full max-w-5xl rounded-[3rem] shadow-[0_35px_90px_rgba(0,0,0,0.18)] px-12 py-14 text-center relative overflow-hidden">
+    <div className="min-h-screen bg-brandRed flex items-center justify-center px-4 py-12">
+      <div className="bg-white w-full max-w-4xl rounded-[3rem] shadow-[0_35px_90px_rgba(0,0,0,0.25)] px-10 py-16 text-center relative overflow-hidden">
 
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-brandPurple/10 rounded-full blur-3xl"></div>
 
-        <div className="relative z-10 text-8xl mb-8 animate-bounce">
+        {/* Book icon */}
+        <div className="relative z-10 text-7xl mb-6 animate-bounce">
           📖
         </div>
 
-        <h1 className="relative z-10 text-4xl font-bold text-brandPurple mb-4">
+        <h1 className="relative z-10 text-4xl font-extrabold text-black mb-3">
           Creating Your Storybook
         </h1>
 
-        <p className="relative z-10 text-lg text-brandText mb-12">
+        <p className="relative z-10 text-lg text-brandText mb-10">
           {steps[stepIndex]}
         </p>
 
-        <div className="relative z-10 w-full max-w-2xl mx-auto bg-gray-200 rounded-full h-4 overflow-hidden mb-4">
+        {/* Progress bar */}
+        <div className="relative z-10 w-full max-w-xl mx-auto bg-gray-200 rounded-full h-4 overflow-hidden mb-4">
           <div
-            className="bg-brandPurple h-full rounded-full transition-all duration-300"
+            className="bg-brandRed h-full rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -172,7 +165,7 @@ export default function Generating() {
         </p>
 
         <p className="relative z-10 mt-6 text-base text-brandText">
-          🧸 Please wait — your story is being prepared
+          🧸 Please wait — magic takes a little time
         </p>
       </div>
     </div>
