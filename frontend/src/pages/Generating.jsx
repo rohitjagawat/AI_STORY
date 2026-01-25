@@ -10,6 +10,7 @@ export default function Generating() {
   const hasStarted = useRef(false);
   const pollerRef = useRef(null);
   const isMounted = useRef(true);
+  
 
   const steps = [
     "✨ Opening the magic book...",
