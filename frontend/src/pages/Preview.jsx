@@ -308,8 +308,10 @@ export default function Preview() {
 
                   {/* LOCK */}
                   {isLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white/95 rounded-2xl shadow-xl p-6 text-center max-w-xs">
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 text-center max-w-xs">
+
                         <div className="text-3xl mb-3">🔒</div>
                         <p className="text-sm text-gray-600 mb-4">
                           Unlock the full storybook to continue your magical journey✨
@@ -326,7 +328,7 @@ export default function Preview() {
                           }}
                           className="px-6 py-2 rounded-full bg-brandPurple text-white font-semibold"
                         >
-                          Pay ₹999 to Unlock full Storybook
+                          Pay ₹99 to Unlock full Storybook
                         </button>
                       </div>
                     </div>
