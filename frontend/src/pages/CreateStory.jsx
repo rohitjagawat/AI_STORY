@@ -60,8 +60,7 @@ const CreateStory = () => {
         {/* FORM CARD */}
         <div className="bg-white rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.25)] p-6 md:p-12 relative overflow-hidden">
 
-          {/* decorative ring */}
-          <div className="absolute -top-24 -right-24 w-[300px] h-[300px] border-[6px] border-black/10 rounded-full"></div>
+         
 
           {error && (
             <div className="mb-6 text-center text-brandRed font-semibold">
