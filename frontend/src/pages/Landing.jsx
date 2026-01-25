@@ -14,7 +14,7 @@ const Index = () => {
             <img
               src="/logo.png"
               alt="Jr. Billionaire Logo"
-              className="w-20 h-20 object-contain"
+              className="w-[30px] h-[30px] object-contain"
             />
             <span className="absolute -top-4 -right-4 text-brandRed text-lg">✨</span>
           </div>
