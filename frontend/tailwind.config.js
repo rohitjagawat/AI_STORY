@@ -15,6 +15,10 @@ export default {
         brandYellow: "#FDE68A",
         brandBlue: "#3B82F6",
         brandOrange: "#F97316",
+        brandRed: "#E11D2E",
+        brandRedSoft: "#FEE2E2",
+        brandBlack: "#111111",
+        brandWhite: "#FFFFFF",
       },
     }
   },
