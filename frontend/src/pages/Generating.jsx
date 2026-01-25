@@ -42,23 +42,15 @@ export default function Generating() {
     }, 600);
 
     /* ---------------- PROGRESS (VERY SMOOTH) ---------------- */
-    const progressTimer = setInterval(() => {
-      if (!isMounted.current) return;
+   const progressTimer = setInterval(() => {
+  if (!isMounted.current) return;
 
-      setProgress((prev) => {
-        // Phase 1: slow start (0–40)
-        if (prev < 40) return prev + 1;
+  setProgress((prev) => {
+    if (prev < 95) return prev + 1; // constant speed
+    return prev; // wait at 95 for backend
+  });
+}, 500); // 👈 speed control
 
-        // Phase 2: slower middle (40–75)
-        if (prev < 75) return prev + (prev % 3 === 0 ? 1 : 0);
-
-        // Phase 3: very slow premium wait (75–92)
-        if (prev < 92) return prev + (prev % 6 === 0 ? 1 : 0);
-
-        // Phase 4: wait for backend
-        return prev;
-      });
-    }, 180);
 
     /* ---------------- START GENERATION ---------------- */
     (async () => {
