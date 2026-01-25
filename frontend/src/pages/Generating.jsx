@@ -74,7 +74,7 @@ export default function Generating() {
 
         const data = await res.json();
         const bookId = data.bookId;
-
+ 
         /* ---------------- POLL RESULT ---------------- */
         pollerRef.current = setInterval(async () => {
           try {
