@@ -20,6 +20,15 @@ export default function Preview() {
   const backendBase = API_URL.replace("/api", "");
 
   const FREE_PAGES = 2;
+  // 🔍 CHECK IF IMAGE EXISTS ON SERVER (CACHE SAFE)
+  const checkImageExists = async (url) => {
+    try {
+      const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
 
   /* ===============================
      LOAD STORY + POLL PAYMENT
@@ -95,6 +104,33 @@ export default function Preview() {
 
     return () => clearInterval(interval);
   }, [paid, loadedImages, data]);
+
+  /* ===============================
+   ✅ AUTO MARK IMAGES AS READY
+   (handles cache + missed onLoad)
+================================ */
+  useEffect(() => {
+    if (!paid || !data?.story) return;
+
+    data.story.pages.forEach((_, index) => {
+      const pageNumber = String(index + 1).padStart(2, "0");
+
+      // already marked as loaded → skip
+      if (loadedImages[pageNumber]) return;
+
+      const url = `${backendBase}/images/${data.bookId}/page_${pageNumber}.png`;
+
+      checkImageExists(url).then((exists) => {
+        if (exists) {
+          setLoadedImages((prev) => ({
+            ...prev,
+            [pageNumber]: true,
+          }));
+        }
+      });
+    });
+  }, [paid, data, refreshKey]);
+
 
 
 
@@ -195,7 +231,13 @@ export default function Preview() {
                     {(() => {
                       const pageNumber = String(index + 1).padStart(2, "0");
                       const isLoaded = !!loadedImages[pageNumber];
-                      const imageUrl = `${backendBase}/images/${data.bookId}/page_${pageNumber}.png?rev=${refreshKey}`;
+                      const baseUrl =
+                        `${backendBase}/images/${data.bookId}/page_${pageNumber}.png`;
+
+                      const imageUrl = loadedImages[pageNumber]
+                        ? baseUrl              // ✅ already loaded → NO refresh
+                        : `${baseUrl}?rev=${refreshKey}`; // 🔄 retry only if not loaded
+
 
                       return (
                         <div className="relative w-full h-[300px]">

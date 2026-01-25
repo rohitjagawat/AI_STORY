@@ -39,7 +39,7 @@ export default function Generating() {
     const stepTimer = setInterval(() => {
       if (!isMounted.current) return;
       setStepIndex((prev) => (prev + 1) % steps.length);
-    }, 1800);
+    }, 600);
 
     /* ---------------- PROGRESS (VERY SMOOTH) ---------------- */
     const progressTimer = setInterval(() => {
