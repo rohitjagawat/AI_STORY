@@ -243,12 +243,11 @@ export default function Preview() {
                         <div className="relative w-full h-[300px]">
 
                           {/* LOADER */}
-                          {/* LOADER — only for unlocked pages */}
-                          {!isLoaded && !isLocked && (
+                          {!isLoaded && (
                             <div className="absolute inset-0 z-10 rounded-lg 
-    bg-gradient-to-br from-purple-100 to-pink-100 
-    flex flex-col items-center justify-center 
-    text-center animate-pulse">
+        bg-gradient-to-br from-purple-100 to-pink-100 
+        flex flex-col items-center justify-center 
+        text-center animate-pulse">
 
                               <div className="text-3xl mb-2">🎨✨</div>
                               <p className="text-sm font-semibold text-brandPurple">
@@ -259,8 +258,6 @@ export default function Preview() {
                               </p>
                             </div>
                           )}
-
-
 
                           {/* IMAGE (always mounted, but hidden until loaded) */}
                           <img
