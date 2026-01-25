@@ -7,13 +7,6 @@ const Index = () => {
     <div className="min-h-screen bg-brandRed flex items-center justify-center px-4 py-12">
 
       <section className="max-w-4xl mx-auto text-center bg-white rounded-[2.5rem] px-8 py-14 shadow-[0_30px_80px_rgba(0,0,0,0.25)] relative overflow-hidden">
-        
-        <div className="absolute -top-32 -right-32 
-  w-[300px] h-[300px] 
-  border-[6px] border-black/10 
-  rounded-full">
-        </div>
-
 
 
         <div className="flex items-center justify-center gap-3 mb-2">
