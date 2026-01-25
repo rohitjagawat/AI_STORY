@@ -194,51 +194,49 @@ export default function Preview() {
                   <div className="px-4 pt-3">
                     {(() => {
                       const pageNumber = String(index + 1).padStart(2, "0");
-                      const isLoaded = loadedImages[pageNumber] || refreshKey > 0;
-
+                      const isLoaded = !!loadedImages[pageNumber];
+                      const imageUrl = `${backendBase}/images/${data.bookId}/page_${pageNumber}.png?rev=${refreshKey}`;
 
                       return (
                         <div className="relative w-full h-[300px]">
+
+                          {/* LOADER */}
                           {!isLoaded && (
-                            <div className="absolute inset-0 rounded-lg 
-    bg-gradient-to-br from-purple-100 to-pink-100 
-    flex flex-col items-center justify-center 
-    text-center animate-pulse">
+                            <div className="absolute inset-0 z-10 rounded-lg 
+        bg-gradient-to-br from-purple-100 to-pink-100 
+        flex flex-col items-center justify-center 
+        text-center animate-pulse">
 
                               <div className="text-3xl mb-2">🎨✨</div>
-
                               <p className="text-sm font-semibold text-brandPurple">
                                 Creating illustration…
                               </p>
-
                               <p className="mt-1 text-xs text-gray-500">
-                                generating your image.....
+                                Generating your image…
                               </p>
                             </div>
                           )}
 
-
+                          {/* IMAGE (always mounted, but hidden until loaded) */}
                           <img
-                            src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png${!isLoaded ? `?rev=${refreshKey}` : ""}`}
-
+                            src={imageUrl}
                             onLoad={() =>
                               setLoadedImages((prev) => ({
                                 ...prev,
                                 [pageNumber]: true,
                               }))
                             }
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              // ❌ DO NOT mark as loaded
-                              // ❌ DO NOT replace with page_01
+                            onError={() => {
+                              // do nothing → retry via refreshKey
                             }}
-
-
-                            className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
+                            className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"
                               } ${isLocked ? "blur-[14px]" : ""}`}
+                            draggable={false}
                           />
                         </div>
                       );
+
+
                     })()}
 
                   </div>
