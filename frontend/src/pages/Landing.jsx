@@ -14,12 +14,15 @@ const Index = () => {
 
         <div className="flex items-center justify-center gap-3 mb-2">
           <div className="relative">
-            <svg className="w-12 h-12 text-brandRed" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z" />
-            </svg>
-            <span className="absolute -top-5 -right-5 text-yellow-500 text-lg">✨</span>
+            <img
+              src="/logo.png"
+              alt="Jr. Billionaire Logo"
+              className="w-14 h-14 object-contain"
+            />
+            <span className="absolute -top-4 -right-4 text-brandRed text-lg">✨</span>
           </div>
-         <h1 className="text-4xl md:text-5xl font-extrabold text-black">
+
+          <h1 className="text-4xl md:text-5xl font-extrabold text-black">
 
             Magic Storybook Creator
           </h1>
@@ -50,20 +53,20 @@ const Index = () => {
             <span className="font-medium">Builds Confidence</span>
           </div>
           <div className="flex items-center gap-2 text-brandText">
-           <span className="text-black text-xl">📖</span>
+            <span className="text-black text-xl">📖</span>
             <span className="font-medium">Encourages Reading</span>
           </div>
           <div className="flex items-center gap-2 text-brandText">
-           <span className="text-black text-xl">✨</span>
+            <span className="text-black text-xl">✨</span>
             <span className="font-medium">Sparks Imagination</span>
           </div>
         </div>
 
-       <div className="bg-brandRedSoft rounded-2xl py-4 px-6 md:px-10 shadow-sm border border-brandRed/20 inline-block">
+        <div className="bg-brandRedSoft rounded-2xl py-4 px-6 md:px-10 shadow-sm border border-brandRed/20 inline-block">
 
           <p className="text-lg">
             <span className="text-xl mr-2">🔥</span>
-          <span className="text-brandRed font-semibold">Limited Time:</span>
+            <span className="text-brandRed font-semibold">Limited Time:</span>
 
             <span className="text-brandText ml-1">
               Create your First Storybook with FREE Pages!
@@ -74,9 +77,9 @@ const Index = () => {
         {/* CTA BUTTON */}
         <div className="mt-10 flex justify-center">
           <button
-  onClick={() => navigate("/create")}
-  className="px-10 py-4 rounded-full bg-brandRed text-white text-lg font-bold shadow-lg hover:bg-black hover:scale-105 transition"
->
+            onClick={() => navigate("/create")}
+            className="px-10 py-4 rounded-full bg-brandRed text-white text-lg font-bold shadow-lg hover:bg-black hover:scale-105 transition"
+          >
 
             Create My Storybook ✨
           </button>
