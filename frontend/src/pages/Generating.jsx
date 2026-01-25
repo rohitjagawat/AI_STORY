@@ -43,10 +43,21 @@ export default function Generating() {
     }, 1400);
 
     /* ---------- PROGRESS (MAX 85%) ---------- */
-    const progressTimer = setInterval(() => {
-      if (!isMounted.current) return;
-      setProgress((prev) => (prev >= 85 ? prev : prev + 1));
-    }, 120);
+   const progressTimer = setInterval(() => {
+  if (!isMounted.current) return;
+
+  setProgress((prev) => {
+    // Phase 1: fast
+    if (prev < 70) return prev + 1.2;
+
+    // Phase 2: slow & premium
+    if (prev < 90) return prev + 0.25;
+
+    // Phase 3: wait for backend
+    return prev;
+  });
+}, 120);
+
 
     /* ---------- START GENERATION ---------- */
     (async () => {

@@ -200,8 +200,23 @@ export default function Preview() {
                       return (
                         <div className="relative w-full h-[300px]">
                           {!isLoaded && (
-                            <div className="absolute inset-0 rounded-lg bg-gray-300 animate-pulse" />
+                            <div className="absolute inset-0 rounded-lg 
+    bg-gradient-to-br from-purple-100 to-pink-100 
+    flex flex-col items-center justify-center 
+    text-center animate-pulse">
+
+                              <div className="text-3xl mb-2">🎨✨</div>
+
+                              <p className="text-sm font-semibold text-brandPurple">
+                                Creating illustration…
+                              </p>
+
+                              <p className="mt-1 text-xs text-gray-500">
+                                generating your image.....
+                              </p>
+                            </div>
                           )}
+
 
                           <img
                             src={`${backendBase}/images/${data.bookId}/page_${pageNumber}.png${!isLoaded ? `?rev=${refreshKey}` : ""}`}
@@ -214,13 +229,10 @@ export default function Preview() {
                             }
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              setLoadedImages((prev) => ({
-                                ...prev,
-                                [pageNumber]: true,
-                              }));
-                              e.currentTarget.src =
-                                `${backendBase}/images/${data.bookId}/page_01.png`;
+                              // ❌ DO NOT mark as loaded
+                              // ❌ DO NOT replace with page_01
                             }}
+
 
                             className={`w-full h-[300px] object-cover rounded-lg transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"
                               } ${isLocked ? "blur-[14px]" : ""}`}
@@ -233,10 +245,21 @@ export default function Preview() {
 
                   {/* TEXT */}
                   {!isLocked && (
-                    <div className="px-6 pt-6 pb-10 text-center text-base leading-relaxed text-gray-800 font-medium flex-1">
-                      {text}
+                    <div className="px-6 pt-6 pb-10 text-center flex-1">
+
+                      {/* 🌱 MORAL TITLE ON 10th PAGE */}
+                      {index === 9 && (
+                        <h2 className="mb-4 text-xl font-bold text-brandPurple">
+                          🌱 Moral of the Story
+                        </h2>
+                      )}
+
+                      <p className="text-base leading-relaxed text-gray-800 font-medium">
+                        {text}
+                      </p>
                     </div>
                   )}
+
 
                   {/* PAGE NUMBER */}
                   <div className="pb-4 text-center text-xs text-gray-400">
