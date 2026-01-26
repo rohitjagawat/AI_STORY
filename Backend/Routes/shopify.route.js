@@ -11,8 +11,16 @@ router.post(
     console.log("🔥 SHOPIFY WEBHOOK HIT");
 
     try {
-      const payload = JSON.parse(req.body.toString());
+      // ✅ SAFE payload extraction
+      const payload =
+        Buffer.isBuffer(req.body)
+          ? JSON.parse(req.body.toString("utf8"))
+          : req.body;
+
+      console.log("📦 WEBHOOK PAYLOAD RECEIVED");
+
       await handleOrderPaid(payload);
+
       res.status(200).send("OK");
     } catch (err) {
       console.error("❌ Webhook error:", err.message);
