@@ -144,12 +144,12 @@ export default function Preview() {
         {/* BOOK */}
         <div className="flex justify-center">
           <HTMLFlipBook
-            width={380}
-            height={560}
-            minWidth={320}
-            maxWidth={440}
-            minHeight={500}
-            maxHeight={600}
+            width={420}
+            height={640}
+            minWidth={360}
+            maxWidth={480}
+            minHeight={600}
+            maxHeight={700}
             showCover={false}
             mobileScrollSupport
             className="shadow-[0_25px_70px_rgba(0,0,0,0.35)]"
@@ -228,7 +228,7 @@ export default function Preview() {
 
                   {/* TEXT */}
                   {!isLocked && (
-                    <div className="px-6 pt-6 pb-24 text-center flex-1">
+                    <div className="px-6 pt-5 pb-20 text-center flex-1">
                       {index === 9 && (
                         <h2 className="mb-4 text-xl font-extrabold text-black">
                           🌱 <span className="text-brandRed">Moral of the Story</span>
