@@ -228,7 +228,7 @@ export default function Preview() {
 
                   {/* TEXT */}
                   {!isLocked && (
-                    <div className="px-6 pt-6 pb-16 text-center flex-1">
+                    <div className="px-6 pt-6 pb-24 text-center flex-1">
                       {index === 9 && (
                         <h2 className="mb-4 text-xl font-extrabold text-black">
                           🌱 <span className="text-brandRed">Moral of the Story</span>
@@ -240,7 +240,7 @@ export default function Preview() {
                     </div>
                   )}
 
-                 <div className="absolute bottom-3 left-0 right-0 text-center text-xs text-gray-400">
+                 <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-400">
   {index + 1}
 </div>
 
