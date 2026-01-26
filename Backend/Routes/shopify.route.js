@@ -17,21 +17,18 @@ router.post(
 
       console.log("📦 WEBHOOK PAYLOAD RECEIVED");
 
-      /* 🔴 CRITICAL CHECK */
+      /* ✅ ONLY CONDITION THAT MATTERS */
       if (payload.financial_status !== "paid") {
         console.log(
-          "⚠️ Ignoring non-paid order:",
+          "❌ Payment not successful:",
           payload.id,
           payload.financial_status
         );
         return res.status(200).send("IGNORED");
       }
 
-      /* 🔴 OPTIONAL SAFETY */
-      if (!payload.gateway || Number(payload.total_price) <= 0) {
-        console.log("⚠️ Not a real payment");
-        return res.status(200).send("IGNORED");
-      }
+      /* ✅ TEST OR REAL — BOTH ACCEPTED */
+      console.log("✅ PAYMENT CONFIRMED (test or real)");
 
       await handleOrderPaid(payload);
 
