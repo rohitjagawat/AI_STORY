@@ -22,7 +22,7 @@ app.use("/images", express.static("images"));
 app.use("/output", express.static("output"));
 
 app.use("/api/story", storyRoute);
-app.use("/shopify", shopifyRoutes);
+app.use("/api/shopify", shopifyRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/download", downloadRoutes);
 app.use("/api", viewRoutes);
