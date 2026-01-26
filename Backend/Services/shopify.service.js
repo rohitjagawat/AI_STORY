@@ -7,15 +7,29 @@ import { generatePDF } from "./pdf.service.js";
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
 
-function savePayment(orderId, bookId) {
+/* ===============================
+   🔐 PAYMENT HELPERS
+================================ */
+
+function ensureDir() {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
+}
 
-  let data = {};
-  if (fs.existsSync(paymentsFile)) {
-    data = JSON.parse(fs.readFileSync(paymentsFile));
-  }
+function readPayments() {
+  ensureDir();
+  if (!fs.existsSync(paymentsFile)) return {};
+  return JSON.parse(fs.readFileSync(paymentsFile));
+}
+
+function isAlreadyPaid(bookId) {
+  const data = readPayments();
+  return !!data[bookId];
+}
+
+function savePayment(orderId, bookId) {
+  const data = readPayments();
 
   data[bookId] = {
     orderId,
@@ -26,111 +40,90 @@ function savePayment(orderId, bookId) {
   fs.writeFileSync(paymentsFile, JSON.stringify(data, null, 2));
 }
 
-export async function handleOrderPaid(order) {
-  const IS_TEST_MODE = process.env.TEST_MODE === "true";
+/* ===============================
+   💰 HANDLE PAYMENT (IDEMPOTENT)
+================================ */
 
+export async function handleOrderPaid(order) {
   const bookId =
-    order.line_items?.[0]?.properties?.find(
-      (p) => p.name === "bookId"
-    )?.value;
+    order.line_items
+      ?.flatMap((item) => item.properties || [])
+      ?.find((p) => p.name === "bookId")?.value;
 
   if (!bookId) {
     console.log("❌ bookId missing in order");
     return;
   }
 
+  /* 🔁 IDEMPOTENCY CHECK */
+  if (isAlreadyPaid(bookId)) {
+    console.log("🔁 Payment already processed for:", bookId);
+    return;
+  }
+
   console.log("✅ PAYMENT RECEIVED:", bookId, order.email);
 
   /* ===============================
-     1️⃣ SAVE PAYMENT
+     1️⃣ SAVE PAYMENT FIRST (IMPORTANT)
   ================================ */
   savePayment(order.id, bookId);
 
   /* ===============================
-     2️⃣ LOAD STORY + INPUT
+     2️⃣ LOAD STORY FILES
   ================================ */
   const storyPath = path.join("stories", `${bookId}.json`);
   const inputPath = path.join("stories", `${bookId}.input.json`);
 
-  if (!fs.existsSync(storyPath)) {
-    console.log("❌ Story not found:", bookId);
+  if (!fs.existsSync(storyPath) || !fs.existsSync(inputPath)) {
+    console.log("⚠️ Story files missing, payment still saved:", bookId);
     return;
   }
 
-  if (!fs.existsSync(inputPath)) {
-    console.log("❌ Story input not found:", bookId);
-    return;
-  }
-
-  const fullStoryPages = JSON.parse(
-    fs.readFileSync(storyPath, "utf-8")
-  );
-
-  const inputData = JSON.parse(
-    fs.readFileSync(inputPath, "utf-8")
-  );
+  const fullStoryPages = JSON.parse(fs.readFileSync(storyPath, "utf-8"));
+  const inputData = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
 
   /* ===============================
      3️⃣ IMAGE GENERATION (SAFE)
+     → TEST + REAL DONO ME GENERATE
   ================================ */
   const visualScenes = await extractVisualScenes(fullStoryPages);
 
   const imagesDir = path.join("images", bookId);
   const existingCount = fs.existsSync(imagesDir)
-    ? fs.readdirSync(imagesDir).filter(f => f.endsWith(".png")).length
+    ? fs.readdirSync(imagesDir).filter((f) => f.endsWith(".png")).length
     : 0;
 
-  if (IS_TEST_MODE) {
-    console.log("🧪 TEST MODE: Skipping remaining image generation");
+  if (existingCount < fullStoryPages.length) {
+    await generateImages(
+      visualScenes.slice(existingCount),
+      fullStoryPages.slice(existingCount),
+      {
+        name: inputData.name,
+        age: inputData.age,
+        gender: inputData.gender,
+      },
+      bookId,
+      { startIndex: existingCount }
+    );
   } else {
-    if (existingCount < fullStoryPages.length) {
-      await generateImages(
-        visualScenes.slice(existingCount),
-        fullStoryPages.slice(existingCount),
-        {
-          name: inputData.name,
-          age: inputData.age,
-          gender: inputData.gender,
-        },
-        bookId,
-        { startIndex: existingCount }
-      );
-    } else {
-      console.log("ℹ️ All images already exist");
-    }
+    console.log("ℹ️ All images already exist for:", bookId);
   }
 
   /* ===============================
-     4️⃣ COLLECT IMAGES (ORDERED)
+     4️⃣ GENERATE PDF (ONCE)
   ================================ */
-  if (!fs.existsSync(imagesDir)) {
-    console.log("❌ Images directory missing:", imagesDir);
-    return;
-  }
-
   const imageFiles = fs
     .readdirSync(imagesDir)
-    .filter(f => f.endsWith(".png"))
+    .filter((f) => f.endsWith(".png"))
     .sort()
-    .map(f => path.join(imagesDir, f));
+    .map((f) => path.join(imagesDir, f));
 
-  if (imageFiles.length === 0) {
-    console.log("❌ No images found for PDF generation");
-    return;
-  }
-
-  /* ===============================
-     5️⃣ GENERATE VIEWER-STYLE PDF
-  ================================ */
-  await generatePDF(
-    fullStoryPages,
-    imageFiles,
-    bookId,
-    {
+  if (imageFiles.length > 0) {
+    await generatePDF(fullStoryPages, imageFiles, bookId, {
       title: inputData.title || "A Magical Storybook",
       childName: inputData.name || "Your Child",
-    }
-  );
+    });
+  }
 
-  console.log("✅ PAYMENT FLOW COMPLETE (PDF READY):", bookId);
+  console.log("✅ PAYMENT FLOW COMPLETE (ONCE ONLY):", bookId);
 }
