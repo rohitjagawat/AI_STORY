@@ -5,6 +5,24 @@ import HTMLFlipBook from "react-pageflip";
 export default function Preview() {
   const navigate = useNavigate();
 
+    // 🔐 Capture bookId from URL after Shopify redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const bookIdFromUrl = params.get("bookId");
+
+    if (bookIdFromUrl) {
+      const existing = localStorage.getItem("storyResult");
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        parsed.bookId = bookIdFromUrl;
+        localStorage.setItem("storyResult", JSON.stringify(parsed));
+      }
+
+      localStorage.setItem("paidBookId", bookIdFromUrl);
+    }
+  }, []);
+
+
   const [data, setData] = useState(null);
   const [paid, setPaid] = useState(false);
   const [showHint, setShowHint] = useState(
@@ -254,12 +272,11 @@ export default function Preview() {
                           Unlock the full storybook to continue ✨
                         </p>
                         <button
-                          onClick={() =>
-                            window.open(
-                              `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`,
-                              "_blank"
-                            )
-                          }
+                          onClick={() => {
+  window.location.href =
+    `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`;
+}}
+
                           className="px-6 py-3 rounded-full bg-brandRed text-white font-bold hover:bg-black transition"
                         >
                           Pay ₹99 to Unlock
