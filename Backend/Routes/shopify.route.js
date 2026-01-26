@@ -3,10 +3,17 @@ import { handleOrderPaid } from "../Services/shopify.service.js";
 
 const router = express.Router();
 
-router.post("/webhook/order-paid", (req, res) => {
+router.post("/webhook/order-paid", async (req, res) => {
   console.log("🔥 SHOPIFY WEBHOOK HIT");
-  handleOrderPaid(req.body);
-  res.status(200).send("OK");
+
+  try {
+    const payload = JSON.parse(req.body.toString());
+    await handleOrderPaid(payload);
+    res.status(200).send("OK");
+  } catch (err) {
+    console.error("❌ Webhook error:", err.message);
+    res.status(400).send("Webhook error");
+  }
 });
 
 export default router;
