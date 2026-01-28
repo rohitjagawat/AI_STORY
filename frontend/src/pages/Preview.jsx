@@ -142,7 +142,9 @@ export default function Preview() {
         </div>
 
         {/* BOOK */}
-        <div className="flex justify-center">
+      <div className="flex justify-center">
+  <div style={{ width: 420, height: 640 }}>
+
           <HTMLFlipBook
             width={420}
             height={640}
@@ -271,6 +273,7 @@ export default function Preview() {
               );
             })}
           </HTMLFlipBook>
+          </div>
         </div>
 
         {/* AFTER PAYMENT */}
