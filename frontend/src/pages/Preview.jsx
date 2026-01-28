@@ -144,14 +144,14 @@ export default function Preview() {
         {/* BOOK */}
         <div className="flex justify-center">
           <HTMLFlipBook
-            width={420}
+            width={420} 
             height={640}
             minWidth={360}
             maxWidth={480}
             minHeight={600}
             maxHeight={700}
             showCover={false}
-            mobileScrollSupport
+            mobileScrollSupport 
             className="shadow-[0_25px_70px_rgba(0,0,0,0.35)]"
             onFlip={() => {
               if (showHint) {
