@@ -143,151 +143,153 @@ export default function Preview() {
 
         {/* BOOK */}
         <div className="flex justify-center">
-          <div style={{ width: 420, height: 640 }}>
+          <HTMLFlipBook
+            width={420}
+            height={640}
+            minWidth={360}
+            maxWidth={480}
+            minHeight={600}
+            maxHeight={700}
+            showCover={false}
+            mobileScrollSupport
+            className="shadow-[0_25px_70px_rgba(0,0,0,0.35)]"
+            onFlip={() => {
+              if (showHint) {
+                setShowHint(false);
+                localStorage.setItem("flip_hint_seen", "true");
+              }
+            }}
+          >
+            <div />
 
-            <HTMLFlipBook
-              width={420}
-              height={640}
-              className="shadow-[0_25px_70px_rgba(0,0,0,0.35)]"
-              onFlip={() => {
-                if (showHint) {
-                  setShowHint(false);
-                  localStorage.setItem("flip_hint_seen", "true");
-                }
-              }}
-            >
-              <div />
-
-              {/* COVER */}
-              <div className="relative bg-black rounded-2xl overflow-hidden">
-                <img
-                  src={`${backendBase}/images/${data.bookId}/page_01.png`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/60" />
-                <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
-                  <h1 className="text-2xl font-bold text-white">{data.title}</h1>
-                  <p className="mt-2 text-sm text-white/80">
-                    A story for {childName}
-                  </p>
-                </div>
+            {/* COVER */}
+            <div className="relative bg-black rounded-2xl overflow-hidden">
+              <img
+                src={`${backendBase}/images/${data.bookId}/page_01.png`}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/60" />
+              <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
+                <h1 className="text-2xl font-bold text-white">{data.title}</h1>
+                <p className="mt-2 text-sm text-white/80">
+                  A story for {childName}
+                </p>
               </div>
+            </div>
 
-              {/* STORY PAGES */}
-              {pages.map((text, index) => {
-                const page = String(index + 1).padStart(2, "0");
-                const isFree = index < FREE_PAGES;
-                const isLocked = !isFree && !paid;
-                const isLoaded = loadedImages[page];
+            {/* STORY PAGES */}
+            {pages.map((text, index) => {
+              const page = String(index + 1).padStart(2, "0");
+              const isFree = index < FREE_PAGES;
+              const isLocked = !isFree && !paid;
+              const isLoaded = loadedImages[page];
 
-                const baseUrl = `${backendBase}/images/${data.bookId}/page_${page}.png`;
-                const imageUrl = baseUrl;
+              const baseUrl = `${backendBase}/images/${data.bookId}/page_${page}.png`;
+              const imageUrl = isLoaded
+                ? baseUrl
+                : `${baseUrl}?rev=${refreshKey}`;
 
+              return (
+                <div
+                  key={index}
+                  className="relative bg-[#fffaf0] border border-yellow-200 rounded-2xl flex flex-col"
+                >
+                  <p className="pt-4 text-center text-sm font-semibold text-brandRed">
+                    {childName}’s Story
+                  </p>
 
-                return (
-                  <div
-                    key={index}
-                    className="relative bg-[#fffaf0] border border-yellow-200 rounded-2xl flex flex-col"
-                  >
-                    <p className="pt-4 text-center text-sm font-semibold text-brandRed">
-                      {childName}’s Story
-                    </p>
-
-                    {/* IMAGE */}
-                    <div className="px-4 pt-3">
-                      <div className="relative w-full h-[300px] overflow-hidden">
-                        <div className="absolute inset-0 bg-red-50 flex flex-col items-center justify-center rounded-lg">
-                          {!isLoaded && (
-                            <>
-                              <div className="text-3xl mb-2">🎨✨</div>
-                              <p className="text-sm font-semibold text-brandRed">
-                                Creating illustration…
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Generating your image…
-                              </p>
-                            </>
-                          )}
-                        </div>
-
-                        <img
-                          src={imageUrl}
-                          onLoad={() =>
-                            setLoadedImages((p) => ({ ...p, [page]: true }))
-                          }
-                          className={`absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"
-                            } ${isLocked ? "blur-[14px]" : ""}`}
-                          draggable={false}
-                        />
-                      </div>
-
-                    </div>
-
-                    {/* TEXT */}
-                    {!isLocked && (
-                      <div className="px-6 pt-5 pb-20 text-center flex-1">
-                        {index === 9 && (
-                          <h2 className="mb-4 text-xl font-extrabold text-black">
-                            🌱 <span className="text-brandRed">Moral of the Story</span>
-                          </h2>
-                        )}
-                        <p className="text-gray-800 font-medium leading-relaxed">
-                          {text}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-400">
-                      {index + 1}
-                    </div>
-
-
-                    {/* LOCK */}
-                    {isLocked && (
-                      <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-                        <div className="bg-white rounded-2xl shadow-2xl p-6 text-center max-w-xs">
-                          <div className="text-3xl mb-3">🔒</div>
-                          <p className="text-sm text-gray-600 mb-4">
-                            Unlock the full storybook to continue ✨
+                  {/* IMAGE */}
+                  <div className="px-4 pt-3">
+                    <div className="relative w-full h-[300px]">
+                      {!isLoaded && (
+                        <div className="absolute inset-0 z-10 bg-red-50 flex flex-col items-center justify-center animate-pulse rounded-lg">
+                          <div className="text-3xl mb-2">🎨✨</div>
+                          <p className="text-sm font-semibold text-brandRed">
+                            Creating illustration…
                           </p>
-                          <button
-                            onClick={() =>
-                              window.open(
-                                `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`,
-                                "_blank"
-                              )
-                            }
-                            className="px-6 py-3 rounded-full bg-brandRed text-white font-bold hover:bg-black transition"
-                          >
-                            Pay ₹99 to Unlock
-                          </button>
+                          <p className="text-xs text-gray-500">
+                            Generating your image…
+                          </p>
                         </div>
-                      </div>
-                    )}
+                      )}
+
+                      <img
+                        src={imageUrl}
+                        onLoad={() =>
+                          setLoadedImages((p) => ({ ...p, [page]: true }))
+                        }
+                        className={`w-full h-full object-cover rounded-lg transition-opacity duration-700 ${
+                          isLoaded ? "opacity-100" : "opacity-0"
+                        } ${isLocked ? "blur-[14px]" : ""}`}
+                        draggable={false}
+                      />
+                    </div>
                   </div>
-                );
-              })}
-            </HTMLFlipBook>
-          </div>
+
+                  {/* TEXT */}
+                  {!isLocked && (
+                    <div className="px-6 pt-5 pb-20 text-center flex-1">
+                      {index === 9 && (
+                        <h2 className="mb-4 text-xl font-extrabold text-black">
+                          🌱 <span className="text-brandRed">Moral of the Story</span>
+                        </h2>
+                      )}
+                      <p className="text-gray-800 font-medium leading-relaxed">
+                        {text}
+                      </p>
+                    </div>
+                  )}
+
+                 <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-400">
+  {index + 1}
+</div>
+
+
+                  {/* LOCK */}
+                  {isLocked && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+                      <div className="bg-white rounded-2xl shadow-2xl p-6 text-center max-w-xs">
+                        <div className="text-3xl mb-3">🔒</div>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Unlock the full storybook to continue ✨
+                        </p>
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `https://www.jrbillionaire.com/cart/add?id=50467255124254&quantity=1&properties[bookId]=${data.bookId}`,
+                              "_blank"
+                            )
+                          }
+                          className="px-6 py-3 rounded-full bg-brandRed text-white font-bold hover:bg-black transition"
+                        >
+                          Pay ₹99 to Unlock
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </HTMLFlipBook>
         </div>
 
         {/* AFTER PAYMENT */}
-        {paid && (
-          <div className="pt-12 flex flex-col items-center gap-6">
-            <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-semibold shadow">
-              ✅ Payment successful! Your full storybook is unlocked.
-            </div>
+{paid && (
+  <div className="pt-12 flex flex-col items-center gap-6">
+    <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-semibold shadow">
+      ✅ Payment successful! Your full storybook is unlocked.
+    </div>
 
-            <button
-              onClick={() =>
-                window.open(`${API_URL}/view/${data.bookId}`, "_blank")
-              }
-              className="px-12 py-4 rounded-full bg-brandRed text-white font-extrabold text-lg shadow-lg hover:bg-black hover:scale-105 transition"
-            >
-              📘 View & Download Storybook PDF
-            </button>
-          </div>
-        )}
+    <button
+      onClick={() =>
+        window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+      }
+      className="px-12 py-4 rounded-full bg-brandRed text-white font-extrabold text-lg shadow-lg hover:bg-black hover:scale-105 transition"
+    >
+      📘 View & Download Storybook PDF
+    </button>
+  </div>
+)}
 
 
         {/* CREATE ANOTHER */}
