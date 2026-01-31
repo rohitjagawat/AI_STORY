@@ -72,7 +72,13 @@ export default function Generating() {
           }
         );
 
-        const data = await res.json();
+        if (!res.ok) {
+  const text = await res.text();
+  console.error("Generate API failed:", res.status, text);
+  throw new Error("Story generation failed");
+}
+const data = await res.json();
+
         const bookId = data.bookId;
  
         /* ---------------- POLL RESULT ---------------- */
