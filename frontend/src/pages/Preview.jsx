@@ -47,14 +47,14 @@ export default function Preview() {
     const checkPayment = async () => {
       try {
         const res = await fetch(
-          `${API_URL}/payment/has-paid?bookId=${result.bookId}`
+          `${API_URL}/api/payment/has-paid?bookId=${result.bookId}`
         );
         const d = await res.json();
         setPaid(d.paid);
 
         if (d.paid) {
           const res2 = await fetch(
-            `${API_URL}/story/result/${result.bookId}`
+            `${API_URL}/api/story/result/${result.bookId}`
           );
           const updated = await res2.json();
 
@@ -282,7 +282,7 @@ export default function Preview() {
 
     <button
       onClick={() =>
-        window.open(`${API_URL}/view/${data.bookId}`, "_blank")
+        window.open(`${API_URL}/api/view/${data.bookId}`, "_blank")
       }
       className="px-12 py-4 rounded-full bg-brandRed text-white font-extrabold text-lg shadow-lg hover:bg-black hover:scale-105 transition"
     >
