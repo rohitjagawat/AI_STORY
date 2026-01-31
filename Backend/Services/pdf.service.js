@@ -19,7 +19,7 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
 
-    /* ================= FONT REGISTER ================= */
+    /* ================= FONTS ================= */
     doc.registerFont(
       "TitleBold",
       path.join("assets/fonts/PlayfairDisplay-Bold.ttf")
@@ -38,28 +38,33 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     const CARD_WIDTH = PAGE_WIDTH - 80;
     const CARD_HEIGHT = PAGE_HEIGHT - 80;
 
-    const GAP = 30;
-    const LEFT_COL_X = CARD_X + 30;
-    const RIGHT_COL_X = CARD_X + CARD_WIDTH / 2 + 10;
-    const COL_WIDTH = CARD_WIDTH / 2 - 50;
+    // 50–50 layout
+    const INNER_PADDING = 30;
 
-    const CONTENT_Y = CARD_Y + 110;
-    const CONTENT_HEIGHT = CARD_HEIGHT - 200;
+    const LEFT_COL_X = CARD_X + INNER_PADDING;
+    const RIGHT_COL_X = CARD_X + CARD_WIDTH / 2 + INNER_PADDING / 2;
+
+    const COL_WIDTH = (CARD_WIDTH - INNER_PADDING * 3) / 2;
+
+    // 🔥 IMAGE HEIGHT BOOST (important)
+    const CONTENT_Y = CARD_Y + 90;
+    const CONTENT_HEIGHT = CARD_HEIGHT - 150;
+
+    const childName = meta.childName
+      ? meta.childName.charAt(0).toUpperCase() + meta.childName.slice(1)
+      : "Your Child";
 
     /* =================================================
        🟣 COVER PAGE
     ================================================= */
-
     doc
-      .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+      .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 16)
       .fill("#fff8e8");
 
     if (images[0]) {
-      doc.image(images[0], LEFT_COL_X, CONTENT_Y - 30, {
-        width: CARD_WIDTH - 60,
+      doc.image(images[0], CARD_X + 40, CARD_Y + 80, {
+        width: CARD_WIDTH - 80,
         height: CARD_HEIGHT - 260,
-        align: "center",
-        valign: "center",
       });
     }
 
@@ -83,10 +88,6 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
         align: "center",
       });
 
-    const childName = meta.childName
-      ? meta.childName.charAt(0).toUpperCase() + meta.childName.slice(1)
-      : "Your Child";
-
     doc
       .moveDown(0.5)
       .font("TitleSemi")
@@ -105,9 +106,8 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
       });
 
     /* =================================================
-       📘 STORY PAGES (IMAGE LEFT, TEXT RIGHT)
+       📘 STORY PAGES (LEFT IMAGE – RIGHT TEXT)
     ================================================= */
-
     let pageNumber = 1;
 
     for (let i = 0; i < pages.length; i++) {
@@ -115,7 +115,7 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
 
       // Background card
       doc
-        .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 14)
+        .roundedRect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, 16)
         .fill("#fff8e8");
 
       // Header
@@ -123,23 +123,20 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
         .font("TitleSemi")
         .fontSize(12)
         .fillColor("#b5a77a")
-        .text(`${childName}’s Story`, CARD_X, CARD_Y + 40, {
+        .text(`${childName}’s Story`, CARD_X, CARD_Y + 35, {
           width: CARD_WIDTH - 20,
           align: "right",
         });
 
-      /* ---------- LEFT: IMAGE ---------- */
+      /* ---------- LEFT : IMAGE (FULL HEIGHT HERO) ---------- */
       if (images[i]) {
         doc.image(images[i], LEFT_COL_X, CONTENT_Y, {
           width: COL_WIDTH,
-          height: CONTENT_HEIGHT,
-          fit: [COL_WIDTH, CONTENT_HEIGHT],
-          align: "center",
-          valign: "center",
+          height: CONTENT_HEIGHT, // 🔥 full height
         });
       }
 
-      /* ---------- RIGHT: TEXT ---------- */
+      /* ---------- RIGHT : TEXT ---------- */
       if (i === pages.length - 1) {
         // Moral page
         doc
@@ -182,7 +179,7 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
           align: "center",
         });
 
-      /* ---------- FOOTER (LAST PAGE ONLY) ---------- */
+      /* ---------- FOOTER (LAST PAGE) ---------- */
       if (i === pages.length - 1) {
         doc
           .font("TitleSemi")
@@ -204,7 +201,6 @@ export async function generatePDF(pages, images, bookId, meta = {}) {
     }
 
     doc.end();
-
     stream.on("finish", () => resolve(pdfPath));
     stream.on("error", reject);
   });

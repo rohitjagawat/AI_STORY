@@ -279,7 +279,7 @@ export default function Preview() {
     <div className="bg-green-100 text-green-800 px-6 py-3 rounded-full text-sm font-semibold shadow">
       ✅ Payment successful! Your full storybook is unlocked.
     </div>
-
+     
     <button
       onClick={() =>
         window.open(`${API_URL}/api/view/${data.bookId}`, "_blank")
