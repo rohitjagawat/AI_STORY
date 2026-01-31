@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "source": "/api/(.*)",
+      "destination": "https://aistory-production-15da.up.railway.app/api/$1"
     }
   ]
 }
