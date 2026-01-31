@@ -24,6 +24,8 @@ export default function Generating() {
     if (hasStarted.current) return;
     hasStarted.current = true;
 
+    console.log("API URL =", import.meta.env.VITE_API_URL);
+
     const payload = JSON.parse(localStorage.getItem("storyPayload"));
     if (!payload) {
       navigate("/");
