@@ -65,7 +65,7 @@ export default function Generating() {
         formData.append("additionalInfo", payload.additionalInfo || "");
 
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/story/generate`,
+          `${import.meta.env.VITE_API_URL}/api/story/generate`,
           {
             method: "POST",
             body: formData,
@@ -79,7 +79,7 @@ export default function Generating() {
         pollerRef.current = setInterval(async () => {
           try {
             const r = await fetch(
-              `${import.meta.env.VITE_API_URL}/story/result/${bookId}`
+              `${import.meta.env.VITE_API_URL}/api/story/result/${bookId}`
             );
             const result = await r.json();
 
