@@ -10,7 +10,7 @@ const CreateStory = () => {
   const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [childPhoto, setChildPhoto] = useState(null);
-  const [email, setEmail] = useState(""); // Added Email State
+
   const [challenges, setChallenges] = useState([]);
   const [siblingName, setSiblingName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
@@ -20,14 +20,8 @@ const CreateStory = () => {
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
 
-    if (!name || !age || !interest || !gender || !email) {
+    if (!name || !age || !interest || !gender) {
       setError("Please fill all required details");
-      return;
-    }
-
-    // Basic email format check
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError("Please enter a valid email address");
       return;
     }
 
@@ -38,7 +32,6 @@ const CreateStory = () => {
         age,
         gender,
         interest,
-        email,
         challenges,
         siblingName,
         additionalInfo,
@@ -160,19 +153,6 @@ const CreateStory = () => {
                   We’ll use this to shape the story’s world and adventures
                 </p>
               </div>
-
-              {/* NEW EMAIL FIELD */}
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">Parent's Email (To receive PDF)</label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="e.g. parent@example.com"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
-                />
-              </div>
-
 
               {/* CHALLENGES */}
               <div className="mb-6">

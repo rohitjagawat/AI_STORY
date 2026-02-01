@@ -9,6 +9,7 @@ import { generateStory } from "../Services/story.service.js";
 import { generateImages } from "../Services/image.service.js";
 import { generateTitle } from "../Services/title.service.js";
 
+
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
@@ -21,7 +22,6 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
   try {
     let {
       name,
-      email, // 👈 1. EMAIL CAPTURED FROM FRONTEND
       age,
       interest,
       gender,
@@ -32,9 +32,8 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
 
     challenges = JSON.parse(challenges || "[]");
 
-    // Validation update
-    if (!name || !email || !age || !interest) {
-      return res.status(400).json({ error: "Invalid input data (Missing Name or Email)" });
+    if (!name || !age || !interest) {
+      return res.status(400).json({ error: "Invalid input data" });
     }
 
     // ✅ UNIQUE BOOK ID
@@ -56,13 +55,12 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
       fs.mkdirSync("stories", { recursive: true });
     }
 
-    // 🔐 2. SAVE STORY INPUT WITH EMAIL (Crucial for Webhook delivery)
+    // 🔐 SAVE STORY INPUT (for payment webhook)
     fs.writeFileSync(
       `stories/${bookId}.input.json`,
       JSON.stringify(
         {
           name,
-          email, // 👈 Saved for later use in shopify.service.js
           age,
           gender,
           interest,
@@ -97,6 +95,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
         2
       )
     );
+
 
     // 📘 GENERATE FULL STORY ONCE (10 pages)
     const storyPages = await generateStory(
@@ -134,7 +133,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
       isPaid: false,
     };
 
-    console.log("✅ PREVIEW STORY GENERATED & EMAIL STORED:", bookId);
+    console.log("✅ PREVIEW STORY + 2 IMAGES GENERATED:", bookId);
   } catch (err) {
     console.error("❌ Story generation failed:", err.message);
   }
@@ -150,7 +149,7 @@ router.get("/result/:bookId", (req, res) => {
     return res.json({ ready: false });
   }
 
-  // 📖 LOAD STORY META
+  // 📖 LOAD STORY META (TITLE + CHILD NAME)
   const metaPath = `stories/${req.params.bookId}.meta.json`;
   let meta = {};
 
@@ -170,5 +169,6 @@ router.get("/result/:bookId", (req, res) => {
     isPaid: result.isPaid,
   });
 });
+
 
 export default router;
