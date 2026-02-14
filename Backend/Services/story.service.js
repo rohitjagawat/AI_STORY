@@ -175,6 +175,9 @@ The day ended with calm and hope.
     JSON.stringify(limitedPages, null, 2)
   );
 
+ // 2. ✅ NEW: Save the input (contains email) so we have it after payment
+fs.writeFileSync(`${STORY_DIR}/${bookId}.input.json`, JSON.stringify(input, null, 2));
+
   console.log("📘 STORY SAVED PAGES:", limitedPages.length);
 
   return limitedPages;

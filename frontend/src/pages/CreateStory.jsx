@@ -5,6 +5,7 @@ const CreateStory = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [interest, setInterest] = useState("");
   const [gender, setGender] = useState("");
@@ -20,8 +21,15 @@ const CreateStory = () => {
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
 
-    if (!name || !age || !interest || !gender) {
-      setError("Please fill all required details");
+   // ✅ Added email to validation
+    if (!name || !email || !age || !interest || !gender) {
+      setError("Please fill all required details including your email");
+      return;
+    }
+
+    // Basic email validation
+    if (!email.includes("@")) {
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -29,6 +37,7 @@ const CreateStory = () => {
       "storyPayload",
       JSON.stringify({
         name,
+        email,
         age,
         gender,
         interest,
@@ -88,6 +97,28 @@ const CreateStory = () => {
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
               </div>
+
+              {/* PARENT DETAILS */}
+            <div>
+              <h2 className="text-xl font-semibold text-black mb-4">
+                📧 Contact Information
+              </h2>
+              <div className="mb-6">
+                <label className="block text-brandText font-medium mb-2">
+                  Your Email Address
+                </label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  placeholder="Where should we send your storybook?"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
+                />
+                <p className="text-xs text-brandMuted mt-2">
+                  We'll use this to send the final PDF after payment.
+                </p>
+              </div>
+            </div>
 
               <div className="mb-6">
                 <label className="block text-brandText font-medium mb-2">

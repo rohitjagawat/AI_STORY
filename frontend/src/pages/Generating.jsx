@@ -59,6 +59,7 @@ export default function Generating() {
       try {
         const formData = new FormData();
         formData.append("name", payload.name);
+        formData.append("email", payload.email);
         formData.append("age", payload.age);
         formData.append("gender", payload.gender);
         formData.append("interest", payload.interest);

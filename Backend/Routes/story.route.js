@@ -22,6 +22,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
   try {
     let {
       name,
+      email,
       age,
       interest,
       gender,
@@ -32,7 +33,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
 
     challenges = JSON.parse(challenges || "[]");
 
-    if (!name || !age || !interest) {
+    if (!name || !email || !age || !interest) {
       return res.status(400).json({ error: "Invalid input data" });
     }
 
@@ -61,6 +62,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
       JSON.stringify(
         {
           name,
+          email,
           age,
           gender,
           interest,
@@ -88,6 +90,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
         {
           title,
           childName: name,
+          email,
           age,
           interest,
         },
@@ -101,6 +104,7 @@ router.post("/generate", upload.single("childPhoto"), async (req, res) => {
     const storyPages = await generateStory(
       {
         name,
+        email,
         age,
         gender,
         interest,

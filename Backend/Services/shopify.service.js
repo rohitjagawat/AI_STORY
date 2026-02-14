@@ -3,6 +3,7 @@ import path from "path";
 import { extractVisualScenes } from "./sceneExtractor.service.js";
 import { generateImages } from "./image.service.js";
 import { generatePDF } from "./pdf.service.js";
+import { sendStoryEmail } from "./email.service.js";
 
 const outputDir = path.join("output");
 const paymentsFile = path.join(outputDir, "payments.json");
@@ -118,12 +119,26 @@ export async function handleOrderPaid(order) {
     .sort()
     .map((f) => path.join(imagesDir, f));
 
+  // AFTER generatePDF is finished:
   if (imageFiles.length > 0) {
     await generatePDF(fullStoryPages, imageFiles, bookId, {
       title: inputData.title || "A Magical Storybook",
       childName: inputData.name || "Your Child",
     });
+
+    console.log("📨 Sending PDF to email...");
+    
+    // We get the email from inputData (saved in step 4) 
+    // or from the Shopify order directly
+    const recipientEmail = inputData.email || order.email;
+    const childName = inputData.name || "Your Child";
+
+    if (recipientEmail) {
+      await sendStoryEmail(recipientEmail, childName, bookId);
+    } else {
+      console.log("❌ No email found for this order");
+    }
   }
 
-  console.log("✅ PAYMENT FLOW COMPLETE (ONCE ONLY):", bookId);
+  console.log("✅ PAYMENT & EMAIL FLOW COMPLETE:", bookId);
 }
