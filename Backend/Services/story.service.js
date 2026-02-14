@@ -174,12 +174,6 @@ The day ended with calm and hope.
     `${STORY_DIR}/${bookId}.json`,
     JSON.stringify(limitedPages, null, 2)
   );
-  // ✅ NEW: Save the input details (including EMAIL) so we can use it later
-  // Ye file 'shopify.service.js' read karega email nikalne ke liye
-  fs.writeFileSync(
-    `${STORY_DIR}/${bookId}.input.json`,
-    JSON.stringify(input, null, 2) 
-  );
 
   console.log("📘 STORY SAVED PAGES:", limitedPages.length);
 

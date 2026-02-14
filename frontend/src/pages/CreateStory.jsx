@@ -5,7 +5,6 @@ const CreateStory = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState(""); // ✅ Added Email State
   const [age, setAge] = useState("");
   const [interest, setInterest] = useState("");
   const [gender, setGender] = useState("");
@@ -21,16 +20,8 @@ const CreateStory = () => {
     localStorage.removeItem("storyResult");
     localStorage.removeItem("paidBookId");
 
-    // ✅ Added email to validation
-    if (!name || !email || !age || !interest || !gender) {
-      setError("Please fill all required details (including email)");
-      return;
-    }
-
-    // Basic email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
+    if (!name || !age || !interest || !gender) {
+      setError("Please fill all required details");
       return;
     }
 
@@ -38,7 +29,6 @@ const CreateStory = () => {
       "storyPayload",
       JSON.stringify({
         name,
-        email, // ✅ Saving email to payload
         age,
         gender,
         interest,
@@ -70,6 +60,8 @@ const CreateStory = () => {
         {/* FORM CARD */}
         <div className="bg-white rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.25)] p-6 md:p-12 relative overflow-hidden">
 
+         
+
           {error && (
             <div className="mb-6 text-center text-brandRed font-semibold">
               ⚠️ {error}
@@ -95,23 +87,6 @@ const CreateStory = () => {
                   placeholder="e.g. Aarav"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
                 />
-              </div>
-
-              {/* ✅ NEW EMAIL INPUT FIELD */}
-              <div className="mb-6">
-                <label className="block text-brandText font-medium mb-2">
-                  Your Email Address
-                </label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="e.g. parent@example.com"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 hover:border-brandRed transition focus:outline-none focus:ring-2 focus:ring-brandRed"
-                />
-                <p className="text-xs text-brandMuted mt-1">
-                  We'll email the full PDF storybook here after your purchase.
-                </p>
               </div>
 
               <div className="mb-6">

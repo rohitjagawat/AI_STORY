@@ -44,14 +44,14 @@ export default function Generating() {
     }, 600);
 
     /* ---------------- PROGRESS (VERY SMOOTH) ---------------- */
-    const progressTimer = setInterval(() => {
-      if (!isMounted.current) return;
+   const progressTimer = setInterval(() => {
+  if (!isMounted.current) return;
 
-      setProgress((prev) => {
-        if (prev < 95) return prev + 1; // constant speed
-        return prev; // wait at 95 for backend
-      });
-    }, 500); // 👈 speed control
+  setProgress((prev) => {
+    if (prev < 95) return prev + 1; // constant speed
+    return prev; // wait at 95 for backend
+  });
+}, 500); // 👈 speed control
 
 
     /* ---------------- START GENERATION ---------------- */
@@ -59,7 +59,6 @@ export default function Generating() {
       try {
         const formData = new FormData();
         formData.append("name", payload.name);
-        formData.append("email", payload.email); // ✅ ADDED THIS LINE: Email added to API call
         formData.append("age", payload.age);
         formData.append("gender", payload.gender);
         formData.append("interest", payload.interest);
@@ -76,14 +75,14 @@ export default function Generating() {
         );
 
         if (!res.ok) {
-          const text = await res.text();
-          console.error("Generate API failed:", res.status, text);
-          throw new Error("Story generation failed");
-        }
-        const data = await res.json();
+  const text = await res.text();
+  console.error("Generate API failed:", res.status, text);
+  throw new Error("Story generation failed");
+}
+const data = await res.json();
 
         const bookId = data.bookId;
-
+ 
         /* ---------------- POLL RESULT ---------------- */
         pollerRef.current = setInterval(async () => {
           try {
@@ -104,7 +103,6 @@ export default function Generating() {
                   bookId,
                   input: {
                     name: payload.name,
-                    email: payload.email, // ✅ Keep email in local storage too
                     age: payload.age,
                     gender: payload.gender,
                     interest: payload.interest,
