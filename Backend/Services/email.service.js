@@ -2,11 +2,17 @@ import nodemailer from "nodemailer";
 import path from "path";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465, // Try 465 for SSL or 587 for TLS
+  secure: true, // true for 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  // ✅ ADD THIS: Timeout settings badha do
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 export async function sendStoryEmail(customerEmail, childName, bookId) {
