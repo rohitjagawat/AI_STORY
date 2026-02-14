@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { sendBookEmail } from "./email.service.js";
 import { extractVisualScenes } from "./sceneExtractor.service.js";
 import { generateImages } from "./image.service.js";
 import { generatePDF } from "./pdf.service.js";
@@ -125,16 +124,6 @@ export async function handleOrderPaid(order) {
       childName: inputData.name || "Your Child",
     });
   }
-
-  try {
-  const recipientEmail = inputData.email || order.email;
-  const childName = inputData.name || "Your Child";
-
-  await sendBookEmail(recipientEmail, childName, bookId);
-  console.log(`✅ Email sent to: ${recipientEmail}`);
-} catch (error) {
-  console.error("❌ Email failed but PDF is safe:", error.message);
-}
 
   console.log("✅ PAYMENT FLOW COMPLETE (ONCE ONLY):", bookId);
 }
