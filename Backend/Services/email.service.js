@@ -1,43 +1,47 @@
-import nodemailer from "nodemailer";
-import path from "path";
+import { Resend } from 'resend';
+import path from 'path';
+import fs from 'fs';
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465, // Try 465 for SSL or 587 for TLS
-  secure: true, // true for 465, false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  // ✅ ADD THIS: Timeout settings badha do
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+// Initialize Resend with your API Key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendStoryEmail(customerEmail, childName, bookId) {
-  // We assume the PDF is saved as "output/bookId.pdf"
   const pdfPath = path.join("output", `${bookId}.pdf`);
 
-  const mailOptions = {
-    from: `"Magic Storybook" <${process.env.EMAIL_USER}>`,
-    to: customerEmail,
-    subject: `✨ Your Magical Storybook for ${childName} is ready!`,
-    text: `Hi! Your custom storybook for ${childName} has been created. Please find the PDF attached to this email.`,
-    attachments: [
-      {
-        filename: `${childName}_Storybook.pdf`,
-        path: pdfPath,
-      },
-    ],
-  };
+  // Verify PDF exists
+  if (!fs.existsSync(pdfPath)) {
+    console.error(`❌ PDF not found at: ${pdfPath}`);
+    return false;
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent to ${customerEmail}`);
+    console.log(`📨 Sending PDF via Resend API to ${customerEmail}...`);
+    
+    // Read the PDF file into a buffer
+    const pdfBuffer = fs.readFileSync(pdfPath);
+
+    const { data, error } = await resend.emails.send({
+      from: 'Magic Storybook <onboarding@resend.dev>', // After domain verify, use your domain
+      to: customerEmail,
+      subject: `✨ Your Magical Storybook for ${childName} is ready!`,
+      html: `<strong>Hi!</strong><br><br>Your custom storybook for <strong>${childName}</strong> has been created with love. Please find the PDF attached to this email.<br><br>Happy Reading!`,
+      attachments: [
+        {
+          filename: `${childName}_Storybook.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    });
+
+    if (error) {
+      console.error("❌ Resend API Error:", error);
+      return false;
+    }
+
+    console.log("✅ SUCCESS: Email sent via Resend!", data.id);
     return true;
   } catch (error) {
-    console.error("❌ Email failed:", error);
+    console.error("❌ Resend Service Crash:", error.message);
     return false;
   }
 }
