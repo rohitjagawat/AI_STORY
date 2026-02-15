@@ -65,7 +65,7 @@ export async function sendStoryEmail(customerEmail, childName, bookId) {
 
     const msg = {
       to: customerEmail,
-      from: 'hello@jrbillionaire.com', // Must be the email you verified in Step 3
+      from: 'rohitjagawat45@gmail.com', // Must be the email you verified in Step 3
       subject: `✨ Your Magical Storybook for ${childName} is ready!`,
       html: `<strong>Hi!</strong><br><br>Your custom storybook for ${childName} is attached as a PDF.`,
       attachments: [
