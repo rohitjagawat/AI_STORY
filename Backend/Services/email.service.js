@@ -72,7 +72,7 @@ export async function sendStoryEmail(customerEmail, childName, bookId) {
         {
           content: attachmentData,
           filename: `${childName}_Storybook.pdf`,
-          type: 'application/pdf',
+          type: 'application/pdf', 
           disposition: 'attachment',
         },
       ],
